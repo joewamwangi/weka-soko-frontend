@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F7B3F" />
+    <meta name="description" content="Weka Soko — Kenya's smartest resell platform. Post for free, pay only when a buyer locks in." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Weka Soko" />
+    <meta property="og:title" content="Weka Soko — Kenya's Resell Platform" />
+    <meta property="og:description" content="Buy and sell second-hand items safely in Kenya." />
+    <meta property="og:type" content="website" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Weka Soko — Buy & Sell in Kenya</title>
+    <style>* { margin: 0; padding: 0; box-sizing: border-box; } body { background: #FAFAF8; }</style>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
