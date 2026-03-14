@@ -778,7 +778,7 @@ function ChatModal({listing,user,token,onClose,notify}){
                 :<div className={`chat-msg ${m.direction||"them"}${m.is_blocked?" blocked":""}`}>
                 <div>{m.is_blocked?<em style={{opacity:.6}}>🚫 {m.block_reason||"Removed"}</em>:m.body}</div>
                 <div style={{fontSize:10,opacity:.5,marginTop:4,textAlign:m.direction==="me"?"right":"left"}}>{ago(m.created_at)}</div>
-              </div>
+              </div>}
             </div>
           ))}
         {typing&&<div style={{alignSelf:"flex-start",padding:"8px 14px",background:"var(--surf)",border:"1px solid var(--border)",borderRadius:"14px 14px 14px 3px",fontSize:13,color:"var(--mut)"}}>
@@ -794,7 +794,7 @@ function ChatModal({listing,user,token,onClose,notify}){
         <button className="btn bp sm" onClick={send} disabled={!text.trim()||!connected}>Send ↑</button>
       </div>
     </div>
-    {!listing.is_unlocked&&<div className="alert ay" style={{marginTop:12,fontSize:12}}>🔒 Contact info hidden until unlocked. Phone/email in chat will be auto-blocked.</div>}
+      {!listing.is_unlocked&&<div className="alert ay" style={{marginTop:12,fontSize:12}}>🔒 Contact info hidden until unlocked. Phone/email in chat will be auto-blocked.</div>}
   </Modal>;
 }
 
@@ -1687,6 +1687,7 @@ export default function App(){
   const [vm,setVm]=useState("grid");
   const [toast,setToast]=useState(null);
   const [modal,setModal]=useState(null);
+  const [showDashboard,setShowDashboard]=useState(false);
   const [showPWA,setShowPWA]=useState(true);
   const [notifCount,setNotifCount]=useState(0);
   const socketRef=useRef(null);
@@ -1724,7 +1725,7 @@ export default function App(){
       setResetToken(rt);
       window.history.replaceState({},"",window.location.pathname);
     }
-    const vt=params.get("verify_email");
+    const vt=getParam("verify_email");
     if(vt){
       api("/api/auth/verify-email?token="+vt).then(r=>{
         notify("✅ Email verified! You now have full access.","success");
