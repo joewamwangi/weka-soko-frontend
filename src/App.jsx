@@ -238,7 +238,7 @@ function TermsModal({onClose,onAccept}){
   }>
     {!ok&&<div className="alert ay" style={{marginBottom:14}}>Scroll to the bottom to enable the Accept button.</div>}
     <div ref={r} onScroll={()=>{const el=r.current;if(el&&el.scrollTop+el.clientHeight>=el.scrollHeight-30)setOk(true);}} style={{maxHeight:380,overflowY:"auto",background:"var(--sh)",borderRadius:"var(--rs)",padding:"16px 18px",fontSize:13,lineHeight:1.9,color:"var(--mut)",whiteSpace:"pre-wrap"}}>{TERMS}</div>
-  </Modal>;
+  </div></div>;
 }
 
 // ── PASSWORD FIELD with show/hide toggle ────────────────────────────────────
@@ -323,7 +323,7 @@ function ResetPasswordModal({token,onClose,notify}){
       <PasswordField label="New Password" hint="At least 8 characters" value={password} onChange={setPassword} onEnter={submit}/>
       <button className="btn bp" style={{width:"100%",marginTop:8}} onClick={submit} disabled={loading}>{loading?<Spin/>:"Set New Password →"}</button>
     </>}
-  </Modal>;
+  </div></div>;
 }
 
 // ── IMAGE LIGHTBOX ────────────────────────────────────────────────────────────
@@ -457,7 +457,7 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
       {mode==="login"?"No account? ":"Already have one? "}
       <button className="btn bgh" style={{display:"inline",padding:"0 3px",color:"var(--a)",fontWeight:700,fontSize:13}} onClick={()=>setMode(m=>m==="login"?"signup":"login")}>{mode==="login"?"Sign up free →":"Sign in"}</button>
     </p>
-  </Modal>;
+  </div></div>;
 }
 
 // ── SHARE MODAL ───────────────────────────────────────────────────────────────
@@ -485,7 +485,7 @@ function ShareModal({listing,onClose}){
       <input className="inp" value={url} readOnly style={{flex:1,fontSize:12}}/>
       <button className="btn bp sm" onClick={()=>{navigator.clipboard?.writeText(url);setCopied(true);setTimeout(()=>setCopied(false),2500);}}>{copied?"✓ Copied":"Copy"}</button>
     </div>
-  </Modal>;
+  </div></div>;
 }
 
 // ── REAL M-PESA PAYMENT MODAL ─────────────────────────────────────────────────
@@ -626,7 +626,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
       <p style={{color:"var(--mut)",fontSize:14,marginBottom:18}}>{errMsg}</p>
       <button className="btn bp" onClick={()=>{setStep("form");setErrMsg("");}}>Try Again</button>
     </div>}
-  </Modal>;
+  </div></div>;
 }
 
 
@@ -778,7 +778,7 @@ function ChatModal({listing,user,token,onClose,notify}){
                 :<div className={`chat-msg ${m.direction||"them"}${m.is_blocked?" blocked":""}`}>
                 <div>{m.is_blocked?<em style={{opacity:.6}}>🚫 {m.block_reason||"Removed"}</em>:m.body}</div>
                 <div style={{fontSize:10,opacity:.5,marginTop:4,textAlign:m.direction==="me"?"right":"left"}}>{ago(m.created_at)}</div>
-              </div>}
+              </div>
             </div>
           ))}
         {typing&&<div style={{alignSelf:"flex-start",padding:"8px 14px",background:"var(--surf)",border:"1px solid var(--border)",borderRadius:"14px 14px 14px 3px",fontSize:13,color:"var(--mut)"}}>
@@ -794,8 +794,8 @@ function ChatModal({listing,user,token,onClose,notify}){
         <button className="btn bp sm" onClick={send} disabled={!text.trim()||!connected}>Send ↑</button>
       </div>
     </div>
-      {!listing.is_unlocked&&<div className="alert ay" style={{marginTop:12,fontSize:12}}>🔒 Contact info hidden until unlocked. Phone/email in chat will be auto-blocked.</div>}
-  </Modal>;
+    {!listing.is_unlocked&&<div className="alert ay" style={{marginTop:12,fontSize:12}}>🔒 Contact info hidden until unlocked. Phone/email in chat will be auto-blocked.</div>}
+  </div></div>;
 }
 
 
@@ -919,7 +919,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       </FF>
       <div className="alert ay" style={{fontSize:12}}>🔒 Your phone/email are hidden until a buyer pays KSh 250 to unlock them.</div>
     </>}
-  </Modal>;
+  </div></div>;
 }
 
 // ── LISTING CARD ──────────────────────────────────────────────────────────────
@@ -1167,7 +1167,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
       {user&&!isSeller&&<ReportListingBtn listingId={l.id} token={token} notify={notify}/>}
       {user&&(isSeller||isBuyer)&&l.status==="sold"&&<LeaveReviewBtn listing={l} user={user} token={token} notify={notify}/>}
     </div>
-  </Modal>;
+  </div></div>;
 }
 
 // ── ROLE SWITCHER ─────────────────────────────────────────────────────────────
@@ -1360,6 +1360,7 @@ function ReviewsSection({token,user,notify}){
 function Dashboard({user,token,notify,onPostAd,onClose}){
   const [tab,setTab]=useState("overview");
   const [listings,setListings]=useState([]);
+  const [buyerInterests,setBuyerInterests]=useState([]);
   const [notifs,setNotifs]=useState([]);
   const [threads,setThreads]=useState([]);
   const [stats,setStats]=useState(null);
@@ -1373,10 +1374,14 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       setLoading(true);
       try{
         const [ls,ns,th]=await Promise.all([
-          api("/api/listings/seller/mine",{},token).catch(()=>[]),
+          user.role==="seller"?api("/api/listings/seller/mine",{},token).catch(()=>[]):Promise.resolve([]),
           api("/api/notifications",{},token).catch(()=>[]),
           api("/api/chat/threads/mine",{},token).catch(()=>[]),
         ]);
+        // Fetch buyer interests separately
+        if(user.role==="buyer"){
+          api("/api/listings/buyer/interests",{},token).catch(()=>[]).then(r=>setBuyerInterests(Array.isArray(r)?r:[]));
+        }
         const lArr=Array.isArray(ls)?ls:(ls.listings||[]);
         setListings(lArr);
         setNotifs(Array.isArray(ns)?ns:[]);
@@ -1435,7 +1440,10 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
     {/* Tabs */}
     <div className="tab-row">
-      {[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")],["ads","📦 My Ads"],["sold","✅ Sold"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]].map(([id,label])=>(
+      {(user.role==="seller"
+        ?[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["ads","📦 My Ads"],["sold","✅ Sold"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]]
+        :[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","🔥 My Interests"+(buyerInterests.length>0?` (${buyerInterests.length})`:"")] ,["reviews","⭐ Reviews"],["settings","⚙️ Settings"]]
+      ).map(([id,label])=>(
         <div key={id} className={`tab${tab===id?" on":""}`} onClick={()=>setTab(id)}>{label}</div>
       ))}
     </div>
@@ -1547,6 +1555,38 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       {notifs.length>0&&<button className="btn bs" style={{width:"100%",marginTop:10}} onClick={async()=>{await api("/api/notifications/read-all",{method:"PATCH"},token).catch(()=>{});setNotifs(p=>p.map(n=>({...n,is_read:true})));notify("All marked as read.","success");}}>Mark All Read</button>}
     </>}
 
+    {!loading&&tab==="interests"&&<>
+      <div className="lbl" style={{marginBottom:14}}>🔥 Listings You're Interested In ({buyerInterests.length})</div>
+      {buyerInterests.length===0
+        ?<div className="empty">
+            <div style={{fontSize:48,marginBottom:12,opacity:.3}}>🔥</div>
+            <p>You haven't locked in on any listings yet.</p>
+            <p style={{fontSize:13,color:"var(--mut)",marginTop:8}}>Browse listings and click "I'm Interested — Lock In" to get started.</p>
+          </div>
+        :buyerInterests.map(l=>{
+          const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
+          return <div key={l.id} style={{display:"flex",gap:12,padding:"13px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:10,border:"1px solid var(--border)"}}>
+            <div style={{width:60,height:50,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0}}>
+              {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:24,display:"flex",alignItems:"center",justifyContent:"center",height:"100%",opacity:.3}}>📦</span>}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:600,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+              <div style={{fontSize:12,color:"var(--mut)",marginTop:2}}>{fmtKES(l.price)} · 📍 {l.location||l.county||"—"}</div>
+              <div style={{fontSize:11,color:"var(--dim)",marginTop:2}}>
+                {l.is_unlocked
+                  ?<span style={{color:"var(--a)",fontWeight:600}}>✅ Unlocked · {l.seller_name||""} {l.seller_phone?"· 📞 "+l.seller_phone:""}</span>
+                  :<span>🔒 Seller contact hidden until unlocked</span>}
+              </div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end",flexShrink:0}}>
+              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
+              <button className="btn bs sm" onClick={()=>setSelectedListing(l)}>💬 Chat</button>
+            </div>
+          </div>;
+        })
+      }
+    </>}
+
     {!loading&&tab==="ads"&&<>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
         <div className="lbl" style={{margin:0}}>Your Listings ({listings.length})</div>
@@ -1564,11 +1604,11 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             </div>
             <div style={{display:"flex",gap:6,flexShrink:0,flexWrap:"wrap",justifyContent:"flex-end"}}>
               <span className={`badge ${l.status==="active"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
-              {!l.is_unlocked&&l.status!=="sold"&&(
+              {l.locked_buyer_id&&!l.is_unlocked&&(
                 l.free_unlock_approved
                   ?<button className="btn bg2 sm" onClick={async()=>{
                       try{
-                        await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);
+                        const r=await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);
                         setListings(p=>p.map(x=>x.id===l.id?{...x,is_unlocked:true}:x));
                         notify("🔓 Unlocked for free!","success");
                       }catch{setShowPayModal(l);}
@@ -1687,7 +1727,6 @@ export default function App(){
   const [vm,setVm]=useState("grid");
   const [toast,setToast]=useState(null);
   const [modal,setModal]=useState(null);
-  const [showDashboard,setShowDashboard]=useState(false);
   const [showPWA,setShowPWA]=useState(true);
   const [notifCount,setNotifCount]=useState(0);
   const socketRef=useRef(null);
@@ -1725,7 +1764,7 @@ export default function App(){
       setResetToken(rt);
       window.history.replaceState({},"",window.location.pathname);
     }
-    const vt=getParam("verify_email");
+    const vt=params.get("verify_email");
     if(vt){
       api("/api/auth/verify-email?token="+vt).then(r=>{
         notify("✅ Email verified! You now have full access.","success");
