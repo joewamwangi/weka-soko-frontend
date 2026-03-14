@@ -1564,11 +1564,11 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             </div>
             <div style={{display:"flex",gap:6,flexShrink:0,flexWrap:"wrap",justifyContent:"flex-end"}}>
               <span className={`badge ${l.status==="active"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
-              {l.locked_buyer_id&&!l.is_unlocked&&(
+              {!l.is_unlocked&&l.status!=="sold"&&(
                 l.free_unlock_approved
                   ?<button className="btn bg2 sm" onClick={async()=>{
                       try{
-                        const r=await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);
+                        await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);
                         setListings(p=>p.map(x=>x.id===l.id?{...x,is_unlocked:true}:x));
                         notify("🔓 Unlocked for free!","success");
                       }catch{setShowPayModal(l);}
