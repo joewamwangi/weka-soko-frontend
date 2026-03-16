@@ -71,109 +71,134 @@ const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#FFFFFF;--surf:#FFFFFF;--sh:#F4F4F4;--border:#E0E0E0;
+  --bg:#FFFFFF;--surf:#FFFFFF;--sh:#F4F4F4;--border:#E5E5E5;
   --a:#1428A0;--a2:#0F1F8A;--gold:#B07F10;--red:#C03030;--blue:#1428A0;
-  --txt:#1D1D1D;--mut:#535353;--dim:#767676;
+  --txt:#1D1D1D;--mut:#767676;--dim:#AAAAAA;
   --r:4px;--rs:4px;
-  --fn:'Outfit',system-ui,sans-serif;--fs:'Outfit',system-ui,sans-serif;
-  --nav-h:64px;
+  --fn:'Outfit',system-ui,-apple-system,sans-serif;
+  --fs:'Outfit',system-ui,-apple-system,sans-serif;
+  --nav-h:56px;
 }
 .dark{
-  --bg:#000000;--surf:#161616;--sh:#1E1E1E;--border:#2C2C2C;
+  --bg:#1C1C1E;--surf:#2C2C2E;--sh:#3A3A3C;--border:#3A3A3C;
   --a:#4B77FF;--a2:#3A63F0;
-  --txt:#FFFFFF;--mut:#A0A0A0;--dim:#666666;
+  --txt:#F5F5F7;--mut:#A1A1A6;--dim:#636366;
 }
-body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.6;min-height:100vh;overflow-x:hidden;transition:background .2s,color .2s;}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:0;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 24px;border-radius:0;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.02em;text-transform:none;}
+body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.5;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-thumb{background:#C7C7CC;border-radius:3px;}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 24px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.01em;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .bp{background:var(--a);color:#fff;}.bp:hover:not(:disabled){background:var(--a2);}
-.bs{background:transparent;color:var(--txt);border:1.5px solid var(--txt);}.bs:hover:not(:disabled){background:var(--txt);color:var(--bg);}
+.bs{background:#fff;color:var(--txt);border:1px solid #C7C7CC;}.bs:hover:not(:disabled){border-color:var(--txt);}
 .bg2{background:var(--a);color:#fff;}.bg2:hover:not(:disabled){background:var(--a2);}
-.bgh{background:transparent;color:var(--mut);border:none;padding:8px 12px;}.bgh:hover:not(:disabled){color:var(--txt);}
-.br2{background:transparent;color:var(--red);border:1.5px solid var(--red);}.br2:hover:not(:disabled){background:var(--red);color:#fff;}
-.sm{padding:7px 16px;font-size:12px;}.lg{padding:14px 32px;font-size:15px;font-weight:700;}
-.inp{width:100%;padding:11px 14px;background:var(--sh);border:1px solid var(--border);border-radius:0;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;}
-.inp:focus{border-color:var(--a);background:var(--surf);}
-.inp::placeholder{color:var(--dim);}
+.bgh{background:transparent;color:var(--mut);border:none;padding:8px 12px;font-size:13px;}.bgh:hover:not(:disabled){color:var(--txt);}
+.br2{background:transparent;color:var(--red);border:1px solid var(--red);}.br2:hover:not(:disabled){background:var(--red);color:#fff;}
+.sm{padding:7px 16px;font-size:12px;}.lg{padding:14px 34px;font-size:15px;font-weight:700;}
+/* INPUTS */
+.inp{width:100%;padding:11px 14px;background:#fff;border:1px solid #C7C7CC;border-radius:0;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:var(--a);}
+.inp::placeholder{color:#AEAEB2;}
 textarea.inp{resize:vertical;min-height:90px;}
 select.inp{appearance:none;cursor:pointer;}
-.lbl{display:block;font-size:11px;font-weight:700;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:0;font-size:11px;font-weight:700;letter-spacing:.04em;}
-.bg-g{background:rgba(20,40,160,.08);color:var(--a);border:1px solid rgba(20,40,160,.2);}
-.bg-y{background:rgba(176,127,16,.08);color:var(--gold);border:1px solid rgba(176,127,16,.2);}
-.bg-r{background:rgba(192,48,48,.08);color:var(--red);border:1px solid rgba(192,48,48,.2);}
-.bg-b{background:rgba(20,40,160,.08);color:var(--a);border:1px solid rgba(20,40,160,.2);}
-.bg-m{background:var(--sh);color:var(--mut);border:1px solid var(--border);}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
-.mod{background:var(--surf);border:1px solid var(--border);border-radius:0;width:100%;max-width:540px;max-height:94vh;overflow-y:auto;animation:su .18s ease;}
-.mod.lg{max-width:740px;}
-.mod.xl{max-width:920px;}
-@keyframes su{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.mh{padding:24px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surf);z-index:2;}
-.mb{padding:24px 28px;}
-.mf{padding:16px 28px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
-.nav{position:sticky;top:0;z-index:100;background:#000;padding:0 40px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
-.dark .nav{background:#000;}
-.logo{font-family:var(--fn);font-size:20px;font-weight:800;cursor:pointer;letter-spacing:-.01em;color:#fff;}
-.logo span{color:#fff;}
-.alert{padding:14px 16px;border-radius:0;font-size:13px;line-height:1.7;}
-.ag{background:rgba(20,40,160,.06);border-left:3px solid var(--a);color:var(--a);}
-.ay{background:rgba(176,127,16,.06);border-left:3px solid var(--gold);color:var(--gold);}
-.ar{background:rgba(192,48,48,.06);border-left:3px solid var(--red);color:var(--red);}
-.card{background:var(--surf);border:1px solid var(--border);border-radius:0;}
-.lcard{background:var(--surf);border:1px solid var(--border);border-radius:0;overflow:hidden;transition:all .15s;cursor:pointer;}
-.lcard:hover{border-color:var(--a);transform:translateY(-2px);}
+.dark .inp{background:var(--sh);border-color:var(--border);}
+/* LABELS */
+.lbl{display:block;font-size:11px;font-weight:600;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.bg-g{background:rgba(20,40,160,.08);color:var(--a);}
+.bg-y{background:rgba(176,127,16,.1);color:#8B6400;}
+.bg-r{background:rgba(192,48,48,.1);color:var(--red);}
+.bg-b{background:rgba(20,40,160,.08);color:var(--a);}
+.bg-m{background:var(--sh);color:var(--mut);}
+/* MODALS */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);}
+.mod{background:#fff;border:none;border-radius:12px;width:100%;max-width:540px;max-height:94vh;overflow-y:auto;animation:su .2s ease;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.mod.lg{max-width:720px;}
+.mod.xl{max-width:900px;}
+@keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.mh{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:12px 12px 0 0;}
+.mb{padding:22px 26px;}
+.mf{padding:14px 26px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
+.dark .mod,.dark .mh{background:var(--surf);}
+/* NAV - Samsung white nav */
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E5E5E5;padding:0 40px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
+.dark .nav{background:#1C1C1E;border-bottom-color:#3A3A3C;}
+.logo{font-family:var(--fn);font-size:19px;font-weight:800;cursor:pointer;letter-spacing:-.03em;color:var(--txt);}
+.logo span{color:var(--a);}
+/* ALERTS */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
+.ag{background:rgba(20,40,160,.06);border:1px solid rgba(20,40,160,.15);color:var(--a);}
+.ay{background:rgba(176,127,16,.06);border:1px solid rgba(176,127,16,.2);color:#8B6400;}
+.ar{background:rgba(192,48,48,.06);border:1px solid rgba(192,48,48,.15);color:var(--red);}
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:8px;}
+.lcard{background:#fff;border:none;border-radius:0;overflow:hidden;transition:all .2s;cursor:pointer;}
+.lcard:hover .lthumb img{transform:scale(1.04);}
+.lcard:hover h4{color:var(--a);}
 .lcard-list{display:flex;flex-direction:row;}
-.lcard-list .lthumb{width:170px;min-width:170px;height:140px;aspect-ratio:unset;}
+.lcard-list .lthumb{width:200px;min-width:200px;height:160px;aspect-ratio:unset;}
 .lthumb{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--sh);position:relative;overflow:hidden;}
-.lthumb img{width:100%;height:100%;object-fit:cover;}
-.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--border);}
-.g3 .lcard{margin:0;}
-.lvc{display:flex;flex-direction:column;gap:1px;background:var(--border);}
-.lvc .lcard{margin:0;}
-.spin{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--a);border-radius:50%;animation:sp .7s linear infinite;}
+.lthumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+/* GRID */
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;}
+.lvc{display:flex;flex-direction:column;gap:16px;}
+/* SPINNER */
+.spin{display:inline-block;width:20px;height:20px;border:2px solid #E5E5E5;border-top-color:var(--a);border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:80px 20px;color:var(--mut);}
-.pg{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:40px;flex-wrap:wrap;}
-.pb{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:0;border:1px solid var(--border);background:transparent;color:var(--mut);cursor:pointer;font-size:13px;font-weight:700;transition:all .14s;}
+/* PAGINATION */
+.pg{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:40px;flex-wrap:wrap;}
+.pb{min-width:36px;height:36px;padding:0 8px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid #E5E5E5;background:#fff;color:var(--mut);cursor:pointer;font-size:13px;font-weight:600;transition:all .14s;}
 .pb.on{background:var(--a);color:#fff;border-color:var(--a);}
-.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:var(--surf);border:1px solid var(--border);border-radius:0;padding:16px 20px;font-size:14px;box-shadow:0 4px 24px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:12px;max-width:360px;border-left:3px solid var(--a);}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border-radius:12px;padding:14px 18px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.15);animation:ti .22s ease;display:flex;align-items:center;gap:10px;max-width:340px;}
 @keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
-.sold-badge{position:absolute;top:10px;right:10px;background:var(--a);color:#fff;padding:4px 10px;border-radius:0;font-size:11px;font-weight:700;letter-spacing:.04em;}
-.img-upload{border:2px dashed var(--border);border-radius:0;padding:28px;text-align:center;cursor:pointer;transition:all .15s;}
-.img-upload:hover{border-color:var(--a);}
+/* SOLD BADGE */
+.sold-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+/* IMAGE UPLOAD */
+.img-upload{border:2px dashed #C7C7CC;border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAFA;}
+.img-upload:hover{border-color:var(--a);background:rgba(20,40,160,.02);}
 .img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
-.img-thumb{aspect-ratio:1;border-radius:0;overflow:hidden;position:relative;background:var(--sh);}
+.img-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--sh);}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
-.img-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.7);color:#fff;border:none;border-radius:0;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+.img-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+/* CHAT */
 .chat-wrap{display:flex;flex-direction:column;height:480px;}
-.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--sh);}
-.chat-msg{max-width:75%;padding:10px 14px;border-radius:0;font-size:14px;line-height:1.6;}
-.chat-msg.me{align-self:flex-end;background:var(--a);color:#fff;}
-.chat-msg.them{align-self:flex-start;background:var(--surf);border:1px solid var(--border);}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F4F4F4;border-radius:8px 8px 0 0;}
+.chat-msg{max-width:75%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.6;}
+.chat-msg.me{align-self:flex-end;background:var(--a);color:#fff;border-radius:18px 18px 4px 18px;}
+.chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E5E5E5;border-radius:18px 18px 18px 4px;}
 .chat-msg.blocked{opacity:.5;font-style:italic;}
-.chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:var(--surf);}
-.tab-row{display:flex;gap:0;background:transparent;border-bottom:1px solid var(--border);padding:0;overflow-x:auto;margin-bottom:28px;}
-.tab{padding:12px 20px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;transition:all .13s;color:var(--mut);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 8px 8px;}
+/* TABS - Samsung underline style */
+.tab-row{display:flex;gap:0;background:transparent;border-bottom:1px solid #E5E5E5;padding:0;overflow-x:auto;margin-bottom:24px;}
+.tab{padding:12px 20px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--mut);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
 .tab.on{color:var(--a);border-bottom-color:var(--a);}
-.notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid #000;}
-.stat-card{background:var(--sh);border:1px solid var(--border);border-radius:0;padding:24px;}
-.progress{height:3px;background:var(--border);border-radius:0;overflow:hidden;margin-top:8px;}
-.progress-bar{height:100%;background:var(--a);border-radius:0;transition:width .6s ease;}
-.timeline-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);}
-.timeline-dot{width:36px;height:36px;border-radius:0;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px;}
-.pwa-banner{position:fixed;bottom:0;left:0;right:0;background:#000;color:#fff;padding:16px 24px;display:flex;align-items:center;gap:16px;z-index:500;}
+/* NOTIF DOT */
+.notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#FF3B30;border-radius:50%;border:2px solid #fff;}
+/* STAT CARD */
+.stat-card{background:#F4F4F4;border:none;border-radius:8px;padding:20px;}
+/* PROGRESS */
+.progress{height:4px;background:#E5E5E5;border-radius:2px;overflow:hidden;margin-top:8px;}
+.progress-bar{height:100%;background:var(--a);border-radius:2px;transition:width .6s ease;}
+/* TIMELINE */
+.timeline-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #F0F0F0;}
+.timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px;}
+/* PWA */
+.pwa-banner{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E5E5E5;padding:16px 24px;display:flex;align-items:center;gap:16px;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
+/* RESPONSIVE */
 @media(max-width:640px){
-  .nav{padding:0 20px;}
-  .mod{max-width:100%;border-radius:0;align-self:flex-end;max-height:95vh;}
-  .mh{border-radius:0;}
+  .nav{padding:0 16px;height:50px;}
+  .mod{max-width:100%;border-radius:16px 16px 0 0;align-self:flex-end;max-height:95vh;}
+  .mh{border-radius:16px 16px 0 0;}
   .mh,.mb,.mf{padding-left:16px;padding-right:16px;}
   .lcard-list{flex-direction:column;}
   .lcard-list .lthumb{width:100%;height:auto;aspect-ratio:16/9;}
-  .g3{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:1fr 1fr;gap:12px;}
   .img-grid{grid-template-columns:repeat(3,1fr);}
 }
+
 `;
 
 // ── COMPONENTS ────────────────────────────────────────────────────────────────
@@ -1849,18 +1874,18 @@ export default function App(){
   };
 
   return <>
-    {/* NAV */}
+    {/* NAV — Samsung white nav */}
     <nav className="nav">
-      <div className="logo" style={{color:"#fff"}} onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>Weka<span>Soko</span></div>
-      <div style={{display:"flex",gap:6,alignItems:"center"}}>
-        <button className="btn bgh sm" onClick={()=>setDark(d=>!d)} style={{fontSize:13,padding:"8px 14px",color:"#fff",border:"1px solid rgba(255,255,255,.3)"}}>{dark?"☀ Light":"🌙 Dark"}</button>
-        <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",color:"#fff",border:"1px solid rgba(255,255,255,.3)"}}>✅ Sold Items</button>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>Weka<span>Soko</span></div>
+      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        <button className="btn bgh sm" onClick={()=>setDark(d=>!d)} style={{fontSize:12,padding:"6px 12px"}}>{dark?"☀ Light":"🌙 Dark"}</button>
+        <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",fontSize:12}}>Sold Items</button>
         {user?<>
-          <button className="btn bs sm" style={{position:"relative",color:"#fff",border:"1px solid rgba(255,255,255,.3)",background:"transparent"}} onClick={()=>setShowDashboard(true)}>
-            👤 {user.name?.split(" ")[0]}
+          <button className="btn bgh sm" style={{position:"relative",fontSize:12}} onClick={()=>setShowDashboard(true)}>
+            {user.name?.split(" ")[0]}
             {notifCount>0&&<span className="notif-dot"/>}
           </button>
-          <button className="btn bp sm" onClick={()=>{
+          <button className="btn bp sm" style={{borderRadius:20,fontSize:12,padding:"8px 18px"}} onClick={()=>{
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
                 api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
@@ -1868,103 +1893,110 @@ export default function App(){
             }
             setModal({type:"post"});
           }}>+ Post Ad</button>
-          <button className="btn bgh sm" onClick={logout} style={{display:"none"}}>Out</button>
         </>:<>
-          <button className="btn bgh sm" onClick={()=>setModal({type:"auth",mode:"login"})} style={{color:"#fff",border:"1px solid rgba(255,255,255,.3)"}}>Sign In</button>
-          <button className="btn bp sm" onClick={()=>setModal({type:"auth",mode:"signup"})} style={{background:"#fff",color:"#000"}}>Join Free</button>
+          <button className="btn bgh sm" style={{fontSize:12}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
+          <button className="btn bp sm" style={{borderRadius:20,fontSize:12,padding:"8px 18px"}} onClick={()=>setModal({type:"auth",mode:"signup"})}>Join Free</button>
         </>}
       </div>
     </nav>
 
-    {/* ── HERO — Samsung full-width dark banner ─────────────────────────── */}
-    <div style={{background:"#000",color:"#fff",margin:"0 -22px",padding:"80px 22px 80px",marginBottom:0}}>
-      <div style={{maxWidth:1180,margin:"0 auto"}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:".12em",textTransform:"uppercase",color:"rgba(255,255,255,.5)",marginBottom:20}}>Kenya's Resell Platform</div>
-        <h1 style={{fontSize:"clamp(36px,6vw,72px)",fontWeight:900,letterSpacing:"-.03em",lineHeight:1.0,marginBottom:24,maxWidth:700}}>
-          Post Free.<br/>
-          <span style={{color:"#4B77FF"}}>Pay Only When</span><br/>
-          You Get a Buyer.
-        </h1>
-        <p style={{fontSize:16,color:"rgba(255,255,255,.6)",lineHeight:1.8,marginBottom:36,maxWidth:480}}>
-          List items in minutes with photos. Pay KSh 250 only when a serious buyer locks in.
-        </p>
-        <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:40}}>
-          <button className="btn lg" style={{background:"#1428A0",color:"#fff",border:"none",fontSize:14,fontWeight:700,padding:"14px 32px"}} onClick={()=>{
-            if(!user){setModal({type:"auth",mode:"signup"});return;}
-            if(user.role==="buyer"){
-              if(window.confirm("You're currently a Buyer. To post an ad, you need to switch to a Seller account.\n\nSwitch to Seller now?")){
-                api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
-                  const upd={...user,...d.user};
-                  setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));
-                  notify("Switched to Seller account! Now post your ad.","success");
-                  setModal({type:"post"});
-                }).catch(e=>notify(e.message,"error"));
-              }
-              return;
-            }
-            setModal({type:"post"});
-          }}>Post an Ad for Free →</button>
-          <button className="btn lg" style={{background:"transparent",color:"#fff",border:"1.5px solid rgba(255,255,255,.4)",fontSize:14,padding:"14px 32px"}} onClick={()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"})}>Browse Listings</button>
+    {/* ── HERO — Samsung.com style: clean, large type, light background ── */}
+    <div style={{background:"#F4F4F4",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
+      <div style={{maxWidth:1180,margin:"0 auto",display:"flex",alignItems:"center",gap:48,flexWrap:"wrap"}}>
+        <div style={{flex:"1 1 420px"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16,color:"#767676"}}>🇰🇪 Kenya's Resell Platform</div>
+          <h1 style={{fontSize:"clamp(36px,5.5vw,64px)",fontWeight:800,letterSpacing:"-.04em",lineHeight:1.0,marginBottom:20,color:"#1D1D1D",fontFamily:"var(--fn)"}}>
+            Post Free.<br/>
+            <span style={{color:"#1428A0"}}>Pay Only When</span><br/>
+            You Get a Buyer.
+          </h1>
+          <p style={{fontSize:16,color:"#767676",lineHeight:1.7,marginBottom:28,maxWidth:440,fontWeight:400}}>
+            List items in minutes with photos. Pay KSh 250 only when a serious buyer locks in to buy.
+          </p>
+          <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:24}}>
+            <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:0,letterSpacing:".01em",transition:"background .15s"}}
+              onMouseOver={e=>e.target.style.background="#0F1F8A"} onMouseOut={e=>e.target.style.background="#1428A0"}
+              onClick={()=>{
+                if(!user){setModal({type:"auth",mode:"signup"});return;}
+                if(user.role==="buyer"){
+                  if(window.confirm("You're currently a Buyer. To post an ad, switch to a Seller account.\n\nSwitch to Seller now?")){
+                    api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
+                      const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));
+                      notify("Switched to Seller! Now post your ad.","success");setModal({type:"post"});
+                    }).catch(e=>notify(e.message,"error"));
+                  }
+                  return;
+                }
+                setModal({type:"post"});
+              }}>Post an Ad for Free</button>
+            <button style={{background:"transparent",color:"#1D1D1D",border:"1px solid #1D1D1D",padding:"13px 28px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:0,transition:"all .15s"}}
+              onMouseOver={e=>{e.target.style.background="#1D1D1D";e.target.style.color="#fff";}} onMouseOut={e=>{e.target.style.background="transparent";e.target.style.color="#1D1D1D";}}
+              onClick={()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"})}>Browse Listings</button>
+          </div>
+          <div style={{display:"flex",gap:24,fontSize:12,color:"#767676",fontWeight:500}}>
+            <span>✓ 100% free to post</span><span>✓ Safe anonymous chat</span><span>✓ M-Pesa escrow</span>
+          </div>
         </div>
-        {/* Stats row — Samsung horizontal stat bar */}
-        <div style={{display:"flex",gap:0,flexWrap:"wrap",borderTop:"1px solid rgba(255,255,255,.1)",paddingTop:32}}>
-          {[{label:"Users",val:stats.users||0},{label:"Active Ads",val:stats.activeAds||0},{label:"Sold",val:stats.sold||0},{label:"Total Views",val:stats.views||0},{label:"Interested",val:stats.interested||0}].map((s,i)=>(
-            <div key={s.label} style={{flex:"1 1 120px",padding:"0 24px 0 0",borderRight:i<4?"1px solid rgba(255,255,255,.1)":"none",marginRight:24,marginBottom:8}}>
-              <div style={{fontSize:28,fontWeight:800,color:"#fff",lineHeight:1}}><Counter to={s.val}/></div>
-              <div style={{fontSize:11,fontWeight:600,letterSpacing:".08em",textTransform:"uppercase",color:"rgba(255,255,255,.4)",marginTop:4}}>{s.label}</div>
+        {/* Stats panel */}
+        <div style={{flex:"0 0 auto",background:"#fff",border:"1px solid #E5E5E5",padding:"28px 32px",minWidth:240}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:20}}>Platform Stats</div>
+          {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
+            <div key={s.label} style={{paddingBottom:16,marginBottom:16,borderBottom:i<3?"1px solid #F0F0F0":"none"}}>
+              <div style={{fontSize:28,fontWeight:800,color:"#1D1D1D",lineHeight:1,letterSpacing:"-.02em"}}><Counter to={s.val}/></div>
+              <div style={{fontSize:12,color:"#767676",marginTop:3,fontWeight:500}}>{s.label}</div>
             </div>
           ))}
         </div>
       </div>
     </div>
 
-    {/* ── TRUST BAR — Samsung grey strip ────────────────────────────────── */}
-    <div style={{background:"#F4F4F4",borderBottom:"1px solid #E0E0E0",margin:"0 -22px",padding:"16px 22px",marginBottom:0}}>
+    {/* ── TRUST BAR ─────────────────────────────────────────────────────── */}
+    <div style={{background:"#fff",borderBottom:"1px solid #E5E5E5",padding:"14px 40px"}}>
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",gap:32,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}>
-        {["✓ 100% free to post","✓ Safe anonymous chat","✓ M-Pesa escrow","✓ Kenyan sellers & buyers"].map(t=>(
-          <span key={t} style={{fontSize:12,fontWeight:600,color:"#535353",letterSpacing:".02em"}}>{t}</span>
+        {["Free to list","Safe anonymous chat","M-Pesa escrow","Kenyan platform"].map(t=>(
+          <span key={t} style={{fontSize:12,fontWeight:600,color:"#535353",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{color:"#1428A0",fontSize:14}}>✓</span>{t}
+          </span>
         ))}
       </div>
     </div>
 
-    <main style={{maxWidth:1180,margin:"0 auto",padding:"48px 22px 80px"}}>
+    <main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
 
-      {/* CATEGORIES — Samsung product grid style */}
-      <div style={{marginBottom:48}}>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
-          <div>
-            <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#1428A0",marginBottom:6}}>Browse by Category</div>
-            <h2 style={{fontSize:24,fontWeight:800,letterSpacing:"-.02em",color:"var(--txt)"}}>What are you looking for?</h2>
-          </div>
+      {/* CATEGORIES — Samsung product category grid */}
+      <div style={{marginBottom:52}}>
+        <div style={{marginBottom:20}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Categories</div>
+          <h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-.02em",color:"#1D1D1D"}}>What are you looking for?</h2>
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:0,border:"1px solid var(--border)"}}>
-          {CATS.map((c,i)=>(
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:8}}>
+          {CATS.map(c=>(
             <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);setTimeout(()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"}),100);}}
-              style={{background:filter.cat===c.name?"#1428A0":"var(--surf)",color:filter.cat===c.name?"#fff":"var(--txt)",borderRight:i%8!==7?"1px solid var(--border)":"none",borderBottom:"1px solid var(--border)",padding:"20px 10px",textAlign:"center",cursor:"pointer",transition:"all .15s"}}>
-              <div style={{fontSize:24,marginBottom:6}}>{c.icon}</div>
-              <div style={{fontSize:11,fontWeight:700,lineHeight:1.3,letterSpacing:".01em"}}>{c.name}</div>
+              style={{background:filter.cat===c.name?"#1428A0":"#F4F4F4",color:filter.cat===c.name?"#fff":"#1D1D1D",padding:"16px 8px",textAlign:"center",cursor:"pointer",transition:"all .15s",border:filter.cat===c.name?"1px solid #1428A0":"1px solid transparent"}}>
+              <div style={{fontSize:22,marginBottom:5}}>{c.icon}</div>
+              <div style={{fontSize:11,fontWeight:700,lineHeight:1.3}}>{c.name}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* SEARCH & FILTER BAR — Samsung clean search */}
-      <div id="listings-section" style={{marginBottom:32}}>
-        <div style={{display:"flex",gap:0,marginBottom:12,border:"1px solid var(--border)"}}>
-          <input className="inp" style={{flex:1,border:"none",borderRadius:0,fontSize:14,padding:"14px 18px"}} placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
-          <select className="inp" style={{width:"auto",minWidth:150,border:"none",borderLeft:"1px solid var(--border)",borderRadius:0,fontSize:13}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
+      {/* SEARCH BAR — Samsung clean integrated search */}
+      <div id="listings-section" style={{marginBottom:36}}>
+        <div style={{display:"flex",border:"1px solid #C7C7CC",marginBottom:12,background:"#fff"}}>
+          <input style={{flex:1,padding:"13px 18px",border:"none",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"transparent",color:"#1D1D1D"}} placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
+          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"transparent",color:"#535353",cursor:"pointer",minWidth:150}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
             <option value="">All Counties</option>
             {counties.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
-          <select className="inp" style={{width:"auto",minWidth:140,border:"none",borderLeft:"1px solid var(--border)",borderRadius:0,fontSize:13}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
+          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"transparent",color:"#535353",cursor:"pointer",minWidth:140}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="price_asc">Price ↑</option>
+            <option value="price_desc">Price ↓</option>
             <option value="popular">Most Viewed</option>
             <option value="expiring">Expiring Soon</option>
           </select>
-          <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",letterSpacing:".02em",whiteSpace:"nowrap"}} onClick={()=>{
+          <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}} onClick={()=>{
             if(!user){setModal({type:"auth",mode:"signup"});return;}
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
@@ -1975,51 +2007,52 @@ export default function App(){
           }}>+ Post Ad</button>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-          <input className="inp" style={{width:110,flex:"0 0 auto"}} placeholder="Min KSh" type="number" value={filter.minPrice} onChange={e=>{setFilter(p=>({...p,minPrice:e.target.value}));setPg(1);}}/>
+          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:4,fontSize:13}} placeholder="Min KSh" type="number" value={filter.minPrice} onChange={e=>{setFilter(p=>({...p,minPrice:e.target.value}));setPg(1);}}/>
           <span style={{color:"var(--mut)",fontSize:13}}>–</span>
-          <input className="inp" style={{width:110,flex:"0 0 auto"}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
-          <div style={{display:"flex",gap:1,marginLeft:"auto"}}>
-            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1428A0":"var(--sh)",color:vm==="grid"?"#fff":"var(--mut)",border:"1px solid var(--border)",padding:"8px 14px",cursor:"pointer",fontSize:16,fontFamily:"var(--fn)"}}>⊞</button>
-            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1428A0":"var(--sh)",color:vm==="list"?"#fff":"var(--mut)",border:"1px solid var(--border)",borderLeft:"none",padding:"8px 14px",cursor:"pointer",fontSize:16,fontFamily:"var(--fn)"}}>☰</button>
+          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:4,fontSize:13}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
+          <div style={{display:"flex",gap:1,marginLeft:8}}>
+            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1428A0":"#F4F4F4",color:vm==="grid"?"#fff":"#767676",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>⊞</button>
+            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1428A0":"#F4F4F4",color:vm==="list"?"#fff":"#767676",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>☰</button>
           </div>
           {(filter.cat||filter.county||filter.minPrice||filter.maxPrice||filter.q)&&
-            <button className="btn bs sm" onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear filters</button>}
+            <button className="btn bs sm" style={{borderRadius:4,fontSize:12}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear</button>}
         </div>
       </div>
 
       {/* LISTINGS HEADER */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:16,borderBottom:"2px solid #1428A0"}}>
-        <h2 style={{fontSize:18,fontWeight:800,letterSpacing:"-.01em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:14,color:"var(--mut)"}}>{total} items</span></h2>
-        <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"var(--mut)"}}>Page {pg} of {Math.ceil(total/PER_PAGE)||1}</div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:14,borderBottom:"2px solid #1428A0"}}>
+        <h2 style={{fontSize:18,fontWeight:800,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
+        <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676"}}>Page {pg} / {Math.ceil(total/PER_PAGE)||1}</div>
       </div>
 
       {loading?<div style={{textAlign:"center",padding:"80px 0"}}><Spin s="40px"/></div>
-        :listings.length===0?<div className="empty"><div style={{fontSize:56,marginBottom:16,opacity:.2}}>🔍</div><h3 style={{fontWeight:800,marginBottom:8,letterSpacing:"-.01em"}}>No listings found</h3><p style={{color:"var(--mut)"}}>Try a different search or category</p></div>
+        :listings.length===0?<div className="empty"><div style={{fontSize:56,marginBottom:16,opacity:.15}}>🔍</div><h3 style={{fontWeight:800,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No listings found</h3><p style={{color:"#767676"}}>Try a different search or category</p></div>
         :<div className={vm==="grid"?"g3":"lvc"}>{listings.map(l=><ListingCard key={l.id} listing={l} onClick={()=>openListing(l)} listView={vm==="list"}/>)}</div>}
 
       <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
 
-      {/* HOW IT WORKS — Samsung "Learn" section style */}
-      <div style={{marginTop:80,background:"#000",color:"#fff",margin:"80px -22px 0",padding:"72px 22px"}}>
-        <div style={{maxWidth:1180,margin:"0 auto"}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".12em",textTransform:"uppercase",color:"rgba(255,255,255,.4)",marginBottom:12}}>How It Works</div>
-          <h2 style={{fontSize:"clamp(28px,4vw,44px)",fontWeight:900,letterSpacing:"-.03em",marginBottom:52,maxWidth:500,lineHeight:1.1}}>Simple, Safe,<br/>Built for Kenya.</h2>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:0,borderLeft:"1px solid rgba(255,255,255,.1)"}}>
-            {[["📝","Post for Free","No upfront cost. Photos, description, location — done in 2 minutes."],
-              ["💬","Chat Safely","Anonymous, moderated chat. Contact info hidden until unlock."],
-              ["🔥","Buyer Locks In","Serious buyers click 'I'm Interested'. You get notified instantly."],
-              ["💳","Pay KSh 250","Seller pays once to see buyer contact. Till 5673935. Non-refundable."],
-              ["🔐","Safe Escrow","Optional 7.5% escrow. Funds held until you confirm delivery."],
-              ["🏆","Deal Done","Leave a review. Build your seller reputation on the platform."]].map(([icon,title,desc])=>(
-              <div key={title} style={{padding:"32px 28px",borderRight:"1px solid rgba(255,255,255,.1)",borderBottom:"1px solid rgba(255,255,255,.1)"}}>
-                <div style={{fontSize:28,marginBottom:16}}>{icon}</div>
-                <div style={{fontWeight:800,fontSize:16,marginBottom:8,letterSpacing:"-.01em"}}>{title}</div>
-                <div style={{fontSize:13,color:"rgba(255,255,255,.55)",lineHeight:1.75}}>{desc}</div>
-              </div>
-            ))}
-          </div>
+      {/* HOW IT WORKS — Samsung Learn section style */}
+      <div style={{marginTop:80,paddingTop:64,borderTop:"1px solid #E5E5E5"}}>
+        <div style={{textAlign:"center",marginBottom:48}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:12}}>How It Works</div>
+          <h2 style={{fontSize:"clamp(24px,4vw,40px)",fontWeight:800,letterSpacing:"-.03em",color:"#1D1D1D",lineHeight:1.1}}>Simple. Safe.<br/>Built for Kenya.</h2>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:24}}>
+          {[["📝","Post for Free","No upfront cost. Photos, description, location — done in 2 minutes."],
+            ["💬","Chat Safely","Anonymous, moderated chat. Contact info hidden until unlock."],
+            ["🔥","Buyer Locks In","Serious buyers click 'I'm Interested'. You get notified instantly."],
+            ["💳","Pay KSh 250","Seller pays once to see buyer contact. Till 5673935. Non-refundable."],
+            ["🔐","Safe Escrow","Optional 7.5% escrow. Funds held until you confirm delivery."],
+            ["🏆","Deal Done","Leave a review. Build your seller reputation on the platform."]].map(([icon,title,desc])=>(
+            <div key={title} style={{background:"#F4F4F4",padding:"28px 24px",borderRadius:0}}>
+              <div style={{fontSize:28,marginBottom:14}}>{icon}</div>
+              <div style={{fontWeight:800,fontSize:15,marginBottom:8,letterSpacing:"-.01em",color:"#1D1D1D"}}>{title}</div>
+              <div style={{fontSize:13,color:"#767676",lineHeight:1.75}}>{desc}</div>
+            </div>
+          ))}
         </div>
       </div>
+
     </main>
 
     {/* MODALS */}
