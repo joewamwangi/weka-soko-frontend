@@ -785,14 +785,13 @@ function ChatModal({listing,user,token,onClose,notify}){
             <div key={m.id||i} style={{display:"flex",flexDirection:"column",alignItems:m.direction==="me"?"flex-end":"flex-start"}}>
               {m.sender_anon&&m.direction==="them"&&<div style={{fontSize:10,color:"var(--dim)",marginBottom:3,marginLeft:4}}>{m.sender_anon}</div>}
               {m.is_system
-                ?<div style={{margin:"8px auto",maxWidth:"90%",background:m.severity==="suspended"?"rgba(220,38,38,.12)":"rgba(217,119,6,.1)",border:`1px solid ${m.severity==="suspended"?"rgba(220,38,38,.3)":"rgba(217,119,6,.3)"}`,borderRadius:"var(--rs)",padding:"10px 14px",fontSize:12,lineHeight:1.6,color:m.severity==="suspended"?"#b91c1c":"rgba(180,90,0,1)",textAlign:"center"}}>
-                  {m.body}
-                </div>
+                ?<div style={{margin:"8px auto",maxWidth:"90%",background:m.severity==="suspended"?"rgba(220,38,38,.12)":"rgba(217,119,6,.1)",border:`1px solid ${m.severity==="suspended"?"rgba(220,38,38,.3)":"rgba(217,119,6,.3)"}`,borderRadius:"var(--rs)",padding:"10px 14px",fontSize:12,lineHeight:1.6,color:m.severity==="suspended"?"#b91c1c":"rgba(180,90,0,1)",textAlign:"center"}}>{m.body}</div>
                 :<div className={`chat-msg ${m.direction||"them"}${m.is_blocked?" blocked":""}`}>
                   <div>{m.is_blocked?<em style={{opacity:.6}}>🚫 {m.block_reason||"Removed"}</em>:m.body}</div>
                   <div style={{fontSize:10,opacity:.5,marginTop:4,textAlign:m.direction==="me"?"right":"left"}}>{ago(m.created_at)}</div>
                 </div>
-              </div>
+              }
+            </div>
           ))}
         {typing&&<div style={{alignSelf:"flex-start",padding:"8px 14px",background:"var(--surf)",border:"1px solid var(--border)",borderRadius:"14px 14px 14px 3px",fontSize:13,color:"var(--mut)"}}>
           <span style={{letterSpacing:2}}>•••</span>
