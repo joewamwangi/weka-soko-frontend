@@ -1226,47 +1226,240 @@ function RoleSwitcher({user,token,notify,onSwitch}){
 }
 
 // ── SOLD ITEMS SECTION ───────────────────────────────────────────────────────
+// ── POST REQUEST MODAL ─────────────────────────────────────────────────────
+function PostRequestModal({onClose,token,notify,onSuccess}){
+  const [f,setF]=useState({title:"",description:"",budget:"",county:""});
+  const [loading,setLoading]=useState(false);
+  const sf=(k,v)=>setF(p=>({...p,[k]:v}));
+  const COUNTIES=["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Kajiado","Meru","Nyeri","Kisii","Kakamega","Thika","Malindi","Nakuru","Garissa","Embu","Uasin Gishu","Trans Nzoia","Bungoma","Siaya","Homabay","Migori","Vihiga","Busia","Nandi","Kericho","Baringo","Laikipia","Samburu","West Pokot","Turkana","Marsabit","Mandera","Wajir","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Makueni","Kitui","Murang'a","Kirinyaga","Nyandarua","Isiolo","Naivasha"];
+  const submit=async()=>{
+    if(!f.title.trim()||!f.description.trim()){notify("Title and description are required","warning");return;}
+    setLoading(true);
+    try{
+      const result=await api("/api/requests",{method:"POST",body:JSON.stringify({title:f.title.trim(),description:f.description.trim(),budget:f.budget||undefined,county:f.county||undefined})},token);
+      notify("✅ Request posted! Sellers will be notified.","success");
+      onSuccess(result);onClose();
+    }catch(err){notify(err.message,"error");}
+    finally{setLoading(false);}
+  };
+  return <Modal title="🛒 Post a Buyer Request" onClose={onClose} footer={
+    <><button className="btn bs" onClick={onClose}>Cancel</button><button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:"Post Request →"}</button></>
+  }>
+    <div className="alert ag" style={{marginBottom:16,fontSize:13}}>Tell sellers what you're looking for. They'll be notified when a matching item is listed.</div>
+    <FF label="What are you looking for?" required>
+      <input className="inp" placeholder="e.g. iPhone 13 Pro, good condition" value={f.title} onChange={e=>sf("title",e.target.value)} maxLength={120}/>
+      <div style={{fontSize:11,color:"var(--mut)",marginTop:3}}>{f.title.length}/120</div>
+    </FF>
+    <FF label="Description" required hint="Be specific — condition, colour, specs, anything important">
+      <textarea className="inp" placeholder="e.g. Looking for iPhone 13 Pro 256GB in any colour, screen must be crack-free, battery health above 80%..." value={f.description} onChange={e=>sf("description",e.target.value)} rows={4}/>
+    </FF>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+      <FF label="Max Budget (KSh)" hint="Optional">
+        <input className="inp" type="number" placeholder="e.g. 80000" value={f.budget} onChange={e=>sf("budget",e.target.value)} min={0}/>
+      </FF>
+      <FF label="County" hint="Optional">
+        <select className="inp" value={f.county} onChange={e=>sf("county",e.target.value)}>
+          <option value="">Any county</option>
+          {COUNTIES.map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+      </FF>
+    </div>
+  </Modal>;
+}
+
+// ── WHAT BUYERS WANT SECTION ───────────────────────────────────────────────
+function WhatBuyersWant({user,token,notify,onSignIn}){
+  const [requests,setRequests]=useState([]);
+  const [total,setTotal]=useState(0);
+  const [loading,setLoading]=useState(true);
+  const [showModal,setShowModal]=useState(false);
+  const [search,setSearch]=useState("");
+  const [county,setCounty]=useState("");
+  const [expanded,setExpanded]=useState(null);
+
+  const load=useCallback(()=>{
+    setLoading(true);
+    const p=new URLSearchParams({limit:12});
+    if(search)p.set("search",search);
+    if(county)p.set("county",county);
+    api(`/api/requests?${p}`).then(d=>{
+      setRequests(d.requests||[]);setTotal(d.total||0);
+    }).catch(()=>{}).finally(()=>setLoading(false));
+  },[search,county]);
+
+  useEffect(()=>{load();},[load]);
+
+  const deleteRequest=async(id)=>{
+    if(!window.confirm("Delete this request?"))return;
+    try{
+      await api(`/api/requests/${id}`,{method:"DELETE"},token);
+      setRequests(p=>p.filter(r=>r.id!==id));
+      notify("Request deleted","success");
+    }catch(err){notify(err.message,"error");}
+  };
+
+  return <div style={{background:"#F4F4F4",padding:"52px 40px",margin:"0 -40px"}}>
+    <div style={{maxWidth:1180,margin:"0 auto"}}>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Community</div>
+          <h2 style={{fontSize:"clamp(22px,3vw,32px)",fontWeight:800,letterSpacing:"-.02em",color:"#1D1D1D",lineHeight:1.1}}>🛒 What Buyers Want</h2>
+          <p style={{fontSize:13,color:"#767676",marginTop:6}}>{total} active request{total!==1?"s":" "} from buyers looking for items</p>
+        </div>
+        <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}}
+          onClick={()=>{if(!user){onSignIn();return;}setShowModal(true);}}>
+          + Post a Request
+        </button>
+      </div>
+
+      {/* Search/filter */}
+      <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
+        <input style={{flex:1,minWidth:200,padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#fff"}}
+          placeholder="Search requests..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        <select style={{padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#fff",cursor:"pointer",minWidth:140}}
+          value={county} onChange={e=>setCounty(e.target.value)}>
+          <option value="">All Counties</option>
+          {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Kajiado","Meru","Nyeri","Kisii","Kakamega"].map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+        {(search||county)&&<button style={{padding:"10px 14px",border:"1px solid #C7C7CC",background:"#fff",cursor:"pointer",fontSize:12,fontFamily:"var(--fn)"}} onClick={()=>{setSearch("");setCounty("");}}>✕ Clear</button>}
+      </div>
+
+      {/* Requests grid */}
+      {loading?<div style={{textAlign:"center",padding:40}}><Spin s="32px"/></div>
+        :requests.length===0?<div style={{textAlign:"center",padding:"40px 20px",color:"#767676"}}>
+            <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🛒</div>
+            <div style={{fontWeight:700,fontSize:16,marginBottom:6}}>No requests yet</div>
+            <div style={{fontSize:13}}>Be the first to post what you're looking for</div>
+          </div>
+        :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
+          {requests.map(r=>(
+            <div key={r.id} style={{background:"#fff",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"3px solid #1428A0"}}>
+              {/* Header row */}
+              <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
+                <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,letterSpacing:"-.01em",flex:1}}>{r.title}</div>
+                {user?.id===r.user_id&&<button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#AEAEB2",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>}
+              </div>
+              {/* Description — expandable */}
+              <div style={{fontSize:12,color:"#535353",lineHeight:1.65,marginBottom:10}}>
+                {expanded===r.id||r.description.length<=120
+                  ?r.description
+                  :<>{r.description.slice(0,120)}... <button onClick={()=>setExpanded(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#1428A0",fontSize:12,fontWeight:600,padding:0}}>More</button></>
+                }
+                {expanded===r.id&&r.description.length>120&&<button onClick={()=>setExpanded(null)} style={{background:"none",border:"none",cursor:"pointer",color:"#1428A0",fontSize:12,fontWeight:600,padding:"0 4px"}}>Less</button>}
+              </div>
+              {/* Tags */}
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+                {r.budget&&<span style={{background:"rgba(20,40,160,.08)",color:"#1428A0",padding:"3px 10px",fontSize:11,fontWeight:700}}>Budget: {fmtKES(r.budget)}</span>}
+                {r.county&&<span style={{background:"#F4F4F4",color:"#535353",padding:"3px 10px",fontSize:11,fontWeight:600}}>📍 {r.county}</span>}
+              </div>
+              {/* Footer */}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#AEAEB2",borderTop:"1px solid #F0F0F0",paddingTop:10}}>
+                <span>{r.requester_anon||"Anonymous"}</span>
+                <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                  {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
+                  <span>{ago(r.created_at)}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      }
+
+      {total>12&&<div style={{textAlign:"center",marginTop:20}}>
+        <button style={{background:"transparent",border:"1px solid #1428A0",color:"#1428A0",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
+          View all {total} requests
+        </button>
+      </div>}
+    </div>
+
+    {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);setTotal(t=>t+1);}}/>}
+  </div>;
+}
+
 function SoldSection({token,user}){
   const [items,setItems]=useState([]);
   const [loading,setLoading]=useState(true);
   const [pg,setPg]=useState(1);
   const [total,setTotal]=useState(0);
-  const PER=10;
+  const [cat,setCat]=useState("");
+  const PER=12;
 
   useEffect(()=>{
-    api(`/api/listings/sold?page=${pg}&limit=${PER}`).then(d=>{
+    setLoading(true);
+    const params=new URLSearchParams({page:pg,limit:PER});
+    if(cat)params.set("category",cat);
+    api(`/api/listings/sold?${params}`).then(d=>{
       setItems(d.listings||[]);setTotal(d.total||0);
     }).catch(()=>{}).finally(()=>setLoading(false));
-  },[pg]);
+  },[pg,cat]);
 
-  if(loading)return<div style={{textAlign:"center",padding:40}}><Spin s="36px"/></div>;
-  if(items.length===0)return<div className="empty"><div style={{fontSize:48,marginBottom:12,opacity:.3}}>✅</div><p>No sold items to show yet.</p></div>;
+  if(loading)return<div style={{textAlign:"center",padding:60}}><Spin s="36px"/></div>;
+
+  if(items.length===0)return<div className="empty">
+    <div style={{fontSize:56,marginBottom:16,opacity:.15}}>✅</div>
+    <h3 style={{fontWeight:800,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No sold items yet</h3>
+    <p style={{color:"#767676"}}>Completed sales will appear here</p>
+  </div>;
 
   return<>
-    <div className="lbl" style={{marginBottom:14}}>Sold Items ({total} completed sales)</div>
-    {items.map(l=>{
-      const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-      return<div key={l.id} style={{display:"flex",gap:12,padding:"12px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:10,border:"1px solid var(--border)"}}>
-        <div style={{width:64,height:52,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0,position:"relative"}}>
-          {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:24,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.3}}>📦</span>}
-          <div style={{position:"absolute",inset:0,background:"rgba(20,40,160,.55)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:11,fontWeight:800,color:"#fff",letterSpacing:.5}}>SOLD</span></div>
+    {/* Stats bar */}
+    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#fff"}}>
+      {[{label:"Total Sales",val:total},{label:"Categories",val:[...new Set(items.map(i=>i.category))].length},{label:"Avg Price",val:"KSh "+Math.round(items.reduce((a,l)=>a+(l.price||0),0)/items.length).toLocaleString("en-KE")||0}].map((s,i)=>(
+        <div key={s.label} style={{flex:1,padding:"18px 20px",borderRight:i<2?"1px solid #E5E5E5":"none",textAlign:"center"}}>
+          <div style={{fontSize:22,fontWeight:800,letterSpacing:"-.02em",color:"#1D1D1D"}}>{s.val}</div>
+          <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676",marginTop:3}}>{s.label}</div>
         </div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontWeight:600,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
-          <div style={{fontSize:12,color:"var(--mut)",marginTop:2}}>{fmtKES(l.price)} · {l.category} {l.county?`· 📍 ${l.county}`:""}</div>
-          {(l.avg_rating||l.review_count>0)&&<div style={{fontSize:11,color:"var(--gold)",marginTop:3}}>
-            {"★".repeat(Math.round(l.avg_rating||0))}{"☆".repeat(5-Math.round(l.avg_rating||0))} {l.avg_rating?Number(l.avg_rating).toFixed(1):" "} ({l.review_count||0} reviews)
-          </div>}
-        </div>
-        <div style={{fontSize:11,color:"var(--dim)",alignSelf:"flex-start",flexShrink:0,textAlign:"right"}}>
-          <span className="badge bg-g">✓ Sold</span>
-          <div style={{marginTop:4}}>{ago(l.updated_at)}</div>
-        </div>
-      </div>;
-    })}
-    {Math.ceil(total/PER)>1&&<div style={{display:"flex",gap:6,justifyContent:"center",marginTop:14}}>
+      ))}
+    </div>
+
+    {/* Category filter */}
+    {[...new Set(items.map(l=>l.category))].length>1&&<div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:24}}>
+      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#1428A0":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>All</button>
+      {[...new Set(items.map(l=>l.category))].map(c=>(
+        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#1428A0":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>{c}</button>
+      ))}
+    </div>}
+
+    {/* Product grid */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16}}>
+      {items.map(l=>{
+        const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
+        return<div key={l.id} style={{background:"#fff",border:"1px solid #E5E5E5",overflow:"hidden",transition:"all .2s",cursor:"default"}}>
+          {/* Image */}
+          <div style={{aspectRatio:"4/3",background:"#F4F4F4",position:"relative",overflow:"hidden"}}>
+            {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:40,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.15}}>📦</span>}
+            {/* SOLD overlay */}
+            <div style={{position:"absolute",inset:0,background:"rgba(20,40,160,.6)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <span style={{background:"#fff",color:"#1428A0",fontSize:11,fontWeight:800,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
+            </div>
+            {/* Rating badge */}
+            {l.avg_rating>0&&<div style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.7)",color:"#fff",fontSize:11,fontWeight:700,padding:"3px 8px",display:"flex",alignItems:"center",gap:3}}>
+              <span style={{color:"#FFD700"}}>★</span>{Number(l.avg_rating).toFixed(1)}
+            </div>}
+          </div>
+          {/* Info */}
+          <div style={{padding:"14px 16px"}}>
+            <div style={{fontSize:10,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#767676",marginBottom:4}}>{l.category}</div>
+            <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+            <div style={{fontSize:18,fontWeight:800,color:"#1428A0",letterSpacing:"-.02em",marginBottom:8}}>{fmtKES(l.price)}</div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#767676"}}>
+              <span>{l.county||l.location||"Kenya"}</span>
+              <span>{ago(l.updated_at)}</span>
+            </div>
+            {l.review_count>0&&<div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #F0F0F0",fontSize:11,color:"#767676"}}>
+              <span style={{color:"#FFD700"}}>{"★".repeat(Math.round(l.avg_rating||0))}</span>
+              <span style={{marginLeft:4}}>{l.review_count} review{l.review_count!==1?"s":""}</span>
+            </div>}
+          </div>
+        </div>;
+      })}
+    </div>
+
+    {/* Pagination */}
+    {Math.ceil(total/PER)>1&&<div style={{display:"flex",gap:6,justifyContent:"center",marginTop:32}}>
       {pg>1&&<button className="btn bs sm" onClick={()=>setPg(p=>p-1)}>← Prev</button>}
-      <span style={{padding:"6px 14px",fontSize:13,color:"var(--mut)"}}>Page {pg} of {Math.ceil(total/PER)}</span>
+      <span style={{padding:"7px 14px",fontSize:13,color:"#767676",fontWeight:500}}>Page {pg} of {Math.ceil(total/PER)}</span>
       {pg<Math.ceil(total/PER)&&<button className="btn bs sm" onClick={()=>setPg(p=>p+1)}>Next →</button>}
     </div>}
   </>;
@@ -1393,9 +1586,67 @@ function ReviewsSection({token,user,notify}){
 
 // ── DASHBOARD (REVAMPED) ──────────────────────────────────────────────────────
 
+// ── MY REQUESTS TAB ────────────────────────────────────────────────────────
+function MyRequestsTab({token,notify,user}){
+  const [requests,setRequests]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [showModal,setShowModal]=useState(false);
+
+  const load=useCallback(()=>{
+    setLoading(true);
+    api("/api/requests/mine",{},token).catch(()=>[]).then(r=>{setRequests(Array.isArray(r)?r:[]);setLoading(false);});
+  },[token]);
+
+  useEffect(()=>{load();},[load]);
+
+  const deleteRequest=async(id)=>{
+    if(!window.confirm("Delete this request?"))return;
+    try{
+      await api(`/api/requests/${id}`,{method:"DELETE"},token);
+      setRequests(p=>p.filter(r=>r.id!==id));
+      notify("Request deleted","success");
+    }catch(err){notify(err.message,"error");}
+  };
+
+  if(loading)return<div style={{textAlign:"center",padding:40}}><Spin s="32px"/></div>;
+
+  return<>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+      <div className="lbl" style={{margin:0}}>My Requests ({requests.length})</div>
+      <button className="btn bp sm" onClick={()=>setShowModal(true)}>+ New Request</button>
+    </div>
+    {requests.length===0
+      ?<div className="empty" style={{padding:"32px 0"}}>
+          <div style={{fontSize:40,marginBottom:12,opacity:.2}}>🛒</div>
+          <p style={{fontWeight:700,marginBottom:6}}>No requests yet</p>
+          <p style={{fontSize:13,color:"var(--mut)"}}>Post a request to let sellers know what you're looking for</p>
+          <button className="btn bp" style={{marginTop:14}} onClick={()=>setShowModal(true)}>Post a Request →</button>
+        </div>
+      :requests.map(r=>(
+        <div key={r.id} style={{padding:"14px 16px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:10,border:"1px solid var(--border)",borderLeft:"3px solid var(--a)"}}>
+          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:6}}>
+            <div style={{fontWeight:700,fontSize:14}}>{r.title}</div>
+            <button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"var(--dim)",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>
+          </div>
+          <div style={{fontSize:12,color:"var(--mut)",marginBottom:8,lineHeight:1.6}}>{r.description}</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
+            {r.budget&&<span className="badge bg-g">Budget: {fmtKES(r.budget)}</span>}
+            {r.county&&<span className="badge bg-m">📍 {r.county}</span>}
+            <span className={`badge ${r.status==="active"?"bg-g":"bg-m"}`}>{r.status}</span>
+          </div>
+          <div style={{fontSize:11,color:"var(--dim)"}}>{ago(r.created_at)}</div>
+        </div>
+      ))
+    }
+    {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);}}/>}
+  </>;
+}
+
 function Dashboard({user,token,notify,onPostAd,onClose}){
   const [tab,setTab]=useState("overview");
   const [listings,setListings]=useState([]);
+  const [buyerInterests,setBuyerInterests]=useState([]);
+  const [myRequests,setMyRequests]=useState([]);
   const [notifs,setNotifs]=useState([]);
   const [threads,setThreads]=useState([]);
   const [stats,setStats]=useState(null);
@@ -1409,10 +1660,14 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       setLoading(true);
       try{
         const [ls,ns,th]=await Promise.all([
-          api("/api/listings/seller/mine",{},token).catch(()=>[]),
+          user.role==="seller"?api("/api/listings/seller/mine",{},token).catch(()=>[]):Promise.resolve([]),
           api("/api/notifications",{},token).catch(()=>[]),
           api("/api/chat/threads/mine",{},token).catch(()=>[]),
         ]);
+        if(user.role==="buyer"){
+          api("/api/listings/buyer/interests",{},token).catch(()=>[]).then(r=>setBuyerInterests(Array.isArray(r)?r:[]));
+        }
+        api("/api/requests/mine",{},token).catch(()=>[]).then(r=>setMyRequests(Array.isArray(r)?r:[]));
         const lArr=Array.isArray(ls)?ls:(ls.listings||[]);
         setListings(lArr);
         setNotifs(Array.isArray(ns)?ns:[]);
@@ -1471,7 +1726,10 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
     {/* Tabs */}
     <div className="tab-row">
-      {[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")],["ads","📦 My Ads"],["sold","✅ Sold"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]].map(([id,label])=>(
+      {(user.role==="seller"
+        ?[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["ads","📦 My Ads"],["sold","✅ Sold"],["requests","🛒 Requests"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]]
+        :[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","🔥 My Interests"],["requests","🛒 Requests"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]]
+      ).map(([id,label])=>(
         <div key={id} className={`tab${tab===id?" on":""}`} onClick={()=>setTab(id)}>{label}</div>
       ))}
     </div>
@@ -1583,6 +1841,38 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       {notifs.length>0&&<button className="btn bs" style={{width:"100%",marginTop:10}} onClick={async()=>{await api("/api/notifications/read-all",{method:"PATCH"},token).catch(()=>{});setNotifs(p=>p.map(n=>({...n,is_read:true})));notify("All marked as read.","success");}}>Mark All Read</button>}
     </>}
 
+    {!loading&&tab==="interests"&&<>
+      <div className="lbl" style={{marginBottom:14}}>🔥 Listings You're Interested In ({buyerInterests.length})</div>
+      {buyerInterests.length===0
+        ?<div className="empty" style={{padding:"32px 0"}}>
+            <div style={{fontSize:40,marginBottom:12,opacity:.2}}>🔥</div>
+            <p style={{fontWeight:700,marginBottom:6}}>No interests yet</p>
+            <p style={{fontSize:13,color:"var(--mut)"}}>Browse listings and click "I'm Interested — Lock In"</p>
+          </div>
+        :buyerInterests.map(l=>{
+          const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
+          return <div key={l.id} style={{display:"flex",gap:12,padding:"13px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:10,border:"1px solid var(--border)"}}>
+            <div style={{width:60,height:50,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0}}>
+              {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:24,display:"flex",alignItems:"center",justifyContent:"center",height:"100%",opacity:.3}}>📦</span>}
+            </div>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontWeight:600,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+              <div style={{fontSize:12,color:"var(--mut)",marginTop:2}}>{fmtKES(l.price)} · 📍 {l.location||l.county||"—"}</div>
+              <div style={{fontSize:11,color:"var(--dim)",marginTop:2}}>
+                {l.is_unlocked
+                  ?<span style={{color:"var(--a)",fontWeight:600}}>✅ Unlocked · {l.seller_name||""} {l.seller_phone?"· 📞 "+l.seller_phone:""}</span>
+                  :<span>🔒 Seller contact hidden until unlocked</span>}
+              </div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end",flexShrink:0}}>
+              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
+              <button className="btn bs sm" onClick={()=>setSelectedListing(l)}>💬 Chat</button>
+            </div>
+          </div>;
+        })
+      }
+    </>}
+
     {!loading&&tab==="ads"&&<>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
         <div className="lbl" style={{margin:0}}>Your Listings ({listings.length})</div>
@@ -1621,6 +1911,8 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     {!loading&&tab==="sold"&&<SoldSection token={token} user={user}/>}
 
     {!loading&&tab==="reviews"&&<ReviewsSection token={token} user={user} notify={notify}/>}
+
+    {!loading&&tab==="requests"&&<MyRequestsTab token={token} notify={notify} user={user}/>}
 
 
 
@@ -1980,6 +2272,11 @@ export default function App(){
         </div>
       </div>
 
+      {/* WHAT BUYERS WANT */}
+      <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})}/>
+
+      <div style={{height:52}}/>
+
       {/* SEARCH BAR — Samsung clean integrated search */}
       <div id="listings-section" style={{marginBottom:36}}>
         <div style={{display:"flex",border:"1px solid #C7C7CC",marginBottom:12,background:"#fff"}}>
@@ -2099,14 +2396,21 @@ export default function App(){
     {showDashboard&&user&&<div style={{position:"fixed",inset:0,zIndex:9000,overflow:"auto",background:"var(--bg)"}}><Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setShowDashboard(false);setModal({type:"post"});}} onClose={()=>setShowDashboard(false)}/></div>}
     {resetToken&&<ResetPasswordModal token={resetToken} notify={notify} onClose={()=>{setResetToken(null);setModal({type:"auth",mode:"login"});}}/>}
 
-    {page==="sold"&&<div style={{maxWidth:860,margin:"0 auto",padding:"24px 16px"}}>
-      <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
-        <button className="btn bgh" onClick={()=>setPage("home")}>← Back</button>
-        <h1 style={{fontFamily:"var(--fn)",fontSize:"clamp(22px,4vw,32px)",fontWeight:800}}>✅ Sold on Weka Soko</h1>
+    {page==="sold"&&<>
+      {/* Sold page header — Samsung style dark banner */}
+      <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
+        <div style={{maxWidth:1180,margin:"0 auto"}}>
+          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
+          <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:900,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
+          <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
+        </div>
       </div>
-      <p style={{color:"var(--mut)",marginBottom:24,fontSize:14}}>Real items, real people, real sales. This is what's been bought and sold on Weka Soko.</p>
-      <SoldSection token={token} user={user}/>
-    </div>}
+      {/* Content */}
+      <div style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
+        <SoldSection token={token} user={user}/>
+      </div>
+    </>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
