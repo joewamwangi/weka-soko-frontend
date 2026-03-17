@@ -820,7 +820,7 @@ function ChatModal({listing,user,token,onClose,notify}){
               {m.is_system
                 ?<div style={{margin:"8px auto",maxWidth:"90%",background:m.severity==="suspended"?"rgba(220,38,38,.12)":"rgba(217,119,6,.1)",border:`1px solid ${m.severity==="suspended"?"rgba(220,38,38,.3)":"rgba(217,119,6,.3)"}`,borderRadius:"var(--rs)",padding:"10px 14px",fontSize:12,lineHeight:1.6,color:m.severity==="suspended"?"#b91c1c":"rgba(180,90,0,1)",textAlign:"center"}}>{m.body}</div>
                 :<div className={`chat-msg ${m.direction||"them"}${m.is_blocked?" blocked":""}`}>
-                  <div>{m.is_blocked?<em style={{opacity:.6}}>🚫 {m.block_reason||"Removed"}</em>:m.body}</div>
+                  <div>{m.is_blocked||!m.body?<em style={{opacity:.6}}>🚫 Message removed — contained contact info</em>:m.body}</div>
                   <div style={{fontSize:10,opacity:.5,marginTop:4,textAlign:m.direction==="me"?"right":"left"}}>{ago(m.created_at)}</div>
                 </div>
               }
@@ -1160,7 +1160,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
           {l.subcat&&<span className="badge bg-m">{l.subcat}</span>}
         </div>
       </div>
-      <span className={`badge ${l.status==="active"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
+      <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status</span>
     </div>
 
     {l.description&&<div style={{marginBottom:16}}><div className="lbl">Description</div><p style={{color:"var(--mut)",fontSize:14,lineHeight:1.8}}>{l.description}</p></div>}
@@ -1827,15 +1827,18 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       {/* Recent listings */}
       <div className="lbl" style={{marginBottom:10}}>Recent Ads</div>
       {listings.slice(0,4).map(l=>(
-        <div key={l.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:8,border:"1px solid var(--border)"}}>
+        <div key={l.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:8,border:l.status==="rejected"?"1px solid rgba(220,38,38,.3)":l.status==="pending_review"?"1px solid rgba(20,40,160,.2)":"1px solid var(--border)"}}>
           <div style={{width:48,height:40,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0}}>
             {Array.isArray(l.photos)&&l.photos[0]&&<img src={typeof l.photos[0]==="string"?l.photos[0]:l.photos[0]?.url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>}
           </div>
           <div style={{flex:1}}>
             <div style={{fontWeight:600,fontSize:14}}>{l.title}</div>
             <div style={{fontSize:12,color:"var(--mut)"}}>{fmtKES(l.price)} · {l.view_count||0} views</div>
+            {l.status==="rejected"&&l.moderation_note&&<div style={{fontSize:11,color:"#dc2626",marginTop:3}}>❌ Reason: {l.moderation_note}</div>}
+            {l.status==="needs_changes"&&l.moderation_note&&<div style={{fontSize:11,color:"#d97706",marginTop:3}}>✏️ Changes needed: {l.moderation_note}</div>}
+            {l.status==="pending_review"&&<div style={{fontSize:11,color:"#1428A0",marginTop:3}}>⏳ Awaiting admin approval before going live</div>}
           </div>
-          <span className={`badge ${l.status==="active"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
+          <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status</span>
         </div>
       ))}
       {listings.length===0&&<div className="empty" style={{padding:"32px 0"}}>
@@ -1949,7 +1952,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
               <div style={{fontSize:12,color:"var(--mut)"}}>{fmtKES(l.price)} · 👁 {l.view_count||0} · 🔥 {l.interest_count||0}</div>
             </div>
             <div style={{display:"flex",gap:6,flexShrink:0,flexWrap:"wrap",justifyContent:"flex-end"}}>
-              <span className={`badge ${l.status==="active"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
+              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status</span>
               {!l.is_unlocked&&l.status!=="sold"&&(
                 l.free_unlock_approved
                   ?<button className="btn bg2 sm" onClick={async()=>{
@@ -1962,6 +1965,12 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                   :<button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock → KSh 250</button>
               )}
               {l.status!=="sold"&&<button className="btn bs sm" onClick={()=>setEditingListing(l)}>✏️ Edit</button>}
+              {(l.status==="rejected"||l.status==="needs_changes")&&<button className="btn bg2 sm" onClick={async()=>{
+                try{await api(`/api/listings/${l.id}/resubmit`,{method:"POST"},token);
+                setListings(p=>p.map(x=>x.id===l.id?{...x,status:"pending_review",moderation_note:null}:x));
+                notify("⏳ Listing resubmitted for review","success");
+                }catch(e){notify(e.message,"error");}
+              }}>↺ Resubmit</button>}
               <button className="btn br2 sm" onClick={()=>deleteListing(l.id)}>Delete</button>
             </div>
           </div>
