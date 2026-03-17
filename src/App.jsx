@@ -1160,7 +1160,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
           {l.subcat&&<span className="badge bg-m">{l.subcat}</span>}
         </div>
       </div>
-      <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status</span>
+      <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
     </div>
 
     {l.description&&<div style={{marginBottom:16}}><div className="lbl">Description</div><p style={{color:"var(--mut)",fontSize:14,lineHeight:1.8}}>{l.description}</p></div>}
@@ -1838,7 +1838,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             {l.status==="needs_changes"&&l.moderation_note&&<div style={{fontSize:11,color:"#d97706",marginTop:3}}>✏️ Changes needed: {l.moderation_note}</div>}
             {l.status==="pending_review"&&<div style={{fontSize:11,color:"#1428A0",marginTop:3}}>⏳ Awaiting admin approval before going live</div>}
           </div>
-          <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status</span>
+          <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
         </div>
       ))}
       {listings.length===0&&<div className="empty" style={{padding:"32px 0"}}>
@@ -1952,7 +1952,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
               <div style={{fontSize:12,color:"var(--mut)"}}>{fmtKES(l.price)} · 👁 {l.view_count||0} · 🔥 {l.interest_count||0}</div>
             </div>
             <div style={{display:"flex",gap:6,flexShrink:0,flexWrap:"wrap",justifyContent:"flex-end"}}>
-              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status</span>
+              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
               {!l.is_unlocked&&l.status!=="sold"&&(
                 l.free_unlock_approved
                   ?<button className="btn bg2 sm" onClick={async()=>{
