@@ -68,44 +68,52 @@ async function api(path, opts={}, token=null) {
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@font-face{font-family:'SamsungSharpSans';font-weight:400;font-style:normal;font-display:swap;
+  src:url('https://db.onlinewebfonts.com/t/339ef4168eec714f8750c1b72eea3528.woff2') format('woff2'),
+      url('https://db.onlinewebfonts.com/t/339ef4168eec714f8750c1b72eea3528.woff') format('woff');}
+@font-face{font-family:'SamsungSharpSans';font-weight:500;font-style:normal;font-display:swap;
+  src:url('https://db.onlinewebfonts.com/t/13c6db781e75e596d9a2f6c8c6807386.woff2') format('woff2'),
+      url('https://db.onlinewebfonts.com/t/13c6db781e75e596d9a2f6c8c6807386.woff') format('woff');}
+@font-face{font-family:'SamsungSharpSans';font-weight:700;font-style:normal;font-display:swap;
+  src:url('https://db.onlinewebfonts.com/t/03fe5644d1605049951f58ca7961c33f.woff2') format('woff2'),
+      url('https://db.onlinewebfonts.com/t/03fe5644d1605049951f58ca7961c33f.woff') format('woff');}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#FFFFFF;--surf:#FFFFFF;--sh:#F4F4F4;--border:#E5E5E5;
-  --a:#1428A0;--a2:#0F1F8A;--gold:#B07F10;--red:#C03030;--blue:#1428A0;
-  --txt:#1D1D1D;--mut:#767676;--dim:#AAAAAA;
-  --r:4px;--rs:4px;
-  --fn:'Outfit',system-ui,-apple-system,sans-serif;
-  --fs:'Outfit',system-ui,-apple-system,sans-serif;
-  --nav-h:56px;
+  --bg:#FFFFFF;--surf:#FFFFFF;--sh:#F6F6F6;--border:#E6E6E6;
+  --a:#1428A0;--a2:#0F1F8A;--gold:#8B6400;--red:#C03030;--blue:#1428A0;
+  --txt:#1D1D1D;--mut:#636363;--dim:#ADADAD;
+  --r:2px;--rs:2px;
+  --fn:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --nav-h:60px;
 }
 .dark{
-  --bg:#1C1C1E;--surf:#2C2C2E;--sh:#3A3A3C;--border:#3A3A3C;
-  --a:#4B77FF;--a2:#3A63F0;
-  --txt:#F5F5F7;--mut:#A1A1A6;--dim:#636366;
+  --bg:#121212;--surf:#1E1E1E;--sh:#2A2A2A;--border:#333333;
+  --a:#5B8AFF;--a2:#4A78F0;
+  --txt:#F5F5F5;--mut:#9E9E9E;--dim:#555555;
 }
-body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.5;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
-::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-thumb{background:#C7C7CC;border-radius:3px;}
+body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 24px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.01em;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 26px;border-radius:0;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.04em;text-transform:none;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
-.bp{background:var(--a);color:#fff;}.bp:hover:not(:disabled){background:var(--a2);}
-.bs{background:#fff;color:var(--txt);border:1px solid #C7C7CC;}.bs:hover:not(:disabled){border-color:var(--txt);}
+.bp{background:#1428A0;color:#fff;border:2px solid #1428A0;}.bp:hover:not(:disabled){background:#0F1F8A;border-color:#0F1F8A;}
+.bs{background:transparent;color:var(--txt);border:1.5px solid var(--txt);}.bs:hover:not(:disabled){background:var(--txt);color:#fff;}
 .bg2{background:var(--a);color:#fff;}.bg2:hover:not(:disabled){background:var(--a2);}
-.bgh{background:transparent;color:var(--mut);border:none;padding:8px 12px;font-size:13px;}.bgh:hover:not(:disabled){color:var(--txt);}
+.bgh{background:transparent;color:var(--mut);border:none;padding:8px 14px;font-size:13px;letter-spacing:.02em;}.bgh:hover:not(:disabled){color:var(--txt);}
 .br2{background:transparent;color:var(--red);border:1px solid var(--red);}.br2:hover:not(:disabled){background:var(--red);color:#fff;}
-.sm{padding:7px 16px;font-size:12px;}.lg{padding:14px 34px;font-size:15px;font-weight:700;}
+.sm{padding:8px 18px;font-size:12px;letter-spacing:.04em;}.lg{padding:14px 36px;font-size:15px;letter-spacing:.04em;}
 /* INPUTS */
-.inp{width:100%;padding:11px 14px;background:#fff;border:1px solid #C7C7CC;border-radius:0;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;}
-.inp:focus{border-color:var(--a);}
+.inp{width:100%;padding:11px 16px;background:#fff;border:1px solid #D9D9D9;border-radius:0;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;letter-spacing:.01em;}
+.inp:focus{border-color:#1428A0;outline:none;}
 .inp::placeholder{color:#AEAEB2;}
 textarea.inp{resize:vertical;min-height:90px;}
 select.inp{appearance:none;cursor:pointer;}
 .dark .inp{background:var(--sh);border-color:var(--border);}
 /* LABELS */
-.lbl{display:block;font-size:11px;font-weight:600;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;}
+.lbl{display:block;font-size:11px;font-weight:700;color:#636363;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 /* BADGES */
-.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.04em;}
 .bg-g{background:rgba(20,40,160,.08);color:var(--a);}
 .bg-y{background:rgba(176,127,16,.1);color:#8B6400;}
 .bg-r{background:rgba(192,48,48,.1);color:var(--red);}
@@ -113,35 +121,35 @@ select.inp{appearance:none;cursor:pointer;}
 .bg-m{background:var(--sh);color:var(--mut);}
 /* MODALS */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);}
-.mod{background:#fff;border:none;border-radius:12px;width:100%;max-width:540px;max-height:94vh;overflow-y:auto;animation:su .2s ease;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.mod{background:#fff;border:1px solid #E0E0E0;border-radius:0;width:100%;max-width:540px;max-height:94vh;overflow-y:auto;animation:su .18s ease;box-shadow:0 8px 40px rgba(0,0,0,.14);}
 .mod.lg{max-width:720px;}
 .mod.xl{max-width:900px;}
 @keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.mh{padding:22px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:12px 12px 0 0;}
-.mb{padding:22px 26px;}
-.mf{padding:14px 26px 22px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;}
-.dark .mod,.dark .mh{background:var(--surf);}
+.mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;}
+.mb{padding:22px 28px;}
+.mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
+.dark .mod,.dark .mh{background:#1E1E1E;border-color:#333;}
 /* NAV - Samsung white nav */
-.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E5E5E5;padding:0 40px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
-.dark .nav{background:#1C1C1E;border-bottom-color:#3A3A3C;}
-.logo{font-family:var(--fn);font-size:19px;font-weight:800;cursor:pointer;letter-spacing:-.03em;color:var(--txt);}
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
+.dark .nav{background:#121212;border-bottom-color:#333;}
+.logo{font-family:var(--fn);font-size:20px;font-weight:700;cursor:pointer;letter-spacing:-.01em;color:#1D1D1D;}
 .logo span{color:var(--a);}
 /* ALERTS */
 .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
-.ag{background:rgba(20,40,160,.06);border:1px solid rgba(20,40,160,.15);color:var(--a);}
-.ay{background:rgba(176,127,16,.06);border:1px solid rgba(176,127,16,.2);color:#8B6400;}
-.ar{background:rgba(192,48,48,.06);border:1px solid rgba(192,48,48,.15);color:var(--red);}
+.ag{background:rgba(20,40,160,.04);border-left:3px solid #1428A0;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#1428A0;}
+.ay{background:rgba(139,100,0,.04);border-left:3px solid #8B6400;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#8B6400;}
+.ar{background:rgba(192,48,48,.04);border-left:3px solid #C03030;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#C03030;}
 /* CARDS */
 .card{background:var(--surf);border:1px solid var(--border);border-radius:8px;}
-.lcard{background:#fff;border:none;border-radius:0;overflow:hidden;transition:all .2s;cursor:pointer;}
-.lcard:hover .lthumb img{transform:scale(1.04);}
-.lcard:hover h4{color:var(--a);}
+.lcard{background:#fff;border:1px solid #EBEBEB;border-radius:0;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
+.lcard:hover{border-color:#1428A0;box-shadow:0 4px 20px rgba(0,0,0,.08);}.lcard:hover .lthumb img{transform:scale(1.03);}
+
 .lcard-list{display:flex;flex-direction:row;}
 .lcard-list .lthumb{width:200px;min-width:200px;height:160px;aspect-ratio:unset;}
 .lthumb{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--sh);position:relative;overflow:hidden;}
 .lthumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
 /* GRID */
-.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;}
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;}
 .lvc{display:flex;flex-direction:column;gap:16px;}
 /* SPINNER */
 .spin{display:inline-block;width:20px;height:20px;border:2px solid #E5E5E5;border-top-color:var(--a);border-radius:50%;animation:sp .7s linear infinite;}
@@ -149,10 +157,10 @@ select.inp{appearance:none;cursor:pointer;}
 .empty{text-align:center;padding:80px 20px;color:var(--mut);}
 /* PAGINATION */
 .pg{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:40px;flex-wrap:wrap;}
-.pb{min-width:36px;height:36px;padding:0 8px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid #E5E5E5;background:#fff;color:var(--mut);cursor:pointer;font-size:13px;font-weight:600;transition:all .14s;}
-.pb.on{background:var(--a);color:#fff;border-color:var(--a);}
+.pb{min-width:38px;height:38px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:0;border:1px solid #E0E0E0;background:#fff;color:#636363;cursor:pointer;font-size:13px;font-weight:700;transition:all .14s;letter-spacing:.02em;}
+.pb.on{background:#1428A0;color:#fff;border-color:#1428A0;}
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border-radius:12px;padding:14px 18px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.15);animation:ti .22s ease;display:flex;align-items:center;gap:10px;max-width:340px;}
+.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border:1px solid #E6E6E6;border-radius:0;padding:14px 18px;font-size:14px;font-family:var(--fn);box-shadow:0 4px 24px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:3px solid #1428A0;}
 @keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 /* SOLD BADGE */
 .sold-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
@@ -166,15 +174,15 @@ select.inp{appearance:none;cursor:pointer;}
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;height:480px;}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F4F4F4;border-radius:8px 8px 0 0;}
-.chat-msg{max-width:75%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.6;}
-.chat-msg.me{align-self:flex-end;background:var(--a);color:#fff;border-radius:18px 18px 4px 18px;}
-.chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E5E5E5;border-radius:18px 18px 18px 4px;}
+.chat-msg{max-width:72%;padding:10px 14px;border-radius:4px;font-size:14px;line-height:1.55;font-family:var(--fn);}
+.chat-msg.me{align-self:flex-end;background:#1428A0;color:#fff;border-radius:4px 4px 0 4px;}
+.chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E6E6E6;border-radius:4px 4px 4px 0;}
 .chat-msg.blocked{opacity:.5;font-style:italic;}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 8px 8px;}
 /* TABS - Samsung underline style */
 .tab-row{display:flex;gap:0;background:transparent;border-bottom:1px solid #E5E5E5;padding:0;overflow-x:auto;margin-bottom:24px;}
-.tab{padding:12px 20px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--mut);white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
-.tab.on{color:var(--a);border-bottom-color:var(--a);}
+.tab{padding:14px 22px;border-radius:0;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s;color:#9E9E9E;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab.on{color:#1428A0;border-bottom-color:#1428A0;}
 /* NOTIF DOT */
 .notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#FF3B30;border-radius:50%;border:2px solid #fff;}
 /* STAT CARD */
@@ -190,8 +198,8 @@ select.inp{appearance:none;cursor:pointer;}
 /* RESPONSIVE */
 @media(max-width:640px){
   .nav{padding:0 16px;height:50px;}
-  .mod{max-width:100%;border-radius:16px 16px 0 0;align-self:flex-end;max-height:95vh;}
-  .mh{border-radius:16px 16px 0 0;}
+  .mod{max-width:100%;border-radius:0;align-self:flex-end;max-height:95vh;}
+  
   .mh,.mb,.mf{padding-left:16px;padding-right:16px;}
   .lcard-list{flex-direction:column;}
   .lcard-list .lthumb{width:100%;height:auto;aspect-ratio:16/9;}
@@ -602,7 +610,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
       <div style={{background:"rgba(20,40,160,.06)",border:"1px solid rgba(20,40,160,.2)",borderRadius:"var(--r)",padding:"18px 20px",marginBottom:18}}>
         <div style={{fontSize:11,color:"var(--mut)",marginBottom:4}}>Till Number <strong style={{color:"var(--txt)"}}>5673935</strong> · Weka Soko</div>
         <div style={{display:"flex",alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
-          <div style={{fontSize:36,fontWeight:800,color:"var(--a)"}}>{fmtKES(finalAmt)}</div>
+          <div style={{fontSize:36,fontWeight:700,color:"var(--a)"}}>{fmtKES(finalAmt)}</div>
           {discount>0&&<div style={{fontSize:16,color:"var(--dim)",textDecoration:"line-through"}}>{fmtKES(amount)}</div>}
         </div>
         {discount>0&&<div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
@@ -642,7 +650,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
       <div style={{fontSize:64,marginBottom:12}}>📱</div>
       <h3 style={{fontWeight:700,marginBottom:8}}>Enter Your M-Pesa PIN</h3>
       <p style={{color:"var(--mut)",fontSize:14,marginBottom:16}}>Check your phone · Pay Till <strong>5673935</strong> · {fmtKES(finalAmt)}</p>
-      <div style={{fontSize:48,fontWeight:800,color:"var(--a)",marginBottom:8}}>{cd}s</div>
+      <div style={{fontSize:48,fontWeight:700,color:"var(--a)",marginBottom:8}}>{cd}s</div>
       <div className="progress"><div className="progress-bar" style={{width:`${(cd/90)*100}%`}}/></div>
       <ManualInput/>
     </div>}
@@ -971,7 +979,7 @@ function ListingCard({listing:l,onClick,listView}){
     <div style={{padding:"16px",flex:1}}>
       <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:"var(--mut)",marginBottom:6}}>{l.category}</div>
       <h4 style={{fontSize:14,fontWeight:700,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em"}}>{l.title}</h4>
-      <div style={{fontSize:20,fontWeight:800,color:"var(--a)",marginBottom:8,letterSpacing:"-.01em"}}>{fmtKES(l.price)}</div>
+      <div style={{fontSize:20,fontWeight:700,color:"var(--a)",marginBottom:8,letterSpacing:"-.01em"}}>{fmtKES(l.price)}</div>
       {listView&&l.description&&<p style={{fontSize:13,color:"var(--mut)",marginBottom:8,lineHeight:1.65}}>{l.description.slice(0,130)}...</p>}
       <div style={{display:"flex",gap:12,color:"var(--mut)",fontSize:11,flexWrap:"wrap",borderTop:"1px solid var(--border)",paddingTop:8,marginTop:4}}>
         {l.location&&<span>📍 {l.location}</span>}
@@ -1138,7 +1146,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
     {/* Photos */}
     <div style={{background:"var(--sh)",borderRadius:"var(--rs)",aspectRatio:"16/9",overflow:"hidden",marginBottom:10,position:"relative",display:"flex",alignItems:"center",justifyContent:"center"}}>
       {mainPhoto?<img src={mainPhoto} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:80,opacity:.15}}>📦</span>}
-      {l.status==="sold"&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.4)",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{background:"var(--a)",color:"#fff",padding:"8px 28px",borderRadius:30,fontWeight:800,fontSize:20}}>SOLD ✓</div></div>}
+      {l.status==="sold"&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.4)",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{background:"var(--a)",color:"#fff",padding:"8px 28px",borderRadius:30,fontWeight:700,fontSize:20}}>SOLD ✓</div></div>}
     </div>
     {photos.length>1&&<div style={{display:"flex",gap:6,marginBottom:16,overflowX:"auto"}}>
       {photos.map((p,i)=><img key={i} src={p} alt="" onClick={()=>setMainPhoto(p)} style={{width:70,height:55,objectFit:"cover",borderRadius:"var(--rs)",cursor:"pointer",opacity:mainPhoto===p?1:.55,border:mainPhoto===p?"2px solid var(--a)":"2px solid transparent",flexShrink:0}}/>)}
@@ -1146,7 +1154,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
 
     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16}}>
       <div>
-        <div style={{fontSize:32,fontWeight:800,color:"var(--a)"}}>{fmtKES(l.price)}</div>
+        <div style={{fontSize:32,fontWeight:700,color:"var(--a)"}}>{fmtKES(l.price)}</div>
         <div style={{display:"flex",gap:6,marginTop:6,flexWrap:"wrap"}}>
           <span className="badge bg-m">{l.category}</span>
           {l.subcat&&<span className="badge bg-m">{l.subcat}</span>}
@@ -1344,7 +1352,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
       <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
         <div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Community</div>
-          <h2 style={{fontSize:"clamp(22px,3vw,32px)",fontWeight:800,letterSpacing:"-.02em",color:"#1D1D1D",lineHeight:1.1}}>🛒 What Buyers Want</h2>
+          <h2 style={{fontSize:"clamp(22px,3vw,32px)",fontWeight:700,letterSpacing:"-.02em",color:"#1D1D1D",lineHeight:1.1}}>🛒 What Buyers Want</h2>
           <p style={{fontSize:13,color:"#767676",marginTop:6}}>{total} active request{total!==1?"s":" "} from buyers looking for items</p>
         </div>
         <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}}
@@ -1438,7 +1446,7 @@ function SoldSection({token,user}){
 
   if(items.length===0)return<div className="empty">
     <div style={{fontSize:56,marginBottom:16,opacity:.15}}>✅</div>
-    <h3 style={{fontWeight:800,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No sold items yet</h3>
+    <h3 style={{fontWeight:700,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No sold items yet</h3>
     <p style={{color:"#767676"}}>Completed sales will appear here</p>
   </div>;
 
@@ -1447,7 +1455,7 @@ function SoldSection({token,user}){
     <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#fff"}}>
       {[{label:"Total Sales",val:total},{label:"Categories",val:[...new Set(items.map(i=>i.category))].length},{label:"Avg Price",val:"KSh "+Math.round(items.reduce((a,l)=>a+(l.price||0),0)/items.length).toLocaleString("en-KE")||0}].map((s,i)=>(
         <div key={s.label} style={{flex:1,padding:"18px 20px",borderRight:i<2?"1px solid #E5E5E5":"none",textAlign:"center"}}>
-          <div style={{fontSize:22,fontWeight:800,letterSpacing:"-.02em",color:"#1D1D1D"}}>{s.val}</div>
+          <div style={{fontSize:22,fontWeight:700,letterSpacing:"-.02em",color:"#1D1D1D"}}>{s.val}</div>
           <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676",marginTop:3}}>{s.label}</div>
         </div>
       ))}
@@ -1471,7 +1479,7 @@ function SoldSection({token,user}){
             {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:40,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.15}}>📦</span>}
             {/* SOLD overlay */}
             <div style={{position:"absolute",inset:0,background:"rgba(20,40,160,.6)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <span style={{background:"#fff",color:"#1428A0",fontSize:11,fontWeight:800,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
+              <span style={{background:"#fff",color:"#1428A0",fontSize:11,fontWeight:700,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
             </div>
             {/* Rating badge */}
             {l.avg_rating>0&&<div style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.7)",color:"#fff",fontSize:11,fontWeight:700,padding:"3px 8px",display:"flex",alignItems:"center",gap:3}}>
@@ -1482,7 +1490,7 @@ function SoldSection({token,user}){
           <div style={{padding:"14px 16px"}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#767676",marginBottom:4}}>{l.category}</div>
             <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
-            <div style={{fontSize:18,fontWeight:800,color:"#1428A0",letterSpacing:"-.02em",marginBottom:8}}>{fmtKES(l.price)}</div>
+            <div style={{fontSize:18,fontWeight:700,color:"#1428A0",letterSpacing:"-.02em",marginBottom:8}}>{fmtKES(l.price)}</div>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#767676"}}>
               <span>{l.county||l.location||"Kenya"}</span>
               <span>{ago(l.updated_at)}</span>
@@ -1561,7 +1569,7 @@ function ReviewsSection({token,user,notify}){
     {/* My rating summary */}
     {stats&&(stats.review_count>0)&&<div style={{background:"linear-gradient(135deg,rgba(176,127,16,.08),rgba(20,40,160,.05))",border:"1px solid rgba(176,127,16,.2)",borderRadius:"var(--r)",padding:"18px 20px",marginBottom:18,display:"flex",gap:16,alignItems:"center"}}>
       <div style={{textAlign:"center",flexShrink:0}}>
-        <div style={{fontSize:44,fontWeight:800,color:"var(--gold)",lineHeight:1}}>{Number(stats.avg_rating||0).toFixed(1)}</div>
+        <div style={{fontSize:44,fontWeight:700,color:"var(--gold)",lineHeight:1}}>{Number(stats.avg_rating||0).toFixed(1)}</div>
         <div style={{fontSize:16,color:"var(--gold)",marginTop:2}}>{"★".repeat(Math.round(stats.avg_rating||0))}{"☆".repeat(5-Math.round(stats.avg_rating||0))}</div>
       </div>
       <div>
@@ -1753,7 +1761,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         {user.name?.charAt(0)?.toUpperCase()||"U"}
       </div>
       <div style={{flex:1}}>
-        <div style={{fontWeight:800,fontSize:18,marginBottom:2}}>{user.name}</div>
+        <div style={{fontWeight:700,fontSize:18,marginBottom:2}}>{user.name}</div>
         <div style={{fontSize:13,color:"var(--mut)"}}>{user.email}</div>
         <div style={{display:"flex",gap:8,marginTop:6,flexWrap:"wrap"}}>
           <span className={`badge ${user.role==="seller"?"bg-g":"bg-b"}`}>{user.role==="seller"?"🏷 Seller":"🛍 Buyer"}</span>
@@ -1794,7 +1802,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         ).map(s=>(
           <div key={s.label} className="stat-card">
             <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
-            <div style={{fontSize:28,fontWeight:800,color:s.color}}>{s.val}</div>
+            <div style={{fontSize:28,fontWeight:700,color:s.color}}>{s.val}</div>
             <div style={{fontSize:11,color:"var(--mut)",marginTop:2}}>{s.label}</div>
           </div>
         ))}
@@ -2249,7 +2257,7 @@ export default function App(){
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",alignItems:"center",gap:48,flexWrap:"wrap"}}>
         <div style={{flex:"1 1 420px"}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16,color:"#767676"}}>🇰🇪 Kenya's Resell Platform</div>
-          <h1 style={{fontSize:"clamp(36px,5.5vw,64px)",fontWeight:800,letterSpacing:"-.04em",lineHeight:1.0,marginBottom:20,color:"#1D1D1D",fontFamily:"var(--fn)"}}>
+          <h1 style={{fontSize:"clamp(36px,5.5vw,64px)",fontWeight:700,letterSpacing:"-.02em",lineHeight:1.0,marginBottom:20,color:"#1D1D1D",fontFamily:"var(--fn)"}}>
             Post Free.<br/>
             <span style={{color:"#1428A0"}}>Pay Only When</span><br/>
             You Get a Buyer.
@@ -2286,7 +2294,7 @@ export default function App(){
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:20}}>Platform Stats</div>
           {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
             <div key={s.label} style={{paddingBottom:16,marginBottom:16,borderBottom:i<3?"1px solid #F0F0F0":"none"}}>
-              <div style={{fontSize:28,fontWeight:800,color:"#1D1D1D",lineHeight:1,letterSpacing:"-.02em"}}><Counter to={s.val}/></div>
+              <div style={{fontSize:28,fontWeight:700,color:"#1D1D1D",lineHeight:1,letterSpacing:"-.02em"}}><Counter to={s.val}/></div>
               <div style={{fontSize:12,color:"#767676",marginTop:3,fontWeight:500}}>{s.label}</div>
             </div>
           ))}
@@ -2311,7 +2319,7 @@ export default function App(){
       <div style={{marginBottom:52}}>
         <div style={{marginBottom:20}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Categories</div>
-          <h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-.02em",color:"#1D1D1D"}}>What are you looking for?</h2>
+          <h2 style={{fontSize:26,fontWeight:700,letterSpacing:"-.02em",color:"#1D1D1D"}}>What are you looking for?</h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:8}}>
           {CATS.map(c=>(
@@ -2370,12 +2378,12 @@ export default function App(){
 
       {/* LISTINGS HEADER */}
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:14,borderBottom:"2px solid #1428A0"}}>
-        <h2 style={{fontSize:18,fontWeight:800,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
+        <h2 style={{fontSize:18,fontWeight:700,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
         <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676"}}>Page {pg} / {Math.ceil(total/PER_PAGE)||1}</div>
       </div>
 
       {loading?<div style={{textAlign:"center",padding:"80px 0"}}><Spin s="40px"/></div>
-        :listings.length===0?<div className="empty"><div style={{fontSize:56,marginBottom:16,opacity:.15}}>🔍</div><h3 style={{fontWeight:800,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No listings found</h3><p style={{color:"#767676"}}>Try a different search or category</p></div>
+        :listings.length===0?<div className="empty"><div style={{fontSize:56,marginBottom:16,opacity:.15}}>🔍</div><h3 style={{fontWeight:700,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No listings found</h3><p style={{color:"#767676"}}>Try a different search or category</p></div>
         :<div className={vm==="grid"?"g3":"lvc"}>{listings.map(l=><ListingCard key={l.id} listing={l} onClick={()=>openListing(l)} listView={vm==="list"}/>)}</div>}
 
       <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
@@ -2384,7 +2392,7 @@ export default function App(){
       <div style={{marginTop:80,paddingTop:64,borderTop:"1px solid #E5E5E5"}}>
         <div style={{textAlign:"center",marginBottom:48}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:12}}>How It Works</div>
-          <h2 style={{fontSize:"clamp(24px,4vw,40px)",fontWeight:800,letterSpacing:"-.03em",color:"#1D1D1D",lineHeight:1.1}}>Simple. Safe.<br/>Built for Kenya.</h2>
+          <h2 style={{fontSize:"clamp(24px,4vw,40px)",fontWeight:700,letterSpacing:"-.03em",color:"#1D1D1D",lineHeight:1.1}}>Simple. Safe.<br/>Built for Kenya.</h2>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:24}}>
           {[["📝","Post for Free","No upfront cost. Photos, description, location — done in 2 minutes."],
@@ -2395,7 +2403,7 @@ export default function App(){
             ["🏆","Deal Done","Leave a review. Build your seller reputation on the platform."]].map(([icon,title,desc])=>(
             <div key={title} style={{background:"#F4F4F4",padding:"28px 24px",borderRadius:0}}>
               <div style={{fontSize:28,marginBottom:14}}>{icon}</div>
-              <div style={{fontWeight:800,fontSize:15,marginBottom:8,letterSpacing:"-.01em",color:"#1D1D1D"}}>{title}</div>
+              <div style={{fontWeight:700,fontSize:15,marginBottom:8,letterSpacing:"-.01em",color:"#1D1D1D"}}>{title}</div>
               <div style={{fontSize:13,color:"#767676",lineHeight:1.75}}>{desc}</div>
             </div>
           ))}
@@ -2454,7 +2462,7 @@ export default function App(){
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
-          <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:900,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
+          <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
           <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
         </div>
       </div>
