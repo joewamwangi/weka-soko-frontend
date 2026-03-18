@@ -172,7 +172,7 @@ select.inp{appearance:none;cursor:pointer;}
 /* NAV - Samsung white nav */
 .nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
 .dark .nav{background:#121212;border-bottom-color:#333;}
-.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
+.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;white-space:nowrap;flex-shrink:0;}
 .logo span{color:var(--a);}
 /* ALERTS */
 .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
@@ -1795,13 +1795,13 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
   const unreadCount=(notifs.filter(n=>!n.is_read).length||0)+(threads.reduce((a,t)=>a+parseInt(t.unread_count||0),0)||0);
 
-  return <div style={{minHeight:"100vh",background:"var(--bg)",paddingBottom:40}}>
+  return <div style={{minHeight:"100vh",background:"var(--bg)",paddingBottom:40,display:"flex",flexDirection:"column"}}>
     {/* Dashboard top bar */}
     <div style={{position:"sticky",top:0,zIndex:100,background:"var(--surf)",borderBottom:"1px solid var(--border)",padding:"0 16px",display:"flex",alignItems:"center",gap:12,height:56}}>
       <button className="btn bgh" onClick={onClose} style={{padding:"6px 10px",fontSize:20}}>←</button>
       <span style={{fontWeight:700,fontSize:16,flex:1}}>My Account</span>
     </div>
-    <div style={{maxWidth:720,margin:"0 auto",padding:"20px 16px"}}>
+    <div style={{flex:1,maxWidth:"100%",width:"100%",margin:"0 auto",padding:"20px 16px",overflowY:"auto"}}>
     {/* Profile header */}
     <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:22,padding:"16px 20px",background:"linear-gradient(135deg,rgba(20,40,160,.08),rgba(20,40,160,.02))",borderRadius:"var(--r)",border:"1px solid rgba(20,40,160,.12)"}}>
       <div style={{width:56,height:56,borderRadius:"50%",background:"var(--a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#fff",fontWeight:700,flexShrink:0}}>
@@ -1938,6 +1938,9 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                 >✅ Reveal Contact — KSh 250</button>
                 <button className="btn bs sm" style={{fontSize:11}} onClick={async(e)=>{e.stopPropagation();await api(`/api/pitches/${n.data.pitch_id}/decline`,{method:"POST"},token).catch(()=>{});notify("Pitch declined","info");}}>✕ Decline</button>
               </div>
+            )}
+            {n.type==="request_match"&&n.data&&(
+              <button className="btn bp sm" style={{marginTop:10,fontSize:11,padding:"6px 14px"}} onClick={(e)=>{e.stopPropagation();const data=typeof n.data==="string"?JSON.parse(n.data):n.data;setShowPayModal(data.listing_id);markRead(n.id);}}>💳 Pay KSh 250 to Reply</button>
             )}
           </div>
           {!n.is_read&&<div style={{width:8,height:8,background:"var(--a)",borderRadius:"50%",flexShrink:0,marginTop:6}}/>}
