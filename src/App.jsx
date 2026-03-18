@@ -2,6 +2,46 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 
 const API = (process.env.REACT_APP_API_URL || "https://weka-soko-backend-production.up.railway.app").replace(/\/$/, "");
+
+// ── WEKA SOKO LOGO COMPONENT ──────────────────────────────────────────────────
+function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
+  const iconH = size;
+  const iconW = size * (44/52); // maintain bag aspect ratio
+  const textSize = size * 0.72;
+  const subSize = size * 0.28;
+  const gap = size * 0.32;
+  const totalH = iconH;
+  const totalW = iconOnly ? iconW : iconW + gap + (textSize * (iconOnly ? 0 : 4.6));
+  const blue = dark ? "#4D7AFF" : "#1428A0";
+  const textColor = dark ? "#FFFFFF" : "#111827";
+  if (iconOnly) {
+    return (
+      <svg width={iconW} height={iconH} viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block",flexShrink:0}}>
+        <rect x="0" y="17" width="44" height="35" rx="3" fill={blue}/>
+        <rect x="0" y="28" width="44" height="5" fill={dark?"#3560E0":"#0F1F8A"}/>
+        <path d="M10 17 Q10 3 22 3 Q34 3 34 17" fill="none" stroke={blue} strokeWidth="3.5" strokeLinecap="round"/>
+        <circle cx="22" cy="42" r="5" fill="white" opacity="0.9"/>
+        <circle cx="22" cy="42" r="2.5" fill={blue}/>
+      </svg>
+    );
+  }
+  return (
+    <svg width={iconW + gap + 82} height={iconH} viewBox={`0 0 ${Math.round(iconW + gap + 82)} ${iconH}`} fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block"}}>
+      {/* Bag body */}
+      <rect x="0" y={Math.round(iconH*0.33)} width={Math.round(iconW)} height={Math.round(iconH*0.67)} rx="3" fill={blue}/>
+      {/* Bag shadow strip */}
+      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill={dark?"#3560E0":"#0F1F8A"}/>
+      {/* Bag handle */}
+      <path d={`M${Math.round(iconW*0.23)} ${Math.round(iconH*0.33)} Q${Math.round(iconW*0.23)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.5)} ${Math.round(iconH*0.06)} Q${Math.round(iconW*0.77)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.77)} ${Math.round(iconH*0.33)}`} fill="none" stroke={blue} strokeWidth={Math.round(size*0.08)} strokeLinecap="round"/>
+      {/* Lock dot */}
+      <circle cx={Math.round(iconW*0.5)} cy={Math.round(iconH*0.81)} r={Math.round(iconH*0.096)} fill="white" opacity="0.9"/>
+      <circle cx={Math.round(iconW*0.5)} cy={Math.round(iconH*0.81)} r={Math.round(iconH*0.048)} fill={blue}/>
+      {/* Wordmark */}
+      <text x={Math.round(iconW + gap)} y={Math.round(iconH*0.73)} fontFamily="var(--fn,-apple-system,'Segoe UI',Arial,sans-serif)" fontSize={Math.round(textSize)} fontWeight="700" fill={textColor} letterSpacing="-0.02em">Weka<tspan fill={blue}>Soko</tspan></text>
+    </svg>
+  );
+}
+
 const PER_PAGE = 24;
 
 // ── CATEGORIES ────────────────────────────────────────────────────────────────
@@ -132,7 +172,7 @@ select.inp{appearance:none;cursor:pointer;}
 /* NAV - Samsung white nav */
 .nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
 .dark .nav{background:#121212;border-bottom-color:#333;}
-.logo{font-family:var(--fn);font-size:20px;font-weight:700;cursor:pointer;letter-spacing:-.01em;color:#1D1D1D;}
+.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
 .logo span{color:var(--a);}
 /* ALERTS */
 .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
@@ -441,6 +481,7 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
   return <Modal title={mode==="login"?"Sign In":"Create Account"} onClose={onClose} footer={
     <><button className="btn bs" onClick={onClose}>Cancel</button><button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:mode==="login"?"Sign In →":"Create Account →"}</button></>
   }>
+    <div style={{textAlign:"center",marginBottom:20,paddingBottom:16,borderBottom:"1px solid var(--border)"}}><div style={{display:"inline-flex"}}><WekaSokoLogo size={28}/></div></div>
     {/* Google OAuth placeholder */}
     <button className="btn bs" style={{width:"100%",marginBottom:16,gap:10}} onClick={()=>window.location.href=`${API}/api/auth/google`}>
       <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8.1 3l5.7-5.7C34.5 6.5 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c3.1 0 5.9 1.1 8.1 3l5.7-5.7C34.5 6.5 29.5 4 24 4c-7.8 0-14.5 4.4-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 10.1-2 13.7-5.2l-6.3-5.3C29.5 35.5 26.9 36.5 24 36.5c-5.2 0-9.6-3.5-11.2-8.2l-6.5 5C9.4 39.5 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6.1 0 .1 0 0 0l6.3 5.3C37.5 38.7 44 34 44 24c0-1.3-.1-2.7-.4-3.9z"/></svg>
@@ -2048,7 +2089,7 @@ function PWABanner({onDismiss}){
   return <div className="pwa-banner">
     <span style={{fontSize:28}}>📱</span>
     <div style={{flex:1}}>
-      <div style={{fontWeight:700,fontSize:14}}>Install Weka Soko App</div>
+      <div style={{fontWeight:700,fontSize:14,display:"flex",alignItems:"center",gap:8}}><WekaSokoLogo size={22} iconOnly/>Install Weka Soko App</div>
       <div style={{fontSize:12,color:"var(--mut)"}}>Get faster access & offline browsing</div>
     </div>
     <button className="btn bp sm" onClick={install}>Install</button>
@@ -2237,7 +2278,7 @@ export default function App(){
   return <>
     {/* NAV — Samsung white nav */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>Weka<span>Soko</span></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36} dark={dark}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
         <button className="btn bgh sm" onClick={()=>setDark(d=>!d)} style={{fontSize:12,padding:"6px 12px"}}>{dark?"☀ Light":"🌙 Dark"}</button>
         <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",fontSize:12}}>Sold Items</button>
@@ -2470,6 +2511,7 @@ export default function App(){
       <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
+          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28} dark/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
           <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
           <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
