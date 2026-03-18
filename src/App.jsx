@@ -170,9 +170,9 @@ select.inp{appearance:none;cursor:pointer;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
 .dark .mod,.dark .mh{background:#1E1E1E;border-color:#333;}
 /* NAV - Samsung white nav */
-.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 20px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:16px;}
 .dark .nav{background:#121212;border-bottom-color:#333;}
-.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;white-space:nowrap;flex-shrink:0;}
+.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;white-space:nowrap;flex-shrink:0;min-width:fit-content;}
 .logo span{color:var(--a);}
 /* ALERTS */
 .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
@@ -1449,8 +1449,19 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
-                  {user&&user.role==="seller"&&user.id!==r.user_id&&
-                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setPitchTarget(r)}>📬 I Have This</button>
+                  {user&&user.id!==r.user_id&&
+                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
+                      if(user.role!=="seller"){
+                        if(window.confirm("You need to be a Seller to respond. Switch to Seller account?")){
+                          api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));setPitchTarget(r);}).catch(e=>notify(e.message,"error"));
+                        }
+                        return;
+                      }
+                      setPitchTarget(r);
+                    }}>📬 I Have This</button>
+                  }
+                  {!user&&
+                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>onSignIn()}>📬 I Have This</button>
                   }
                 </div>
               </div>
@@ -2070,20 +2081,20 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     {/* Pay to unlock */}
     {showPayModal&&<PayModal
       type="unlock"
-      listingId={showPayModal.id}
+      listingId={typeof showPayModal==="string"?showPayModal:showPayModal.id}
       amount={250}
-      purpose={`Unlock buyer contact for: ${showPayModal.title}`}
+      purpose={typeof showPayModal==="string"?"Unlock buyer contact":` Unlock buyer contact for: ${showPayModal.title}`}
       token={token}
       user={user}
       allowVoucher={true}
       onSuccess={async(result)=>{
-        const lid=showPayModal.id;
+        const lid=typeof showPayModal==="string"?showPayModal:showPayModal.id;
         setShowPayModal(null);
         try{
           const fresh=await api(`/api/listings/${lid}`,{},token);
           const ul=fresh.listing||fresh;
           setListings(p=>p.map(l=>l.id===lid?ul:l));
-        }catch{setListings(p=>p.map(l=>l.id===lid?{...l,is_unlocked:true}:l));}
+        }catch{setListings(p=>p.map(l=>l.id===lid?{...l,is_contact_public:true}:l));}
         notify("🔓 Buyer contact unlocked! Check Notifications for their details.","success");
       }}
       onClose={()=>setShowPayModal(null)}
