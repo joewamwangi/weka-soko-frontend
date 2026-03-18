@@ -1449,7 +1449,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
-                  {user&&user.id!==r.user_id&&
+                  {user&&
                     <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
                       if(user.role!=="seller"){
                         if(window.confirm("You need to be a Seller to respond. Switch to Seller account?")){
