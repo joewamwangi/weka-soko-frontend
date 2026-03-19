@@ -432,22 +432,18 @@ function WatermarkedImage({src,alt,style={},onClick}){
       canvas.width=w; canvas.height=h;
       const ctx=canvas.getContext("2d");
       ctx.drawImage(img,0,0);
-      // Tile the watermark diagonally across the whole image
-      const fontSize=Math.max(16,Math.min(w,h)*0.06);
+      // Single centred diagonal watermark
+      const fontSize=Math.max(18,Math.min(w,h)*0.07);
       ctx.save();
-      ctx.font=`700 ${fontSize}px SamsungSharpSans,Helvetica,Arial,sans-serif`;
-      ctx.textAlign="center"; ctx.textBaseline="middle";
-      ctx.fillStyle="rgba(255,255,255,0.20)";
-      ctx.shadowColor="rgba(0,0,0,0.30)"; ctx.shadowBlur=3;
-      // Tile across image at -30 degrees
-      const step=fontSize*5;
       ctx.translate(w/2,h/2);
       ctx.rotate(-Math.PI/6);
-      for(let y=-h;y<h*1.5;y+=step){
-        for(let x=-w;x<w*1.5;x+=step){
-          ctx.fillText("WekaSoko",x,y);
-        }
-      }
+      ctx.font=`700 ${fontSize}px SamsungSharpSans,Helvetica,Arial,sans-serif`;
+      ctx.textAlign="center";
+      ctx.textBaseline="middle";
+      ctx.shadowColor="rgba(0,0,0,0.30)";
+      ctx.shadowBlur=4;
+      ctx.fillStyle="rgba(255,255,255,0.22)";
+      ctx.fillText("WekaSoko",0,0);
       ctx.restore();
       setLoaded(true);
     };
