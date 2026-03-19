@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 const API = (process.env.REACT_APP_API_URL || "https://weka-soko-backend-production.up.railway.app").replace(/\/$/, "");
 
 // ── WEKA SOKO LOGO COMPONENT ──────────────────────────────────────────────────
-function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
+function WekaSokoLogo({ size = 32, iconOnly = false }) {
   const iconH = size;
   const iconW = size * (44/52); // maintain bag aspect ratio
   const textSize = size * 0.72;
@@ -12,13 +12,13 @@ function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
   const gap = size * 0.32;
   const totalH = iconH;
   const totalW = iconOnly ? iconW : iconW + gap + (textSize * (iconOnly ? 0 : 4.6));
-  const blue = dark ? "#4D7AFF" : "#1428A0";
-  const textColor = dark ? "#FFFFFF" : "#111827";
+  const blue = "#1428A0";
+  const textColor = "#111827";
   if (iconOnly) {
     return (
       <svg width={iconW} height={iconH} viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block",flexShrink:0}}>
         <rect x="0" y="17" width="44" height="35" rx="3" fill={blue}/>
-        <rect x="0" y="28" width="44" height="5" fill={dark?"#3560E0":"#0F1F8A"}/>
+        <rect x="0" y="28" width="44" height="5" fill="#0F1F8A"/>
         <path d="M10 17 Q10 3 22 3 Q34 3 34 17" fill="none" stroke={blue} strokeWidth="3.5" strokeLinecap="round"/>
         <circle cx="22" cy="42" r="5" fill="white" opacity="0.9"/>
         <circle cx="22" cy="42" r="2.5" fill={blue}/>
@@ -30,7 +30,7 @@ function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
       {/* Bag body */}
       <rect x="0" y={Math.round(iconH*0.33)} width={Math.round(iconW)} height={Math.round(iconH*0.67)} rx="3" fill={blue}/>
       {/* Bag shadow strip */}
-      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill={dark?"#3560E0":"#0F1F8A"}/>
+      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill="#0F1F8A"/>
       {/* Bag handle */}
       <path d={`M${Math.round(iconW*0.23)} ${Math.round(iconH*0.33)} Q${Math.round(iconW*0.23)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.5)} ${Math.round(iconH*0.06)} Q${Math.round(iconW*0.77)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.77)} ${Math.round(iconH*0.33)}`} fill="none" stroke={blue} strokeWidth={Math.round(size*0.08)} strokeLinecap="round"/>
       {/* Lock dot */}
@@ -127,11 +127,6 @@ const CSS = `
   --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --nav-h:60px;
 }
-.dark{
-  --bg:#121212;--surf:#1E1E1E;--sh:#2A2A2A;--border:#333333;
-  --a:#5B8AFF;--a2:#4A78F0;
-  --txt:#F5F5F5;--mut:#9E9E9E;--dim:#555555;
-}
 body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
@@ -149,7 +144,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;
 .inp::placeholder{color:#AEAEB2;}
 textarea.inp{resize:vertical;min-height:90px;}
 select.inp{appearance:none;cursor:pointer;}
-.dark .inp{background:var(--sh);border-color:var(--border);}
 /* LABELS */
 .lbl{display:block;font-size:11px;font-weight:700;color:#636363;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 /* BADGES */
@@ -168,10 +162,8 @@ select.inp{appearance:none;cursor:pointer;}
 .mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;}
 .mb{padding:22px 28px;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
-.dark .mod,.dark .mh{background:#1E1E1E;border-color:#333;}
 /* NAV - Samsung white nav */
 .nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
-.dark .nav{background:#121212;border-bottom-color:#333;}
 .logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
 .logo span{color:var(--a);}
 /* ALERTS */
@@ -2234,7 +2226,6 @@ function Pager({total,perPage,page,onChange}){
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App(){
-  const [dark,setDark]=useState(()=>{try{return localStorage.getItem("ws-theme")==="dark";}catch{return false;}});
   const [user,setUser]=useState(null);
   const [token,setToken]=useState(null);
   const [page,setPage]=useState("home");
@@ -2257,7 +2248,6 @@ export default function App(){
   const notify=useCallback((msg,type="info")=>setToast({msg,type,id:Date.now()}),[]);
   const closeModal=useCallback(()=>setModal(null),[]);
 
-  useEffect(()=>{document.documentElement.className=dark?"dark":"";try{localStorage.setItem("ws-theme",dark?"dark":"light");}catch{};},[dark]);
   useEffect(()=>{let el=document.getElementById("ws-css");if(!el){el=document.createElement("style");el.id="ws-css";document.head.appendChild(el);}el.textContent=CSS;},[]);
 
   // Handle Google OAuth callback + password reset token
@@ -2402,9 +2392,8 @@ export default function App(){
   return <>
     {/* NAV — Samsung white nav */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36} dark={dark}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        <button className="btn bgh sm" onClick={()=>setDark(d=>!d)} style={{fontSize:12,padding:"6px 12px"}}>{dark?"☀ Light":"🌙 Dark"}</button>
         <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",fontSize:12}}>Sold Items</button>
         {user?<>
           <button className="btn bgh sm" style={{position:"relative",fontSize:12}} onClick={()=>setShowDashboard(true)}>
@@ -2635,7 +2624,7 @@ export default function App(){
       <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
-          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28} dark/></div>
+          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28}/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
           <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
           <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
