@@ -413,6 +413,57 @@ function ResetPasswordModal({token,onClose,notify}){
 }
 
 // ── IMAGE LIGHTBOX ────────────────────────────────────────────────────────────
+// ── WATERMARKED IMAGE ─────────────────────────────────────────────────────────
+// Renders an image on a <canvas> with a tiled diagonal WekaSoko watermark.
+// The watermark is baked into the canvas pixel data — right-click save includes it.
+function WatermarkedImage({src,alt,style={},onClick}){
+  const canvasRef=useRef(null);
+  const [loaded,setLoaded]=useState(false);
+
+  useEffect(()=>{
+    if(!src){setLoaded(false);return;}
+    setLoaded(false);
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>{
+      const canvas=canvasRef.current;
+      if(!canvas)return;
+      const w=img.naturalWidth, h=img.naturalHeight;
+      canvas.width=w; canvas.height=h;
+      const ctx=canvas.getContext("2d");
+      ctx.drawImage(img,0,0);
+      // Tile the watermark diagonally across the whole image
+      const fontSize=Math.max(16,Math.min(w,h)*0.06);
+      ctx.save();
+      ctx.font=`700 ${fontSize}px SamsungSharpSans,Helvetica,Arial,sans-serif`;
+      ctx.textAlign="center"; ctx.textBaseline="middle";
+      ctx.fillStyle="rgba(255,255,255,0.20)";
+      ctx.shadowColor="rgba(0,0,0,0.30)"; ctx.shadowBlur=3;
+      // Tile across image at -30 degrees
+      const step=fontSize*5;
+      ctx.translate(w/2,h/2);
+      ctx.rotate(-Math.PI/6);
+      for(let y=-h;y<h*1.5;y+=step){
+        for(let x=-w;x<w*1.5;x+=step){
+          ctx.fillText("WekaSoko",x,y);
+        }
+      }
+      ctx.restore();
+      setLoaded(true);
+    };
+    img.onerror=()=>setLoaded(false);
+    img.src=src;
+  },[src]);
+
+  return <>
+    <canvas ref={canvasRef} onClick={onClick}
+      style={{...style,display:loaded?"block":"none",cursor:onClick?"zoom-in":"default"}}/>
+    {!loaded&&<img src={src} alt={alt||""}
+      style={{...style,cursor:onClick?"zoom-in":"default"}} onClick={onClick}/>}
+  </>;
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────────────────────────
 function Lightbox({photos,startIdx,onClose}){
   const [idx,setIdx]=useState(startIdx||0);
   const prev=()=>setIdx(i=>(i-1+photos.length)%photos.length);
@@ -422,24 +473,21 @@ function Lightbox({photos,startIdx,onClose}){
     window.addEventListener("keydown",h);
     return()=>window.removeEventListener("keydown",h);
   },[]);
-  return <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,.95)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}
+  return <div style={{position:"fixed",inset:0,zIndex:9999,background:"rgba(0,0,0,.96)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}
     onClick={onClose}>
-    {/* Close */}
     <button onClick={onClose} style={{position:"absolute",top:16,right:20,background:"rgba(255,255,255,.15)",border:"none",color:"#fff",fontSize:28,width:44,height:44,borderRadius:"50%",cursor:"pointer",zIndex:10}}>✕</button>
-    {/* Counter */}
-    <div style={{position:"absolute",top:20,left:"50%",transform:"translateX(-50%)",color:"rgba(255,255,255,.7)",fontSize:13}}>{idx+1} / {photos.length}</div>
-    {/* Image */}
-    <img src={photos[idx]} alt="" onClick={e=>e.stopPropagation()}
-      style={{maxWidth:"92vw",maxHeight:"82vh",objectFit:"contain",borderRadius:8,boxShadow:"0 8px 40px rgba(0,0,0,.6)"}}/>
-    {/* Nav arrows */}
+    <div style={{position:"absolute",top:20,left:"50%",transform:"translateX(-50%)",color:"rgba(255,255,255,.7)",fontSize:13,zIndex:10}}>{idx+1} / {photos.length}</div>
+    <div onClick={e=>e.stopPropagation()} style={{display:"flex",alignItems:"center",justifyContent:"center",maxWidth:"92vw",maxHeight:"82vh"}}>
+      <WatermarkedImage src={photos[idx]} alt=""
+        style={{maxWidth:"92vw",maxHeight:"82vh",objectFit:"contain",borderRadius:4,boxShadow:"0 8px 40px rgba(0,0,0,.6)",display:"block"}}/>
+    </div>
     {photos.length>1&&<>
-      <button onClick={e=>{e.stopPropagation();prev();}} style={{position:"absolute",left:16,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,.15)",border:"none",color:"#fff",fontSize:28,width:50,height:50,borderRadius:"50%",cursor:"pointer"}}>‹</button>
-      <button onClick={e=>{e.stopPropagation();next();}} style={{position:"absolute",right:16,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,.15)",border:"none",color:"#fff",fontSize:28,width:50,height:50,borderRadius:"50%",cursor:"pointer"}}>›</button>
+      <button onClick={e=>{e.stopPropagation();prev();}} style={{position:"absolute",left:16,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,.15)",border:"none",color:"#fff",fontSize:28,width:50,height:50,borderRadius:"50%",cursor:"pointer",zIndex:10}}>‹</button>
+      <button onClick={e=>{e.stopPropagation();next();}} style={{position:"absolute",right:16,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,.15)",border:"none",color:"#fff",fontSize:28,width:50,height:50,borderRadius:"50%",cursor:"pointer",zIndex:10}}>›</button>
     </>}
-    {/* Thumbnails */}
-    {photos.length>1&&<div style={{position:"absolute",bottom:20,display:"flex",gap:8,overflowX:"auto",maxWidth:"90vw",padding:"0 8px"}}>
+    {photos.length>1&&<div style={{position:"absolute",bottom:20,display:"flex",gap:8,overflowX:"auto",maxWidth:"90vw",padding:"0 8px",zIndex:10}}>
       {photos.map((p,i)=><img key={i} src={p} alt="" onClick={e=>{e.stopPropagation();setIdx(i);}}
-        style={{width:56,height:44,objectFit:"cover",borderRadius:6,cursor:"pointer",opacity:i===idx?1:.45,border:i===idx?"2px solid #fff":"2px solid transparent",flexShrink:0,transition:"opacity .2s"}}/>)}
+        style={{width:56,height:44,objectFit:"cover",borderRadius:4,cursor:"pointer",opacity:i===idx?1:.45,border:i===idx?"2px solid #fff":"2px solid transparent",flexShrink:0,transition:"opacity .2s"}}/>)}
     </div>}
   </div>;
 }
@@ -1021,7 +1069,7 @@ function ListingCard({listing:l,onClick,listView}){
   const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
   return <div className={`lcard${listView?" lcard-list":""}`} onClick={onClick}>
     <div className="lthumb">
-      {photo?<img src={photo} alt={l.title}/>:<span style={{fontSize:44,opacity:.15}}>📦</span>}
+      {photo?<WatermarkedImage src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>:<span style={{fontSize:44,opacity:.15}}>📦</span>}
       {l.status==="sold"&&<div className="sold-badge">SOLD ✓</div>}
       {l.locked_buyer_id&&!l.is_unlocked&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"#1428A0",color:"#fff",fontSize:10,fontWeight:700,padding:"5px 10px",letterSpacing:".04em",textTransform:"uppercase"}}>🔥 Buyer Interested</div>}
     </div>
@@ -1195,12 +1243,19 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
   }>
     {/* Photos */}
     <div style={{background:"var(--sh)",borderRadius:"var(--rs)",aspectRatio:"16/9",overflow:"hidden",marginBottom:10,position:"relative",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      {mainPhoto?<img src={mainPhoto} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:80,opacity:.15}}>📦</span>}
-      {l.status==="sold"&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.4)",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{background:"var(--a)",color:"#fff",padding:"8px 28px",borderRadius:30,fontWeight:700,fontSize:20}}>SOLD ✓</div></div>}
+      {mainPhoto
+        ?<WatermarkedImage src={mainPhoto} alt={l.title}
+            style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}
+            onClick={()=>setLightbox({photos,idx:photos.indexOf(mainPhoto)<0?0:photos.indexOf(mainPhoto)})}/>
+        :<span style={{fontSize:80,opacity:.15}}>📦</span>}
+      {/* Zoom hint */}
+      {mainPhoto&&<div style={{position:"absolute",bottom:10,right:10,background:"rgba(0,0,0,.45)",color:"#fff",fontSize:11,padding:"4px 10px",borderRadius:20,pointerEvents:"none"}}>🔍 Click to enlarge</div>}
+      {l.status==="sold"&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.4)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}><div style={{background:"var(--a)",color:"#fff",padding:"8px 28px",borderRadius:30,fontWeight:700,fontSize:20}}>SOLD ✓</div></div>}
     </div>
     {photos.length>1&&<div style={{display:"flex",gap:6,marginBottom:16,overflowX:"auto"}}>
       {photos.map((p,i)=><img key={i} src={p} alt="" onClick={()=>setMainPhoto(p)} style={{width:70,height:55,objectFit:"cover",borderRadius:"var(--rs)",cursor:"pointer",opacity:mainPhoto===p?1:.55,border:mainPhoto===p?"2px solid var(--a)":"2px solid transparent",flexShrink:0}}/>)}
     </div>}
+    {lightbox&&<Lightbox photos={lightbox.photos} startIdx={lightbox.idx} onClose={()=>setLightbox(null)}/>}
 
     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16}}>
       <div>
