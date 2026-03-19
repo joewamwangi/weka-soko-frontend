@@ -2134,6 +2134,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       onClose={()=>setShowPayModal(null)} notify={notify}/>}
     </div>
   </>;
+}
 
 
 // ── PITCH MODAL — Seller pitches to a buyer request ─────────────────────────
