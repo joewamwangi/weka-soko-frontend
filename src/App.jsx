@@ -106,6 +106,14 @@ async function api(path, opts={}, token=null) {
   return data;
 }
 
+// Convert VAPID base64 key to Uint8Array for PushManager.subscribe
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
 @font-face{font-family:'SamsungSharpSans';font-weight:400;font-style:normal;font-display:swap;
@@ -2366,6 +2374,47 @@ export default function App(){
       if(Array.isArray(ns))setNotifCount(ns.filter(n=>!n.is_read).length);
     }).catch(()=>{});
   },[token]);
+
+  // ── Web Push subscription ─────────────────────────────────────────────────
+  useEffect(()=>{
+    if(!token||!user)return;
+    // Only run once per session — skip if already subscribed
+    if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
+    if(Notification.permission==="denied")return;
+
+    const subscribe=async()=>{
+      try{
+        // Get VAPID public key from backend
+        const {key} = await api("/api/push/vapid-public-key");
+        const reg = await navigator.serviceWorker.ready;
+
+        // Check if already subscribed
+        const existing = await reg.pushManager.getSubscription();
+        if(existing){
+          // Re-send to backend in case it was lost
+          await api("/api/push/subscribe",{method:"POST",body:JSON.stringify({subscription:existing})},token).catch(()=>{});
+          return;
+        }
+
+        // Request permission if not already granted
+        if(Notification.permission==="default"){
+          const perm = await Notification.requestPermission();
+          if(perm!=="granted")return;
+        }
+
+        // Subscribe
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly:true,
+          applicationServerKey:urlBase64ToUint8Array(key)
+        });
+        await api("/api/push/subscribe",{method:"POST",body:JSON.stringify({subscription:sub})},token);
+      }catch(e){console.warn("[Push] subscribe:",e.message);}
+    };
+
+    // Small delay so the page loads first before the permission prompt
+    const t = setTimeout(subscribe, 3000);
+    return ()=>clearTimeout(t);
+  },[token,user]);
 
   const handleAuth=(u,t)=>{setUser(u);setToken(t);setNotifCount(0);};
   const logout=()=>{setUser(null);setToken(null);setNotifCount(0);localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");notify("Signed out.","info");};
