@@ -1677,6 +1677,24 @@ function SoldSection({token,user}){
   const [cat,setCat]=useState("");
   const PER=12;
 
+  // How long from listing to sold
+  const duration=(created,sold)=>{
+    if(!created||!sold)return null;
+    const ms=new Date(sold).getTime()-new Date(created).getTime();
+    if(ms<0)return null;
+    const days=Math.floor(ms/86400000);
+    if(days===0)return"same day";
+    if(days===1)return"1 day";
+    if(days<7)return`${days} days`;
+    if(days<30)return`${Math.floor(days/7)} week${Math.floor(days/7)>1?"s":""}`;
+    return`${Math.floor(days/30)} month${Math.floor(days/30)>1?"s":""}`;
+  };
+
+  const fmtDate=ts=>{
+    if(!ts)return"";
+    return new Date(ts).toLocaleDateString("en-KE",{day:"numeric",month:"short",year:"numeric"});
+  };
+
   useEffect(()=>{
     setLoading(true);
     const params=new URLSearchParams({page:pg,limit:PER});
@@ -1697,7 +1715,11 @@ function SoldSection({token,user}){
   return<>
     {/* Stats bar */}
     <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#fff"}}>
-      {[{label:"Total Sales",val:total},{label:"Categories",val:[...new Set(items.map(i=>i.category))].length},{label:"Avg Price",val:"KSh "+Math.round(items.reduce((a,l)=>a+(l.price||0),0)/items.length).toLocaleString("en-KE")||0}].map((s,i)=>(
+      {[
+        {label:"Total Sales",val:total},
+        {label:"Categories",val:[...new Set(items.map(i=>i.category))].length},
+        {label:"Avg Price",val:"KSh "+Math.round(items.reduce((a,l)=>a+(parseFloat(l.price)||0),0)/items.length).toLocaleString("en-KE")},
+      ].map((s,i)=>(
         <div key={s.label} style={{flex:1,padding:"18px 20px",borderRight:i<2?"1px solid #E5E5E5":"none",textAlign:"center"}}>
           <div style={{fontSize:22,fontWeight:700,letterSpacing:"-.02em",color:"#1D1D1D"}}>{s.val}</div>
           <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676",marginTop:3}}>{s.label}</div>
@@ -1714,35 +1736,55 @@ function SoldSection({token,user}){
     </div>}
 
     {/* Product grid */}
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16}}>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:20}}>
       {items.map(l=>{
         const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-        return<div key={l.id} style={{background:"#fff",border:"1px solid #E5E5E5",overflow:"hidden",transition:"all .2s",cursor:"default"}}>
+        const dur=duration(l.created_at,l.sold_at);
+        return<div key={l.id} style={{background:"#fff",border:"1px solid #E5E5E5",overflow:"hidden"}}>
           {/* Image */}
           <div style={{aspectRatio:"4/3",background:"#F4F4F4",position:"relative",overflow:"hidden"}}>
-            {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:40,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.15}}>📦</span>}
+            {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+              :<span style={{fontSize:40,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.15}}>📦</span>}
             {/* SOLD overlay */}
-            <div style={{position:"absolute",inset:0,background:"rgba(20,40,160,.6)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <div style={{position:"absolute",inset:0,background:"rgba(20,40,160,.55)",display:"flex",alignItems:"center",justifyContent:"center"}}>
               <span style={{background:"#fff",color:"#1428A0",fontSize:11,fontWeight:700,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
             </div>
-            {/* Rating badge */}
-            {l.avg_rating>0&&<div style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.7)",color:"#fff",fontSize:11,fontWeight:700,padding:"3px 8px",display:"flex",alignItems:"center",gap:3}}>
+            {/* Sale channel badge */}
+            {l.sold_channel&&<div style={{position:"absolute",top:8,left:8,background:l.sold_channel==="platform"?"rgba(20,40,160,.85)":"rgba(0,0,0,.6)",color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px"}}>
+              {l.sold_channel==="platform"?"🛒 Via WekaSoko":"🤝 Elsewhere"}
+            </div>}
+            {/* Rating */}
+            {l.avg_rating>0&&<div style={{position:"absolute",top:8,right:8,background:"rgba(0,0,0,.65)",color:"#fff",fontSize:11,fontWeight:700,padding:"3px 8px",display:"flex",alignItems:"center",gap:3}}>
               <span style={{color:"#FFD700"}}>★</span>{Number(l.avg_rating).toFixed(1)}
             </div>}
           </div>
+
           {/* Info */}
           <div style={{padding:"14px 16px"}}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#767676",marginBottom:4}}>{l.category}</div>
-            <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
-            <div style={{fontSize:18,fontWeight:700,color:"#1428A0",letterSpacing:"-.02em",marginBottom:8}}>{fmtKES(l.price)}</div>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#767676"}}>
-              <span>{l.county||l.location||"Kenya"}</span>
-              <span>{ago(l.updated_at)}</span>
+            <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,marginBottom:6,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+            <div style={{fontSize:18,fontWeight:700,color:"#1428A0",letterSpacing:"-.02em",marginBottom:10}}>{fmtKES(l.price)}</div>
+
+            {/* Timeline — listed → sold */}
+            <div style={{background:"#F6F6F6",padding:"10px 12px",fontSize:11,lineHeight:1.8}}>
+              <div style={{display:"flex",justifyContent:"space-between",color:"#535353"}}>
+                <span>📅 Listed</span>
+                <span style={{fontWeight:600}}>{fmtDate(l.created_at)}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",color:"#1428A0"}}>
+                <span>✅ Sold</span>
+                <span style={{fontWeight:600}}>{fmtDate(l.sold_at)}</span>
+              </div>
+              {dur&&<div style={{marginTop:4,paddingTop:6,borderTop:"1px solid #E5E5E5",color:"#636363",display:"flex",justifyContent:"space-between"}}>
+                <span>⏱ Time to sell</span>
+                <span style={{fontWeight:700,color:"#1D1D1D"}}>{dur}</span>
+              </div>}
             </div>
-            {l.review_count>0&&<div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #F0F0F0",fontSize:11,color:"#767676"}}>
-              <span style={{color:"#FFD700"}}>{"★".repeat(Math.round(l.avg_rating||0))}</span>
-              <span style={{marginLeft:4}}>{l.review_count} review{l.review_count!==1?"s":""}</span>
-            </div>}
+
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#767676",marginTop:8}}>
+              <span>📍 {l.county||l.location||"Kenya"}</span>
+              {l.review_count>0&&<span style={{color:"#FFD700"}}>{"★".repeat(Math.round(l.avg_rating||0))}</span>}
+            </div>
           </div>
         </div>;
       })}
@@ -1756,7 +1798,6 @@ function SoldSection({token,user}){
     </div>}
   </>;
 }
-
 // ── REVIEWS SECTION ───────────────────────────────────────────────────────────
 function StarPicker({value,onChange}){
   const [hover,setHover]=useState(0);
@@ -2618,7 +2659,7 @@ export default function App(){
     </nav>
 
     {/* ── HERO — Samsung.com style: clean, large type, light background ── */}
-    {page!=="dashboard"&&<div style={{background:"#F4F4F4",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
+    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#F4F4F4",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",alignItems:"center",gap:48,flexWrap:"wrap"}}>
         <div style={{flex:"1 1 420px"}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16,color:"#767676"}}>🇰🇪 Kenya's Resell Platform</div>
@@ -2668,7 +2709,7 @@ export default function App(){
     </div>}
 
     {/* ── TRUST BAR ─────────────────────────────────────────────────────── */}
-    {page!=="dashboard"&&<div style={{background:"#fff",borderBottom:"1px solid #E5E5E5",padding:"14px 40px"}}>
+    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#fff",borderBottom:"1px solid #E5E5E5",padding:"14px 40px"}}>
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",gap:32,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}>
         {["Free to list","Safe anonymous chat","M-Pesa escrow","Kenyan platform"].map(t=>(
           <span key={t} style={{fontSize:12,fontWeight:600,color:"#535353",display:"flex",alignItems:"center",gap:6}}>
@@ -2678,7 +2719,7 @@ export default function App(){
       </div>
     </div>}
 
-    {page!=="dashboard"&&<main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
+    {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
 
       {/* CATEGORIES — Samsung product category grid */}
       <div style={{marginBottom:52}}>
@@ -2820,22 +2861,22 @@ export default function App(){
     />}
     {resetToken&&<ResetPasswordModal token={resetToken} notify={notify} onClose={()=>{setResetToken(null);setModal({type:"auth",mode:"login"});}}/>}
 
-    {page==="sold"&&<>
-      {/* Sold page header — Samsung style dark banner */}
+    {page==="sold"&&<div style={{minHeight:"100vh",background:"#F4F4F4"}}>
+      {/* Hero banner */}
       <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
-          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
-          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28}/></div>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
-          <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
-          <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
+          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em"}}>← Back to Marketplace</button>
+          <div style={{marginBottom:14,opacity:.9}}><WekaSokoLogo size={26}/></div>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".12em",textTransform:"uppercase",color:"rgba(255,255,255,.55)",marginBottom:10}}>Sold Listings</div>
+          <h1 style={{fontSize:"clamp(30px,5vw,54px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.05,marginBottom:14}}>Sold on Weka Soko</h1>
+          <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:500,lineHeight:1.75}}>Real items. Real buyers. Every listing below found a home through Weka Soko.</p>
         </div>
       </div>
       {/* Content */}
-      <div style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
+      <div style={{maxWidth:1180,margin:"0 auto",padding:"44px 40px 80px"}}>
         <SoldSection token={token} user={user}/>
       </div>
-    </>}
+    </div>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
     {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")}/>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
