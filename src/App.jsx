@@ -648,6 +648,10 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
 
   return <Modal title={type==="unlock"?"🔓 Unlock Buyer Contact":"🔐 Escrow Payment"} onClose={onClose}>
     {step==="form"&&<>
+      {/* Seller safety tip — shown only on unlock */}
+      {type==="unlock"&&<div style={{background:"rgba(20,40,160,.04)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",padding:"11px 14px",marginBottom:16,fontSize:12,color:"#1428A0",lineHeight:1.7}}>
+        <strong>🛡️ Seller tip:</strong> Once you unlock, you'll see the buyer's contact details. <strong>Do not hand over the item until payment is confirmed.</strong> Use Escrow for full protection — funds are held by Weka Soko until the buyer receives and confirms the item.
+      </div>}
       <div style={{background:"rgba(20,40,160,.06)",border:"1px solid rgba(20,40,160,.2)",borderRadius:"var(--r)",padding:"18px 20px",marginBottom:18}}>
         <div style={{fontSize:11,color:"var(--mut)",marginBottom:4}}>Till Number <strong style={{color:"var(--txt)"}}>5673935</strong> · Weka Soko</div>
         <div style={{display:"flex",alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
@@ -676,6 +680,10 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
               <input className="inp" style={{borderRadius:"0 var(--rs) var(--rs) 0"}} value={phone} onChange={e=>setPhone(e.target.value.replace(/[^0-9]/g,""))} placeholder="0712345678" maxLength={10}/>
             </div>
           </FF>
+          {/* Safety tip before payment */}
+          <div style={{background:"rgba(192,48,48,.04)",border:"1px solid rgba(192,48,48,.15)",borderRadius:"var(--rs)",padding:"10px 13px",marginBottom:12,fontSize:12,color:"#7f1d1d",lineHeight:1.65}}>
+            <strong>⚠️ Security reminder:</strong> This KSh 250 is paid to <strong>Weka Soko Till 5673935</strong> only. We will <strong>never</strong> ask you to send money to a seller's personal number before meeting. If anyone does, report it immediately.
+          </div>
           <button className="btn bp lg" style={{width:"100%"}} onClick={startPayment} disabled={phone.length<10}>
             📱 Send M-Pesa Request → {fmtKES(finalAmt)}
           </button>
@@ -1025,6 +1033,7 @@ function ListingCard({listing:l,onClick,listView}){
       <div style={{display:"flex",gap:12,color:"var(--mut)",fontSize:11,flexWrap:"wrap",borderTop:"1px solid var(--border)",paddingTop:8,marginTop:4}}>
         {l.location&&<span>📍 {l.location}</span>}
         <span>👁 {l.view_count||0}</span>
+        {l.seller_avg_rating>0&&<span style={{color:"#8B6400",fontWeight:700}}>★ {Number(l.seller_avg_rating).toFixed(1)}</span>}
         <span style={{marginLeft:"auto"}}>{ago(l.created_at)}</span>
       </div>
     </div>
@@ -1264,18 +1273,33 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
           <div style={{flex:1}}>
             <div style={{fontWeight:600}}>{l.seller_anon||"Anonymous Seller"}</div>
             <div style={{fontSize:12,color:"var(--mut)"}}>Pay KSh 250 to reveal contact details</div>
-            {l.response_rate!=null&&<div style={{marginTop:4,display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-              <span style={{fontSize:11,background:l.response_rate>=80?"rgba(20,40,160,.12)":"rgba(217,119,6,.12)",color:l.response_rate>=80?"var(--a)":"var(--gold)",padding:"2px 8px",borderRadius:20,fontWeight:600}}>
+            <div style={{display:"flex",gap:6,marginTop:5,flexWrap:"wrap",alignItems:"center"}}>
+              {l.seller_avg_rating>0&&<span style={{fontSize:11,background:"rgba(139,100,0,.1)",color:"#8B6400",padding:"2px 8px",borderRadius:20,fontWeight:700}}>
+                ★ {Number(l.seller_avg_rating).toFixed(1)} ({l.seller_review_count||0} review{l.seller_review_count!==1?"s":""})
+              </span>}
+              {(!l.seller_avg_rating||l.seller_avg_rating===0)&&<span style={{fontSize:11,color:"var(--dim)"}}>No reviews yet</span>}
+              {l.response_rate!=null&&<span style={{fontSize:11,background:l.response_rate>=80?"rgba(20,40,160,.12)":"rgba(217,119,6,.12)",color:l.response_rate>=80?"var(--a)":"var(--gold)",padding:"2px 8px",borderRadius:20,fontWeight:600}}>
                 ⚡ {Math.round(l.response_rate)}% response rate
-              </span>
+              </span>}
               {l.avg_response_hours!=null&&l.avg_response_hours<48&&<span style={{fontSize:11,color:"var(--mut)"}}>
                 Replies in ~{l.avg_response_hours<1?"under an hour":l.avg_response_hours<24?Math.round(l.avg_response_hours)+"h":Math.round(l.avg_response_hours/24)+"d"}
               </span>}
-            </div>}
+            </div>
           </div>
           {isSeller&&l.locked_buyer_id&&<button className="btn bp sm" style={{marginLeft:"auto"}} onClick={onUnlock}>Unlock → KSh 250</button>}
         </div>}
     </div>
+
+    {/* ── Buyer safety tip ───────────────────────────────────────────── */}
+    {!isSeller&&l.status==="active"&&<div style={{background:"rgba(20,40,160,.04)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",padding:"12px 14px",marginBottom:10}}>
+      <div style={{fontSize:12,fontWeight:700,color:"#1428A0",marginBottom:4}}>🛡️ Stay Safe on Weka Soko</div>
+      <div style={{fontSize:12,color:"var(--mut)",lineHeight:1.7}}>
+        • <strong>Never pay outside this platform.</strong> If a seller asks for M-Pesa directly before you've met, that's a scam.<br/>
+        • <strong>Use Escrow</strong> for expensive items — your money is held safely until you confirm delivery.<br/>
+        • <strong>Meet in a public place</strong> for physical item handovers. Bring someone if you can.<br/>
+        • 🚩 <strong>Something feel off?</strong> Use the Report button below.
+      </div>
+    </div>}
 
     {/* Escrow info */}
     {!isSeller&&l.status==="active"&&<div className="alert ay" style={{fontSize:12}}>
