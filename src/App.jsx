@@ -4,21 +4,18 @@ import { io } from "socket.io-client";
 const API = (process.env.REACT_APP_API_URL || "https://weka-soko-backend-production.up.railway.app").replace(/\/$/, "");
 
 // ── WEKA SOKO LOGO COMPONENT ──────────────────────────────────────────────────
-function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
+function WekaSokoLogo({ size = 32, iconOnly = false }) {
   const iconH = size;
   const iconW = size * (44/52); // maintain bag aspect ratio
   const textSize = size * 0.72;
-  const subSize = size * 0.28;
   const gap = size * 0.32;
-  const totalH = iconH;
-  const totalW = iconOnly ? iconW : iconW + gap + (textSize * (iconOnly ? 0 : 4.6));
-  const blue = dark ? "#4D7AFF" : "#1428A0";
-  const textColor = dark ? "#FFFFFF" : "#111827";
+  const blue = "#1428A0";
+  const textColor = "#111827";
   if (iconOnly) {
     return (
       <svg width={iconW} height={iconH} viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block",flexShrink:0}}>
         <rect x="0" y="17" width="44" height="35" rx="3" fill={blue}/>
-        <rect x="0" y="28" width="44" height="5" fill={dark?"#3560E0":"#0F1F8A"}/>
+        <rect x="0" y="28" width="44" height="5" fill="#0F1F8A"/>
         <path d="M10 17 Q10 3 22 3 Q34 3 34 17" fill="none" stroke={blue} strokeWidth="3.5" strokeLinecap="round"/>
         <circle cx="22" cy="42" r="5" fill="white" opacity="0.9"/>
         <circle cx="22" cy="42" r="2.5" fill={blue}/>
@@ -30,7 +27,7 @@ function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
       {/* Bag body */}
       <rect x="0" y={Math.round(iconH*0.33)} width={Math.round(iconW)} height={Math.round(iconH*0.67)} rx="3" fill={blue}/>
       {/* Bag shadow strip */}
-      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill={dark?"#3560E0":"#0F1F8A"}/>
+      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill="#0F1F8A"/>
       {/* Bag handle */}
       <path d={`M${Math.round(iconW*0.23)} ${Math.round(iconH*0.33)} Q${Math.round(iconW*0.23)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.5)} ${Math.round(iconH*0.06)} Q${Math.round(iconW*0.77)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.77)} ${Math.round(iconH*0.33)}`} fill="none" stroke={blue} strokeWidth={Math.round(size*0.08)} strokeLinecap="round"/>
       {/* Lock dot */}
@@ -127,11 +124,7 @@ const CSS = `
   --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --nav-h:60px;
 }
-.dark{
-  --bg:#121212;--surf:#1E1E1E;--sh:#2A2A2A;--border:#333333;
-  --a:#5B8AFF;--a2:#4A78F0;
-  --txt:#F5F5F5;--mut:#9E9E9E;--dim:#555555;
-}
+
 body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
@@ -149,11 +142,10 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;
 .inp::placeholder{color:#AEAEB2;}
 textarea.inp{resize:vertical;min-height:90px;}
 select.inp{appearance:none;cursor:pointer;}
-.dark .inp{background:var(--sh);border-color:var(--border);color:var(--txt);}
-.dark .inp::placeholder{color:var(--dim);}
+
 /* LABELS */
 .lbl{display:block;font-size:11px;font-weight:700;color:#636363;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-.dark .lbl{color:var(--dim);}
+
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.04em;}
 .bg-g{background:rgba(20,40,160,.08);color:var(--a);}
@@ -168,13 +160,13 @@ select.inp{appearance:none;cursor:pointer;}
 .mod.xl{max-width:900px;}
 @keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;color:var(--txt);}
-.dark .mh{background:var(--surf);border-bottom-color:var(--border);}
+
 .mb{padding:22px 28px;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
-.dark .mod,.dark .mh{background:#1E1E1E;border-color:#333;}
+
 /* NAV - Samsung white nav */
 .nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 20px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:16px;}
-.dark .nav{background:#121212;border-bottom-color:#333;}
+
 .logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;white-space:nowrap;flex-shrink:0;min-width:fit-content;}
 .logo span{color:var(--a);}
 /* ALERTS */
@@ -182,14 +174,12 @@ select.inp{appearance:none;cursor:pointer;}
 .ag{background:rgba(20,40,160,.04);border-left:3px solid #1428A0;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#1428A0;}
 .ay{background:rgba(139,100,0,.04);border-left:3px solid #8B6400;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#8B6400;}
 .ar{background:rgba(192,48,48,.04);border-left:3px solid #C03030;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#C03030;}
-.dark .ag{background:rgba(91,138,255,.1);}
-.dark .ay{background:rgba(139,100,0,.15);}
-.dark .ar{background:rgba(192,48,48,.15);}
+
 /* CARDS */
 .card{background:var(--surf);border:1px solid var(--border);border-radius:8px;}
 .lcard{background:#fff;border:1px solid #EBEBEB;border-radius:0;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
 .lcard:hover{border-color:#1428A0;box-shadow:0 4px 20px rgba(0,0,0,.08);}.lcard:hover .lthumb img{transform:scale(1.03);}
-.dark .lcard{background:var(--surf);border-color:var(--border);}
+
 
 .lcard-list{display:flex;flex-direction:row;}
 .lcard-list .lthumb{width:200px;min-width:200px;height:160px;aspect-ratio:unset;}
@@ -205,19 +195,18 @@ select.inp{appearance:none;cursor:pointer;}
 /* PAGINATION */
 .pg{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:40px;flex-wrap:wrap;}
 .pb{min-width:38px;height:38px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:0;border:1px solid #E0E0E0;background:#fff;color:#636363;cursor:pointer;font-size:13px;font-weight:700;transition:all .14s;letter-spacing:.02em;}
-.dark .pb{background:var(--sh);border-color:var(--border);color:var(--txt);}
+
 .pb.on{background:#1428A0;color:#fff;border-color:#1428A0;}
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border:1px solid #E6E6E6;border-radius:0;padding:14px 18px;font-size:14px;font-family:var(--fn);box-shadow:0 4px 24px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:3px solid #1428A0;}
-.dark .toast{background:var(--surf);border-color:var(--border);color:var(--txt);}
+
 @keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 /* SOLD BADGE */
 .sold-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 /* IMAGE UPLOAD */
 .img-upload{border:2px dashed #C7C7CC;border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAFA;}
 .img-upload:hover{border-color:var(--a);background:rgba(20,40,160,.02);}
-.dark .img-upload{border-color:var(--border);background:var(--sh);}
-.dark .img-upload:hover{background:rgba(91,138,255,.08);}
+
 .img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
 .img-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--sh);}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -225,36 +214,35 @@ select.inp{appearance:none;cursor:pointer;}
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;height:480px;}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F4F4F4;border-radius:8px 8px 0 0;}
-.dark .chat-msgs{background:var(--sh);}
+
 .chat-msg{max-width:72%;padding:10px 14px;border-radius:4px;font-size:14px;line-height:1.55;font-family:var(--fn);}
 .chat-msg.me{align-self:flex-end;background:#1428A0;color:#fff;border-radius:4px 4px 0 4px;}
 .chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E6E6E6;border-radius:4px 4px 4px 0;}
-.dark .chat-msg.them{background:var(--surf);border-color:var(--border);color:var(--txt);}
+
 .chat-msg.blocked{opacity:.5;font-style:italic;}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 8px 8px;}
-.dark .chat-input{background:var(--surf);}
+
 /* TABS - Samsung underline style */
 .tab-row{display:flex;gap:0;background:transparent;border-bottom:1px solid #E5E5E5;padding:0;overflow-x:auto;margin-bottom:24px;}
-.dark .tab-row{border-bottom-color:var(--border);}
+
 .tab{padding:14px 22px;border-radius:0;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s;color:#9E9E9E;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
-.dark .tab{color:var(--dim);}
-.dark .tab.on{color:var(--a);border-bottom-color:var(--a);}
+
 .tab.on{color:#1428A0;border-bottom-color:#1428A0;}
 /* NOTIF DOT */
 .notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#FF3B30;border-radius:50%;border:2px solid #fff;}
 /* STAT CARD */
 .stat-card{background:#F4F4F4;border:none;border-radius:8px;padding:20px;color:var(--txt);}
-.dark .stat-card{background:var(--sh);}
+
 /* PROGRESS */
 .progress{height:4px;background:#E5E5E5;border-radius:2px;overflow:hidden;margin-top:8px;}
 .progress-bar{height:100%;background:var(--a);border-radius:2px;transition:width .6s ease;}
 /* TIMELINE */
 .timeline-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #F0F0F0;}
-.dark .timeline-item{border-bottom-color:var(--border);}
+
 .timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px;}
 /* PWA */
 .pwa-banner{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E5E5E5;padding:16px 24px;display:flex;align-items:center;gap:16px;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
-.dark .pwa-banner{background:var(--surf);border-top-color:var(--border);}
+
 /* RESPONSIVE */
 @media(max-width:640px){
   .nav{padding:0 16px;height:50px;}
@@ -2213,7 +2201,7 @@ function Pager({total,perPage,page,onChange}){
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App(){
-  const [dark,setDark]=useState(()=>{try{return localStorage.getItem("ws-theme")==="dark";}catch{return false;}});
+
   const [user,setUser]=useState(null);
   const [token,setToken]=useState(null);
   const [page,setPage]=useState("home");
@@ -2236,7 +2224,7 @@ export default function App(){
   const notify=useCallback((msg,type="info")=>setToast({msg,type,id:Date.now()}),[]);
   const closeModal=useCallback(()=>setModal(null),[]);
 
-  useEffect(()=>{document.documentElement.className=dark?"dark":"";try{localStorage.setItem("ws-theme",dark?"dark":"light");}catch{};},[dark]);
+
   useEffect(()=>{let el=document.getElementById("ws-css");if(!el){el=document.createElement("style");el.id="ws-css";document.head.appendChild(el);}el.textContent=CSS;},[]);
 
   // Handle Google OAuth callback + password reset token
@@ -2381,9 +2369,9 @@ export default function App(){
   return <>
     {/* NAV — Samsung white nav */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36} dark={dark}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        <button className="btn bgh sm" onClick={()=>setDark(d=>!d)} style={{fontSize:12,padding:"6px 12px"}}>{dark?"☀ Light":"🌙 Dark"}</button>
+        
         <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",fontSize:12}}>Sold Items</button>
         {user?<>
           <button className="btn bgh sm" style={{position:"relative",fontSize:12}} onClick={()=>setShowDashboard(true)}>
@@ -2614,7 +2602,7 @@ export default function App(){
       <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
-          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28} dark/></div>
+          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28}/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
           <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
           <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
