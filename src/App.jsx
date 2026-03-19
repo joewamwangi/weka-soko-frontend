@@ -496,12 +496,26 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
   const [agreed,setAgreed]=useState(false);
   const [f,setF]=useState({name:"",email:"",password:"",role:"buyer",phone:""});
   const sf=(k,v)=>setF(p=>({...p,[k]:v}));
+  const [verifyEmail,setVerifyEmail]=useState(null); // set when verification required
+  const [resendLoading,setResendLoading]=useState(false);
+  const [resendSent,setResendSent]=useState(false);
+  const [unverifiedEmail,setUnverifiedEmail]=useState(null); // for login block
+
+  const resendVerification=async(email)=>{
+    setResendLoading(true);
+    try{
+      // Register a temp token then resend — use resend endpoint
+      await api("/api/auth/resend-verification-by-email",{method:"POST",body:JSON.stringify({email})});
+      setResendSent(true);
+      notify("Verification email resent! Check your inbox.","success");
+    }catch(e){notify(e.message,"error");}
+    finally{setResendLoading(false);}
+  };
 
   const submit=async()=>{
     if(!f.email||!f.password){notify("Please fill in all fields.","warning");return;}
     if(mode==="signup"){
       if(!f.name.trim()){notify("Please enter your name.","warning");return;}
-      // Strong password validation
       if(f.password.length<8){notify("Password must be at least 8 characters.","warning");return;}
       const pwStrong=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(f.password);
       if(!pwStrong){notify("Password must include uppercase, lowercase, and a number.","warning");return;}
@@ -512,15 +526,71 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
       const data=mode==="login"
         ?await api("/api/auth/login",{method:"POST",body:JSON.stringify({email:f.email.trim(),password:f.password})})
         :await api("/api/auth/register",{method:"POST",body:JSON.stringify({name:f.name.trim(),email:f.email.trim(),password:f.password,role:f.role,phone:f.phone||undefined})});
+
+      if(data.requiresVerification){
+        // Signup: show "check your email" screen
+        setVerifyEmail(data.email||f.email.trim());
+        return;
+      }
       localStorage.setItem("ws_token",data.token);
       localStorage.setItem("ws_user",JSON.stringify(data.user));
       onAuth(data.user,data.token);onClose();
       notify(`Welcome${data.user.name?", "+data.user.name.split(" ")[0]:""}! 🎉`,"success");
-    }catch(err){notify(err.message,"error");}
+    }catch(err){
+      // Login blocked because email not verified
+      if(err.message?.includes("verify your email")||err.message?.includes("requiresVerification")){
+        setUnverifiedEmail(f.email.trim());
+      } else {
+        notify(err.message,"error");
+      }
+    }
     finally{setLoading(false);}
   };
 
   if(showTerms)return <TermsModal onClose={()=>setShowTerms(false)} onAccept={()=>{setAgreed(true);setShowTerms(false);notify("Terms accepted ✓","success");}}/>;
+
+  // ── Signup success: verify email screen ──────────────────────────────────
+  if(verifyEmail)return <Modal title="Check Your Email 📬" onClose={onClose}>
+    <div style={{textAlign:"center",padding:"12px 0 20px"}}>
+      <div style={{fontSize:64,marginBottom:16}}>📧</div>
+      <h3 style={{fontWeight:700,fontSize:18,marginBottom:10}}>Almost there!</h3>
+      <p style={{fontSize:14,color:"var(--mut)",lineHeight:1.8,marginBottom:20}}>
+        We sent a verification link to<br/>
+        <strong style={{color:"var(--txt)"}}>{verifyEmail}</strong><br/><br/>
+        Click the link in that email to activate your account. It expires in 24 hours.
+      </p>
+      <div style={{background:"rgba(20,40,160,.04)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",padding:"12px 16px",fontSize:12,color:"#1428A0",marginBottom:20,textAlign:"left"}}>
+        <strong>Can't find the email?</strong> Check your spam or junk folder.<br/>
+        Make sure you signed up with <strong>{verifyEmail}</strong>.
+      </div>
+      {!resendSent
+        ?<button className="btn bs" style={{marginBottom:10}} onClick={()=>resendVerification(verifyEmail)} disabled={resendLoading}>
+            {resendLoading?<Spin/>:"Resend verification email"}
+          </button>
+        :<p style={{fontSize:13,color:"var(--a)",fontWeight:600}}>✓ Email resent! Check your inbox.</p>}
+      <button className="btn bgh" style={{display:"block",margin:"8px auto 0"}} onClick={onClose}>Close</button>
+    </div>
+  </Modal>;
+
+  // ── Login blocked: unverified email ──────────────────────────────────────
+  if(unverifiedEmail)return <Modal title="Verify Your Email First" onClose={onClose}>
+    <div style={{textAlign:"center",padding:"12px 0 20px"}}>
+      <div style={{fontSize:64,marginBottom:16}}>🔒</div>
+      <h3 style={{fontWeight:700,fontSize:17,marginBottom:10}}>Email not verified</h3>
+      <p style={{fontSize:14,color:"var(--mut)",lineHeight:1.8,marginBottom:20}}>
+        Your account was created but your email address hasn't been verified yet.<br/><br/>
+        Check <strong style={{color:"var(--txt)"}}>{unverifiedEmail}</strong> for the verification link we sent when you signed up.
+      </p>
+      {!resendSent
+        ?<button className="btn bp" style={{marginBottom:12}} onClick={()=>resendVerification(unverifiedEmail)} disabled={resendLoading}>
+            {resendLoading?<Spin/>:"Resend verification email"}
+          </button>
+        :<div style={{marginBottom:12,padding:"10px 14px",background:"rgba(20,40,160,.06)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",fontSize:13,color:"#1428A0"}}>
+            ✅ Email sent! Click the link in your inbox to activate your account.
+          </div>}
+      <button className="btn bgh" style={{display:"block",margin:"0 auto"}} onClick={()=>setUnverifiedEmail(null)}>← Back to Sign In</button>
+    </div>
+  </Modal>;
 
   return <Modal title={mode==="login"?"Sign In":"Create Account"} onClose={onClose} footer={
     <><button className="btn bs" onClick={onClose}>Cancel</button><button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:mode==="login"?"Sign In →":"Create Account →"}</button></>
@@ -2362,7 +2432,16 @@ export default function App(){
     const vt=search.get("verify_email");
     if(vt){
       api("/api/auth/verify-email?token="+vt).then(r=>{
-        notify("✅ Email verified! You now have full access.","success");
+        if(r.token&&r.user){
+          // Auto-login the user after verification
+          localStorage.setItem("ws_token",r.token);
+          localStorage.setItem("ws_user",JSON.stringify(r.user));
+          setUser(r.user);
+          setToken(r.token);
+          notify("✅ Email verified! Welcome to Weka Soko.","success");
+        } else {
+          notify("✅ Email verified! You can now sign in.","success");
+        }
       }).catch(e=>notify(e.message||"Verification failed","error"));
       window.history.replaceState({},"",window.location.pathname);
     }
