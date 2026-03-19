@@ -1840,301 +1840,300 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
   const unreadCount=(notifs.filter(n=>!n.is_read).length||0)+(threads.reduce((a,t)=>a+parseInt(t.unread_count||0),0)||0);
 
-  return <div style={{minHeight:"100vh",background:"var(--bg)",paddingBottom:40}}>
-    {/* Dashboard top bar */}
-    <div style={{position:"sticky",top:0,zIndex:100,background:"var(--surf)",borderBottom:"1px solid var(--border)",padding:"0 16px",display:"flex",alignItems:"center",gap:12,height:56}}>
-      <button className="btn bgh" onClick={onClose} style={{padding:"6px 10px",fontSize:20}}>←</button>
-      <span style={{fontWeight:700,fontSize:16,flex:1}}>My Account</span>
-    </div>
-    <div style={{maxWidth:720,margin:"0 auto",padding:"20px 16px"}}>
-    {/* Profile header */}
-    <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:22,padding:"16px 20px",background:"linear-gradient(135deg,rgba(20,40,160,.08),rgba(20,40,160,.02))",borderRadius:"var(--r)",border:"1px solid rgba(20,40,160,.12)"}}>
-      <div style={{width:56,height:56,borderRadius:"50%",background:"var(--a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#fff",fontWeight:700,flexShrink:0}}>
-        {user.name?.charAt(0)?.toUpperCase()||"U"}
-      </div>
-      <div style={{flex:1}}>
-        <div style={{fontWeight:700,fontSize:18,marginBottom:2}}>{user.name}</div>
-        <div style={{fontSize:13,color:"var(--mut)"}}>{user.email}</div>
-        <div style={{display:"flex",gap:8,marginTop:6,flexWrap:"wrap"}}>
-          <span className={`badge ${user.role==="seller"?"bg-g":"bg-b"}`}>{user.role==="seller"?"🏷 Seller":"🛍 Buyer"}</span>
-          {user.is_verified&&<span className="badge bg-g">✓ Verified</span>}
-          {unreadCount>0&&<span className="badge bg-r">{unreadCount} unread</span>}
+  return <>
+    {/* Dashboard Hero Header */}
+    <div style={{background:"linear-gradient(135deg,#1428A0 0%,#0F1F8A 100%)",padding:"48px 40px 0",marginBottom:0}}>
+      <div style={{maxWidth:1180,margin:"0 auto"}}>
+        <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:16,marginBottom:32}}>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:10}}>My Account</div>
+            <div style={{display:"flex",alignItems:"center",gap:16}}>
+              <div style={{width:64,height:64,borderRadius:"50%",background:"rgba(255,255,255,.2)",border:"3px solid rgba(255,255,255,.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,color:"#fff",fontWeight:700,flexShrink:0}}>
+                {user.name?.charAt(0)?.toUpperCase()||"U"}
+              </div>
+              <div>
+                <h1 style={{fontSize:"clamp(22px,3vw,32px)",fontWeight:700,color:"#fff",marginBottom:4,letterSpacing:"-.02em"}}>{user.name}</h1>
+                <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginBottom:8}}>{user.email}</div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  <span style={{background:"rgba(255,255,255,.2)",color:"#fff",padding:"3px 12px",fontSize:11,fontWeight:700,letterSpacing:".04em"}}>{user.role==="seller"?"🏷 SELLER":"🛍 BUYER"}</span>
+                  {user.is_verified&&<span style={{background:"rgba(255,255,255,.2)",color:"#fff",padding:"3px 12px",fontSize:11,fontWeight:700,letterSpacing:".04em"}}>✓ VERIFIED</span>}
+                  {unreadCount>0&&<span style={{background:"#FF3B30",color:"#fff",padding:"3px 12px",fontSize:11,fontWeight:700,letterSpacing:".04em"}}>{unreadCount} UNREAD</span>}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+            {user.role==="seller"&&<button className="btn bp sm" style={{background:"#fff",color:"#1428A0",border:"none",fontWeight:700}} onClick={()=>{onClose();onPostAd();}}>+ Post Ad</button>}
+            <button className="btn bs sm" style={{border:"1px solid rgba(255,255,255,.4)",color:"#fff",background:"transparent"}} onClick={onClose}>← Back to Home</button>
+          </div>
+        </div>
+
+        {/* Tab row — flush to bottom of hero */}
+        <div style={{display:"flex",gap:0,overflowX:"auto",borderBottom:"none"}}>
+          {(user.role==="seller"
+            ?[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["ads","My Ads"],["sold","Sold"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
+            :[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","My Interests"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
+          ).map(([id,label])=>(
+            <button key={id} onClick={()=>setTab(id)} style={{padding:"14px 22px",border:"none",background:"transparent",cursor:"pointer",fontSize:13,fontWeight:700,letterSpacing:".04em",whiteSpace:"nowrap",color:tab===id?"#fff":"rgba(255,255,255,.55)",borderBottom:tab===id?"3px solid #fff":"3px solid transparent",transition:"all .15s",fontFamily:"var(--fn)"}}>
+              {label}
+            </button>
+          ))}
         </div>
       </div>
-      {user.role==="seller"&&<button className="btn bp sm" onClick={()=>{onClose();onPostAd();}}>+ Post Ad</button>}
     </div>
 
-    {/* Tabs */}
-    <div className="tab-row">
-      {(user.role==="seller"
-        ?[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["ads","📦 My Ads"],["sold","✅ Sold"],["requests","🛒 Requests"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]]
-        :[["overview","📊 Overview"],["notifications","🔔 Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","🔥 My Interests"],["requests","🛒 Requests"],["reviews","⭐ Reviews"],["settings","⚙️ Settings"]]
-      ).map(([id,label])=>(
-        <div key={id} className={`tab${tab===id?" on":""}`} onClick={()=>setTab(id)}>{label}</div>
-      ))}
-    </div>
+    {/* Dashboard Content */}
+    <div style={{maxWidth:1180,margin:"0 auto",padding:"40px 40px 80px"}}>
 
-    {loading&&<div style={{textAlign:"center",padding:48}}><Spin s="40px"/></div>}
+    {loading&&<div style={{textAlign:"center",padding:80}}><Spin s="40px"/></div>}
 
     {!loading&&tab==="overview"&&stats&&<>
-      {/* Stats grid — sellers see all; buyers only see unread */}
-      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(140px,1fr))",gap:10,marginBottom:22}}>
+      {/* Stats grid */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:16,marginBottom:32}}>
         {(user.role==="seller"
           ? [
-              {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"var(--a)"},
-              {icon:"✅",label:"Active",val:stats.activeListings,color:"var(--a)"},
-              {icon:"🏆",label:"Sold",val:stats.soldListings,color:"var(--gold)"},
-              {icon:"👁",label:"Total Views",val:stats.totalViews,color:"var(--blue)"},
-              {icon:"🔥",label:"Buyers Waiting",val:stats.buyersWaiting,color:"var(--red)"},
-              {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"var(--blue)"},
+              {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
+              {icon:"✅",label:"Active",val:stats.activeListings,color:"#16a34a",bg:"rgba(22,163,74,.06)"},
+              {icon:"🏆",label:"Sold",val:stats.soldListings,color:"#8B6400",bg:"rgba(139,100,0,.06)"},
+              {icon:"👁",label:"Total Views",val:stats.totalViews,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
+              {icon:"🔥",label:"Buyers Waiting",val:stats.buyersWaiting,color:"#C03030",bg:"rgba(192,48,48,.06)"},
+              {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
             ]
           : [
-              {icon:"🔔",label:"Unread Notifications",val:unreadCount||0,color:"var(--a)"},
+              {icon:"🔔",label:"Unread",val:unreadCount||0,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
             ]
         ).map(s=>(
-          <div key={s.label} className="stat-card">
-            <div style={{fontSize:22,marginBottom:6}}>{s.icon}</div>
-            <div style={{fontSize:28,fontWeight:700,color:s.color}}>{s.val}</div>
-            <div style={{fontSize:11,color:"var(--mut)",marginTop:2}}>{s.label}</div>
+          <div key={s.label} style={{background:s.bg,border:`1px solid ${s.color}22`,borderRadius:"var(--rs)",padding:"20px 22px",transition:"transform .15s",cursor:"default"}}
+            onMouseOver={e=>e.currentTarget.style.transform="translateY(-2px)"}
+            onMouseOut={e=>e.currentTarget.style.transform="translateY(0)"}>
+            <div style={{fontSize:24,marginBottom:8}}>{s.icon}</div>
+            <div style={{fontSize:32,fontWeight:700,color:s.color,letterSpacing:"-.02em",lineHeight:1}}>{s.val}</div>
+            <div style={{fontSize:12,color:"var(--mut)",marginTop:6,fontWeight:600,letterSpacing:".04em",textTransform:"uppercase"}}>{s.label}</div>
           </div>
         ))}
       </div>
 
       {/* Buyers waiting — action items */}
       {stats.buyersWaiting>0&&<>
-        <div className="lbl" style={{marginBottom:10}}>🔥 Action Required — Buyers Waiting</div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+          <h3 style={{fontSize:15,fontWeight:700,letterSpacing:"-.01em"}}>🔥 Action Required — Buyers Waiting</h3>
+          <span className="badge bg-r">{stats.buyersWaiting} waiting</span>
+        </div>
         {listings.filter(l=>l.locked_buyer_id&&!l.is_unlocked).map(l=>(
-          <div key={l.id} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"rgba(176,127,16,.07)",border:"1px solid rgba(176,127,16,.2)",borderRadius:"var(--rs)",marginBottom:10}}>
-            <span style={{fontSize:28}}>🔥</span>
+          <div key={l.id} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 20px",background:"rgba(192,48,48,.04)",border:"1px solid rgba(192,48,48,.2)",borderLeft:"4px solid #C03030",borderRadius:"var(--rs)",marginBottom:10}}>
+            <span style={{fontSize:32}}>🔥</span>
             <div style={{flex:1}}>
-              <div style={{fontWeight:700,marginBottom:2}}>{l.title}</div>
-              <div style={{fontSize:12,color:"var(--mut)"}}>A buyer has locked in! Pay KSh 250 to see their contact.</div>
+              <div style={{fontWeight:700,fontSize:15,marginBottom:2}}>{l.title}</div>
+              <div style={{fontSize:12,color:"var(--mut)"}}>A buyer has locked in! Pay KSh 250 to reveal their contact details.</div>
             </div>
             <button className="btn bp sm" onClick={()=>setShowPayModal(l)}>Unlock → KSh 250</button>
           </div>
         ))}
-        <div style={{height:10}}/>
+        <div style={{height:8}}/>
       </>}
 
       {/* Recent listings */}
-      <div className="lbl" style={{marginBottom:10}}>Recent Ads</div>
-      {listings.slice(0,4).map(l=>(
-        <div key={l.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:8,border:l.status==="rejected"?"1px solid rgba(220,38,38,.3)":l.status==="pending_review"?"1px solid rgba(20,40,160,.2)":"1px solid var(--border)"}}>
-          <div style={{width:48,height:40,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0}}>
-            {Array.isArray(l.photos)&&l.photos[0]&&<img src={typeof l.photos[0]==="string"?l.photos[0]:l.photos[0]?.url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>}
-          </div>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:600,fontSize:14}}>{l.title}</div>
-            <div style={{fontSize:12,color:"var(--mut)"}}>{fmtKES(l.price)} · {l.view_count||0} views</div>
-            {l.status==="rejected"&&l.moderation_note&&<div style={{fontSize:11,color:"#dc2626",marginTop:3}}>❌ Reason: {l.moderation_note}</div>}
-            {l.status==="needs_changes"&&l.moderation_note&&<div style={{fontSize:11,color:"#d97706",marginTop:3}}>✏️ Changes needed: {l.moderation_note}</div>}
-            {l.status==="pending_review"&&<div style={{fontSize:11,color:"#1428A0",marginTop:3}}>⏳ Awaiting admin approval before going live</div>}
-          </div>
-          <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
-        </div>
-      ))}
-      {listings.length===0&&<div className="empty" style={{padding:"32px 0"}}>
-        <div style={{fontSize:48,marginBottom:12,opacity:.3}}>📦</div>
-        <p>You haven't posted any ads yet.</p>
-        {user.role==="seller"&&<button className="btn bp" style={{marginTop:14}} onClick={()=>{onClose();onPostAd();}}>Post Your First Ad →</button>}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+        <h3 style={{fontSize:15,fontWeight:700,letterSpacing:"-.01em"}}>Recent Ads</h3>
+        {listings.length>4&&<button className="btn bgh sm" onClick={()=>setTab("ads")} style={{fontSize:12}}>View all →</button>}
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:14}}>
+        {listings.slice(0,4).map(l=>{
+          const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
+          return <div key={l.id} style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:"var(--rs)",overflow:"hidden",transition:"box-shadow .2s"}}
+            onMouseOver={e=>e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,.08)"}
+            onMouseOut={e=>e.currentTarget.style.boxShadow="none"}>
+            <div style={{height:120,background:"var(--sh)",overflow:"hidden",position:"relative"}}>
+              {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",fontSize:36,opacity:.15}}>📦</div>}
+              <div style={{position:"absolute",top:8,right:8}}>
+                <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="rejected"?"br2":"bg-m"}`} style={{fontSize:10}}>{l.status==="pending_review"?"⏳ Review":l.status==="rejected"?"❌ Rejected":l.status}</span>
+              </div>
+            </div>
+            <div style={{padding:"12px 14px"}}>
+              <div style={{fontWeight:700,fontSize:13,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+              <div style={{fontSize:12,color:"var(--a)",fontWeight:700}}>{fmtKES(l.price)}</div>
+              <div style={{fontSize:11,color:"var(--mut)",marginTop:4}}>👁 {l.view_count||0} views · 🔥 {l.interest_count||0} interested</div>
+            </div>
+          </div>;
+        })}
+      </div>
+      {listings.length===0&&<div style={{textAlign:"center",padding:"60px 20px",background:"#f9f9f9",border:"1px dashed #E5E5E5"}}>
+        <div style={{fontSize:48,marginBottom:12,opacity:.2}}>📦</div>
+        <p style={{fontWeight:700,marginBottom:8}}>No ads yet</p>
+        {user.role==="seller"&&<button className="btn bp" style={{marginTop:8}} onClick={()=>{onClose();onPostAd();}}>Post Your First Ad →</button>}
       </div>}
     </>}
 
     {!loading&&tab==="notifications"&&<>
       {/* Chat Threads */}
       {threads.length>0&&<>
-        <div className="lbl" style={{marginBottom:12}}>💬 Chat Threads</div>
-        {threads.map((t,i)=>(
-          <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:8,border:"1px solid var(--border)",cursor:"pointer"}} onClick={()=>setSelectedListing({id:t.listing_id,title:t.title,seller_id:t.seller_id,is_unlocked:t.is_unlocked||false,locked_buyer_id:t.locked_buyer_id})}>
-            <div style={{position:"relative",flexShrink:0}}>
-              <div style={{width:44,height:44,borderRadius:"50%",background:"var(--a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,color:"#fff"}}>
-                {t.other_party_anon?.charAt(0)?.toUpperCase()||"?"}
+        <h3 style={{fontSize:15,fontWeight:700,marginBottom:14,letterSpacing:"-.01em"}}>💬 Chat Threads</h3>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:12,marginBottom:32}}>
+          {threads.map((t,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#fff",border:"1px solid #EBEBEB",borderRadius:"var(--rs)",cursor:"pointer",transition:"border-color .15s"}}
+              onMouseOver={e=>e.currentTarget.style.borderColor="#1428A0"}
+              onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}
+              onClick={()=>setSelectedListing({id:t.listing_id,title:t.title,seller_id:t.seller_id,is_unlocked:t.is_unlocked||false,locked_buyer_id:t.locked_buyer_id})}>
+              <div style={{position:"relative",flexShrink:0}}>
+                <div style={{width:44,height:44,borderRadius:"50%",background:"var(--a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,color:"#fff",fontWeight:700}}>
+                  {t.other_party_anon?.charAt(0)?.toUpperCase()||"?"}
+                </div>
+                {t.is_online&&<div style={{position:"absolute",bottom:1,right:1,width:11,height:11,background:"#22C55E",borderRadius:"50%",border:"2px solid #fff"}}/>}
               </div>
-              {t.is_online&&<div style={{position:"absolute",bottom:1,right:1,width:11,height:11,background:"#22C55E",borderRadius:"50%",border:"2px solid var(--surf)"}}/>}
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.title}</div>
+                <div style={{fontSize:12,color:"var(--mut)",marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.last_message?.slice(0,45)||"No messages"}</div>
+              </div>
+              <div style={{textAlign:"right",flexShrink:0}}>
+                <div style={{fontSize:11,color:"var(--dim)"}}>{ago(t.last_message_at)}</div>
+                {parseInt(t.unread_count||0)>0&&<div style={{background:"var(--red)",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"2px 7px",marginTop:4,display:"inline-block"}}>{t.unread_count}</div>}
+              </div>
             </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontWeight:600,fontSize:14}}>{t.title}</div>
-              <div style={{fontSize:12,color:"var(--mut)",marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.last_message?.slice(0,55)||"No messages"}</div>
-              {!t.is_online&&t.last_seen&&<div style={{fontSize:11,color:"var(--dim)",marginTop:2}}>{lastSeen(t.last_seen)}</div>}
-            </div>
-            <div style={{textAlign:"right",flexShrink:0}}>
-              <div style={{fontSize:11,color:"var(--dim)"}}>{ago(t.last_message_at)}</div>
-              {parseInt(t.unread_count||0)>0&&<div style={{background:"var(--red)",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"2px 7px",marginTop:4,display:"inline-block"}}>{t.unread_count}</div>}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </>}
 
-      {/* All notifications */}
-      <div className="lbl" style={{margin:"18px 0 12px"}}>🔔 All Notifications</div>
-      {notifs.length===0&&threads.length===0&&<div className="empty"><div style={{fontSize:48,marginBottom:12,opacity:.3}}>🔔</div><p>No notifications yet</p></div>}
-      {notifs.map((n,i)=>(
-        <div key={i} className="timeline-item" onClick={()=>markRead(n.id)} style={{cursor:"pointer"}}>
-          <div className="timeline-dot" style={{background:n.is_read?"var(--sh)":"rgba(20,40,160,.12)"}}>
-            {({new_message:"💬",buyer_locked_in:"🔥",escrow_released:"💰",payment_confirmed:"✅",warning:"⚠️",admin_edit:"🛠",suspension:"🚫",seller_pitch:"📬",pitch_accepted:"✅",request_match:"🛒"})[n.type]||"🔔"}
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+        <h3 style={{fontSize:15,fontWeight:700,letterSpacing:"-.01em"}}>🔔 All Notifications</h3>
+        {notifs.length>0&&<button className="btn bs sm" style={{fontSize:11}} onClick={async()=>{await api("/api/notifications/read-all",{method:"PATCH"},token).catch(()=>{});setNotifs(p=>p.map(n=>({...n,is_read:true})));notify("All marked as read.","success");}}>Mark All Read</button>}
+      </div>
+      {notifs.length===0&&threads.length===0&&<div style={{textAlign:"center",padding:"60px 20px",background:"#f9f9f9",border:"1px dashed #E5E5E5"}}>
+        <div style={{fontSize:48,marginBottom:12,opacity:.2}}>🔔</div><p>No notifications yet</p>
+      </div>}
+      <div style={{maxWidth:680}}>
+        {notifs.map((n,i)=>(
+          <div key={i} onClick={()=>markRead(n.id)} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+            onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
+            onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
+            <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
+              {({new_message:"💬",buyer_locked_in:"🔥",escrow_released:"💰",payment_confirmed:"✅",warning:"⚠️",admin_edit:"🛠",suspension:"🚫",seller_pitch:"📬",pitch_accepted:"✅",request_match:"🛒"})[n.type]||"🔔"}
+            </div>
+            <div style={{flex:1}}>
+              <div style={{fontWeight:n.is_read?500:700,fontSize:14,marginBottom:2}}>{n.title}</div>
+              <div style={{fontSize:13,color:"var(--mut)",lineHeight:1.6}}>{n.body}</div>
+              <div style={{fontSize:11,color:"var(--dim)",marginTop:4}}>{ago(n.created_at)}</div>
+            </div>
+            {!n.is_read&&<div style={{width:8,height:8,background:"var(--a)",borderRadius:"50%",flexShrink:0,marginTop:6}}/>}
           </div>
-          <div style={{flex:1}}>
-            <div style={{fontWeight:n.is_read?500:700,fontSize:14}}>{n.title}</div>
-            <div style={{fontSize:13,color:"var(--mut)",marginTop:2,lineHeight:1.6}}>{n.body}</div>
-            <div style={{fontSize:11,color:"var(--dim)",marginTop:4}}>{ago(n.created_at)}</div>
-            {n.type==="seller_pitch"&&n.data?.pitch_id&&(
-              <div style={{display:"flex",gap:8,marginTop:8}}>
-                <button className="btn bp sm" style={{fontSize:11}} onClick={async(e)=>{e.stopPropagation();setModal({type:"pay",payType:"pitch_reveal",pitchId:n.data.pitch_id,amount:250});}}
-                >✅ Reveal Contact — KSh 250</button>
-                <button className="btn bs sm" style={{fontSize:11}} onClick={async(e)=>{e.stopPropagation();await api(`/api/pitches/${n.data.pitch_id}/decline`,{method:"POST"},token).catch(()=>{});notify("Pitch declined","info");}}>✕ Decline</button>
-              </div>
-            )}
-          </div>
-          {!n.is_read&&<div style={{width:8,height:8,background:"var(--a)",borderRadius:"50%",flexShrink:0,marginTop:6}}/>}
-        </div>
-      ))}
-      {notifs.length>0&&<button className="btn bs" style={{width:"100%",marginTop:10}} onClick={async()=>{await api("/api/notifications/read-all",{method:"PATCH"},token).catch(()=>{});setNotifs(p=>p.map(n=>({...n,is_read:true})));notify("All marked as read.","success");}}>Mark All Read</button>}
+        ))}
+      </div>
     </>}
 
     {!loading&&tab==="interests"&&<>
-      <div className="lbl" style={{marginBottom:14}}>🔥 Listings You're Interested In ({buyerInterests.length})</div>
+      <h3 style={{fontSize:15,fontWeight:700,marginBottom:16,letterSpacing:"-.01em"}}>🔥 Listings You're Interested In ({buyerInterests.length})</h3>
       {buyerInterests.length===0
-        ?<div className="empty" style={{padding:"32px 0"}}>
-            <div style={{fontSize:40,marginBottom:12,opacity:.2}}>🔥</div>
-            <p style={{fontWeight:700,marginBottom:6}}>No interests yet</p>
-            <p style={{fontSize:13,color:"var(--mut)"}}>Browse listings and click "I'm Interested — Lock In"</p>
-          </div>
-        :buyerInterests.map(l=>{
-          const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-          return <div key={l.id} style={{display:"flex",gap:12,padding:"13px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:10,border:"1px solid var(--border)"}}>
-            <div style={{width:60,height:50,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0}}>
-              {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:24,display:"flex",alignItems:"center",justifyContent:"center",height:"100%",opacity:.3}}>📦</span>}
-            </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontWeight:600,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
-              <div style={{fontSize:12,color:"var(--mut)",marginTop:2}}>{fmtKES(l.price)} · 📍 {l.location||l.county||"—"}</div>
-              <div style={{fontSize:11,marginTop:4}}>
-                {l.is_unlocked
-                  ?<div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-                      <span style={{color:"var(--a)",fontWeight:600,fontSize:11}}>✅ {l.seller_name||"Seller"}{l.seller_phone?" · 📞 "+l.seller_phone:""}</span>
-                      {l.seller_phone&&(()=>{
-                        const raw=l.seller_phone.replace(/\D/g,"");
-                        const wa=raw.startsWith("254")?raw:raw.startsWith("0")?`254${raw.slice(1)}`:raw;
-                        const msg=encodeURIComponent(`Hi, I saw your listing "${l.title}" on Weka Soko for ${fmtKES(l.price)}. Is it still available?`);
-                        return <a href={`https://wa.me/${wa}?text=${msg}`} target="_blank" rel="noopener noreferrer"
-                          style={{display:"inline-flex",alignItems:"center",gap:5,background:"#25D366",color:"#fff",padding:"3px 10px",fontSize:11,fontWeight:700,textDecoration:"none",fontFamily:"var(--fn)"}}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                          WhatsApp
-                        </a>;
-                      })()}
-                    </div>
-                  :<span style={{color:"var(--dim)"}}>🔒 Contact hidden until unlocked</span>}
+        ?<div style={{textAlign:"center",padding:"60px 20px",background:"#f9f9f9",border:"1px dashed #E5E5E5"}}>
+          <div style={{fontSize:48,marginBottom:12,opacity:.2}}>🔥</div>
+          <p style={{fontWeight:700,marginBottom:6}}>No interests yet</p>
+          <p style={{fontSize:13,color:"var(--mut)"}}>Browse listings and click "I'm Interested — Lock In"</p>
+          <button className="btn bp" style={{marginTop:14}} onClick={onClose}>Browse Listings →</button>
+        </div>
+        :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:14}}>
+          {buyerInterests.map(l=>{
+            const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
+            return <div key={l.id} style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:"var(--rs)",overflow:"hidden",transition:"box-shadow .2s"}}
+              onMouseOver={e=>e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,.08)"}
+              onMouseOut={e=>e.currentTarget.style.boxShadow="none"}>
+              <div style={{height:140,background:"var(--sh)",overflow:"hidden",position:"relative"}}>
+                {photo?<img src={photo} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%",fontSize:40,opacity:.15}}>📦</div>}
+                <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`} style={{position:"absolute",top:8,right:8,fontSize:10}}>{l.status}</span>
               </div>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end",flexShrink:0}}>
-              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":"bg-m"}`}>{l.status}</span>
-              <button className="btn bs sm" onClick={()=>setSelectedListing(l)}>💬 Chat</button>
-            </div>
-          </div>;
-        })
-      }
+              <div style={{padding:"14px 16px"}}>
+                <div style={{fontWeight:700,fontSize:14,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--a)",marginBottom:8}}>{fmtKES(l.price)}</div>
+                {l.is_unlocked
+                  ?<div style={{fontSize:11,color:"#16a34a",fontWeight:600,marginBottom:8}}>✅ Contact revealed — {l.seller_name||"Seller"}</div>
+                  :<div style={{fontSize:11,color:"var(--mut)",marginBottom:8}}>🔒 Contact hidden</div>}
+                <button className="btn bs sm" style={{width:"100%",fontSize:11}} onClick={()=>setSelectedListing(l)}>💬 Chat</button>
+              </div>
+            </div>;
+          })}
+        </div>}
     </>}
 
     {!loading&&tab==="ads"&&<>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-        <div className="lbl" style={{margin:0}}>Your Listings ({listings.length})</div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
+        <h3 style={{fontSize:15,fontWeight:700,letterSpacing:"-.01em"}}>Your Listings ({listings.length})</h3>
         {user.role==="seller"&&<button className="btn bp sm" onClick={()=>{onClose();onPostAd();}}>+ New Ad</button>}
       </div>
-      {listings.length===0?<div className="empty"><div style={{fontSize:48,marginBottom:12,opacity:.3}}>📦</div><p>No ads yet</p></div>
-        :listings.map(l=>(
-          <div key={l.id} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",background:"var(--sh)",borderRadius:"var(--rs)",marginBottom:10,border:"1px solid var(--border)"}}>
-            <div style={{width:54,height:44,borderRadius:"var(--rs)",background:"var(--border)",overflow:"hidden",flexShrink:0}}>
-              {Array.isArray(l.photos)&&l.photos[0]&&<img src={typeof l.photos[0]==="string"?l.photos[0]:l.photos[0]?.url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>}
+      {listings.length===0
+        ?<div style={{textAlign:"center",padding:"60px 20px",background:"#f9f9f9",border:"1px dashed #E5E5E5"}}>
+          <div style={{fontSize:48,marginBottom:12,opacity:.2}}>📦</div><p>No ads yet</p>
+        </div>
+        :<div style={{display:"flex",flexDirection:"column",gap:12}}>
+          {listings.map(l=>(
+            <div key={l.id} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",background:"#fff",border:"1px solid #EBEBEB",borderRadius:"var(--rs)",transition:"border-color .15s"}}
+              onMouseOver={e=>e.currentTarget.style.borderColor="#1428A0"}
+              onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}>
+              <div style={{width:56,height:46,borderRadius:"var(--rs)",background:"var(--sh)",overflow:"hidden",flexShrink:0}}>
+                {Array.isArray(l.photos)&&l.photos[0]&&<img src={typeof l.photos[0]==="string"?l.photos[0]:l.photos[0]?.url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:700,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
+                <div style={{fontSize:12,color:"var(--mut)",marginTop:2}}>{fmtKES(l.price)} · 👁 {l.view_count||0} · 🔥 {l.interest_count||0}</div>
+                {l.status==="rejected"&&l.moderation_note&&<div style={{fontSize:11,color:"#dc2626",marginTop:2}}>❌ {l.moderation_note}</div>}
+                {l.status==="pending_review"&&<div style={{fontSize:11,color:"#1428A0",marginTop:2}}>⏳ Awaiting review</div>}
+              </div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",justifyContent:"flex-end",flexShrink:0}}>
+                <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="rejected"?"br2":"bg-m"}`} style={{fontSize:10}}>{l.status==="pending_review"?"⏳ Review":l.status==="rejected"?"❌ Rejected":l.status}</span>
+                {!l.is_unlocked&&l.status!=="sold"&&(l.free_unlock_approved
+                  ?<button className="btn bg2 sm" onClick={async()=>{try{await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);setListings(p=>p.map(x=>x.id===l.id?{...x,is_unlocked:true}:x));notify("🔓 Unlocked!","success");}catch{setShowPayModal(l);}}}>🎁 Free</button>
+                  :<button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock</button>)}
+                {(l.status==="active"||l.status==="locked")&&<button className="btn bp sm" onClick={()=>setMarkSoldListing(l)}>✅ Sold</button>}
+                {l.status!=="sold"&&<button className="btn bs sm" onClick={()=>setEditingListing(l)}>✏️</button>}
+                {(l.status==="rejected"||l.status==="needs_changes")&&<button className="btn bg2 sm" onClick={async()=>{try{await api(`/api/listings/${l.id}/resubmit`,{method:"POST"},token);setListings(p=>p.map(x=>x.id===l.id?{...x,status:"pending_review",moderation_note:null}:x));notify("⏳ Resubmitted","success");}catch(e){notify(e.message,"error");}}}>↺</button>}
+                <button className="btn br2 sm" onClick={()=>deleteListing(l.id)}>✕</button>
+              </div>
             </div>
-            <div style={{flex:1,minWidth:0}}>
-              <div style={{fontWeight:600,fontSize:14,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
-              <div style={{fontSize:12,color:"var(--mut)"}}>{fmtKES(l.price)} · 👁 {l.view_count||0} · 🔥 {l.interest_count||0}</div>
-            </div>
-            <div style={{display:"flex",gap:6,flexShrink:0,flexWrap:"wrap",justifyContent:"flex-end"}}>
-              <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
-              {!l.is_unlocked&&l.status!=="sold"&&(
-                l.free_unlock_approved
-                  ?<button className="btn bg2 sm" onClick={async()=>{
-                      try{
-                        await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);
-                        setListings(p=>p.map(x=>x.id===l.id?{...x,is_unlocked:true}:x));
-                        notify("🔓 Unlocked for free!","success");
-                      }catch{setShowPayModal(l);}
-                    }}>🎁 Unlock Free</button>
-                  :<button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock → KSh 250</button>
-              )}
-              {l.status!=="sold"&&<button className="btn bs sm" onClick={()=>setEditingListing(l)}>✏️ Edit</button>}
-              {(l.status==="active"||l.status==="locked")&&<button className="btn bp sm" onClick={()=>setMarkSoldListing(l)}>✅ Mark Sold</button>}
-              {(l.status==="rejected"||l.status==="needs_changes")&&<button className="btn bg2 sm" onClick={async()=>{
-                try{await api(`/api/listings/${l.id}/resubmit`,{method:"POST"},token);
-                setListings(p=>p.map(x=>x.id===l.id?{...x,status:"pending_review",moderation_note:null}:x));
-                notify("⏳ Listing resubmitted for review","success");
-                }catch(e){notify(e.message,"error");}
-              }}>↺ Resubmit</button>}
-              <button className="btn br2 sm" onClick={()=>deleteListing(l.id)}>Delete</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>}
     </>}
 
     {!loading&&tab==="sold"&&<SoldSection token={token} user={user}/>}
-
     {!loading&&tab==="reviews"&&<ReviewsSection token={token} user={user} notify={notify}/>}
-
     {!loading&&tab==="requests"&&<MyRequestsTab token={token} notify={notify} user={user}/>}
 
-
-
     {!loading&&tab==="settings"&&<>
-      <div style={{display:"flex",flexDirection:"column",gap:8}}>
-        <div style={{padding:"16px",background:"var(--sh)",borderRadius:"var(--rs)",border:"1px solid var(--border)"}}>
-          <div className="lbl">Account Info</div>
-          <div style={{fontSize:14,marginBottom:4}}><strong>Name:</strong> {user.name}</div>
-          <div style={{fontSize:14,marginBottom:4}}><strong>Email:</strong> {user.email}</div>
-          <div style={{fontSize:14,marginBottom:4}}><strong>Role:</strong> <span className={`badge ${user.role==="seller"?"bg-g":"bg-b"}`}>{user.role==="seller"?"🏷 Seller":"🛍 Buyer"}</span></div>
+      <div style={{maxWidth:520,display:"flex",flexDirection:"column",gap:12}}>
+        <div style={{padding:"20px 22px",background:"#fff",border:"1px solid #EBEBEB",borderRadius:"var(--rs)"}}>
+          <div className="lbl" style={{marginBottom:12}}>Account Info</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0",borderBottom:"1px solid #F5F5F5"}}>
+              <span style={{color:"var(--mut)"}}>Name</span><span style={{fontWeight:600}}>{user.name}</span>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0",borderBottom:"1px solid #F5F5F5"}}>
+              <span style={{color:"var(--mut)"}}>Email</span><span style={{fontWeight:600}}>{user.email}</span>
+            </div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0"}}>
+              <span style={{color:"var(--mut)"}}>Role</span>
+              <span className={`badge ${user.role==="seller"?"bg-g":"bg-b"}`}>{user.role==="seller"?"🏷 Seller":"🛍 Buyer"}</span>
+            </div>
+          </div>
         </div>
         <RoleSwitcher user={user} token={token} notify={notify} onSwitch={newUser=>{localStorage.setItem("ws_user",JSON.stringify(newUser));window.location.reload();}}/>
         <button className="btn bs" style={{justifyContent:"flex-start",gap:10}} onClick={()=>{localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");onClose();window.location.reload();}}>🚪 Sign Out</button>
         <button className="btn br2" style={{justifyContent:"flex-start",gap:10}} onClick={async()=>{
           if(!window.confirm("Permanently delete your account? ALL your listings and data will be removed forever. This CANNOT be undone."))return;
-          try{
-            await api("/api/auth/account",{method:"DELETE",body:JSON.stringify({})},token);
-            localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");
-            onClose();window.location.reload();
-          }catch(err){notify(err.message,"error");}
+          try{await api("/api/auth/account",{method:"DELETE",body:JSON.stringify({})},token);localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");onClose();window.location.reload();}
+          catch(err){notify(err.message,"error");}
         }}>🗑 Delete My Account</button>
       </div>
     </>}
 
-    {/* Chat thread opener */}
+    {/* Modals */}
     {selectedListing&&<ChatModal listing={selectedListing} user={user} token={token} onClose={()=>setSelectedListing(null)} notify={notify}/>}
     {editingListing&&<PostAdModal listing={editingListing} token={token} notify={notify} onClose={()=>setEditingListing(null)} onSuccess={(updated)=>{setListings(p=>p.map(l=>l.id===updated.id?updated:l));setEditingListing(null);}}/>}
     {markSoldListing&&<MarkSoldModal listing={markSoldListing} token={token} notify={notify} onClose={()=>setMarkSoldListing(null)} onSuccess={(id,channel)=>setListings(p=>p.map(l=>l.id===id?{...l,status:"sold",sold_channel:channel}:l))}/>}
-
-    {/* Pay to unlock */}
-    {showPayModal&&<PayModal
-      type="unlock"
-      listingId={showPayModal.id}
-      amount={250}
-      purpose={`Unlock buyer contact for: ${showPayModal.title}`}
-      token={token}
-      user={user}
-      allowVoucher={true}
+    {showPayModal&&<PayModal type="unlock" listingId={showPayModal.id} amount={250} purpose={`Unlock buyer contact for: ${showPayModal.title}`} token={token} user={user} allowVoucher={true}
       onSuccess={async(result)=>{
-        const lid=showPayModal.id;
-        setShowPayModal(null);
-        try{
-          const fresh=await api(`/api/listings/${lid}`,{},token);
-          const ul=fresh.listing||fresh;
-          setListings(p=>p.map(l=>l.id===lid?ul:l));
-        }catch{setListings(p=>p.map(l=>l.id===lid?{...l,is_unlocked:true}:l));}
-        notify("🔓 Buyer contact unlocked! Check Notifications for their details.","success");
+        const lid=showPayModal.id;setShowPayModal(null);
+        try{const fresh=await api(`/api/listings/${lid}`,{},token);const ul=fresh.listing||fresh;setListings(p=>p.map(l=>l.id===lid?ul:l));}
+        catch{setListings(p=>p.map(l=>l.id===lid?{...l,is_unlocked:true}:l));}
+        notify("🔓 Buyer contact unlocked!","success");
       }}
-      onClose={()=>setShowPayModal(null)}
-      notify={notify}
-    />}
-  </div></div>;
-}
+      onClose={()=>setShowPayModal(null)} notify={notify}/>}
+    </div>
+  </>;
 
 
 // ── PITCH MODAL — Seller pitches to a buyer request ─────────────────────────
@@ -2241,7 +2240,6 @@ export default function App(){
   const [toast,setToast]=useState(null);
   const [modal,setModal]=useState(null);
   const [showPWA,setShowPWA]=useState(true);
-  const [showDashboard,setShowDashboard]=useState(false);
   const [notifCount,setNotifCount]=useState(0);
   const socketRef=useRef(null);
 
@@ -2396,7 +2394,7 @@ export default function App(){
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
         <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",fontSize:12}}>Sold Items</button>
         {user?<>
-          <button className="btn bgh sm" style={{position:"relative",fontSize:12}} onClick={()=>setShowDashboard(true)}>
+          <button className="btn bgh sm" style={{position:"relative",fontSize:12}} onClick={()=>setPage("dashboard")}>
             {user.name?.split(" ")[0]}
             {notifCount>0&&<span className="notif-dot"/>}
           </button>
@@ -2416,7 +2414,7 @@ export default function App(){
     </nav>
 
     {/* ── HERO — Samsung.com style: clean, large type, light background ── */}
-    <div style={{background:"#F4F4F4",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
+    {page!=="dashboard"&&<div style={{background:"#F4F4F4",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",alignItems:"center",gap:48,flexWrap:"wrap"}}>
         <div style={{flex:"1 1 420px"}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16,color:"#767676"}}>🇰🇪 Kenya's Resell Platform</div>
@@ -2463,10 +2461,10 @@ export default function App(){
           ))}
         </div>
       </div>
-    </div>
+    </div>}
 
     {/* ── TRUST BAR ─────────────────────────────────────────────────────── */}
-    <div style={{background:"#fff",borderBottom:"1px solid #E5E5E5",padding:"14px 40px"}}>
+    {page!=="dashboard"&&<div style={{background:"#fff",borderBottom:"1px solid #E5E5E5",padding:"14px 40px"}}>
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",gap:32,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}>
         {["Free to list","Safe anonymous chat","M-Pesa escrow","Kenyan platform"].map(t=>(
           <span key={t} style={{fontSize:12,fontWeight:600,color:"#535353",display:"flex",alignItems:"center",gap:6}}>
@@ -2474,9 +2472,9 @@ export default function App(){
           </span>
         ))}
       </div>
-    </div>
+    </div>}
 
-    <main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
+    {page!=="dashboard"&&<main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
 
       {/* CATEGORIES — Samsung product category grid */}
       <div style={{marginBottom:52}}>
@@ -2573,7 +2571,7 @@ export default function App(){
         </div>
       </div>
 
-    </main>
+    </main>}
 
     {/* MODALS */}
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
@@ -2616,7 +2614,6 @@ export default function App(){
       }}
       onClose={closeModal} notify={notify}
     />}
-    {showDashboard&&user&&<div style={{position:"fixed",inset:0,zIndex:9000,overflow:"auto",background:"var(--bg)"}}><Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setShowDashboard(false);setModal({type:"post"});}} onClose={()=>setShowDashboard(false)}/></div>}
     {resetToken&&<ResetPasswordModal token={resetToken} notify={notify} onClose={()=>{setResetToken(null);setModal({type:"auth",mode:"login"});}}/>}
 
     {page==="sold"&&<>
@@ -2636,6 +2633,7 @@ export default function App(){
       </div>
     </>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
+    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")}/>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
   </>;
