@@ -4,18 +4,21 @@ import { io } from "socket.io-client";
 const API = (process.env.REACT_APP_API_URL || "https://weka-soko-backend-production.up.railway.app").replace(/\/$/, "");
 
 // ── WEKA SOKO LOGO COMPONENT ──────────────────────────────────────────────────
-function WekaSokoLogo({ size = 32, iconOnly = false }) {
+function WekaSokoLogo({ size = 32, dark = false, iconOnly = false }) {
   const iconH = size;
   const iconW = size * (44/52); // maintain bag aspect ratio
   const textSize = size * 0.72;
+  const subSize = size * 0.28;
   const gap = size * 0.32;
-  const blue = "#1428A0";
-  const textColor = "#111827";
+  const totalH = iconH;
+  const totalW = iconOnly ? iconW : iconW + gap + (textSize * (iconOnly ? 0 : 4.6));
+  const blue = dark ? "#4D7AFF" : "#1428A0";
+  const textColor = dark ? "#FFFFFF" : "#111827";
   if (iconOnly) {
     return (
       <svg width={iconW} height={iconH} viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:"block",flexShrink:0}}>
         <rect x="0" y="17" width="44" height="35" rx="3" fill={blue}/>
-        <rect x="0" y="28" width="44" height="5" fill="#0F1F8A"/>
+        <rect x="0" y="28" width="44" height="5" fill={dark?"#3560E0":"#0F1F8A"}/>
         <path d="M10 17 Q10 3 22 3 Q34 3 34 17" fill="none" stroke={blue} strokeWidth="3.5" strokeLinecap="round"/>
         <circle cx="22" cy="42" r="5" fill="white" opacity="0.9"/>
         <circle cx="22" cy="42" r="2.5" fill={blue}/>
@@ -27,7 +30,7 @@ function WekaSokoLogo({ size = 32, iconOnly = false }) {
       {/* Bag body */}
       <rect x="0" y={Math.round(iconH*0.33)} width={Math.round(iconW)} height={Math.round(iconH*0.67)} rx="3" fill={blue}/>
       {/* Bag shadow strip */}
-      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill="#0F1F8A"/>
+      <rect x="0" y={Math.round(iconH*0.53)} width={Math.round(iconW)} height={Math.round(iconH*0.1)} fill={dark?"#3560E0":"#0F1F8A"}/>
       {/* Bag handle */}
       <path d={`M${Math.round(iconW*0.23)} ${Math.round(iconH*0.33)} Q${Math.round(iconW*0.23)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.5)} ${Math.round(iconH*0.06)} Q${Math.round(iconW*0.77)} ${Math.round(iconH*0.06)} ${Math.round(iconW*0.77)} ${Math.round(iconH*0.33)}`} fill="none" stroke={blue} strokeWidth={Math.round(size*0.08)} strokeLinecap="round"/>
       {/* Lock dot */}
@@ -124,7 +127,11 @@ const CSS = `
   --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --nav-h:60px;
 }
-
+.dark{
+  --bg:#121212;--surf:#1E1E1E;--sh:#2A2A2A;--border:#333333;
+  --a:#5B8AFF;--a2:#4A78F0;
+  --txt:#F5F5F5;--mut:#9E9E9E;--dim:#555555;
+}
 body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
@@ -142,10 +149,9 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;
 .inp::placeholder{color:#AEAEB2;}
 textarea.inp{resize:vertical;min-height:90px;}
 select.inp{appearance:none;cursor:pointer;}
-
+.dark .inp{background:var(--sh);border-color:var(--border);}
 /* LABELS */
 .lbl{display:block;font-size:11px;font-weight:700;color:#636363;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.04em;}
 .bg-g{background:rgba(20,40,160,.08);color:var(--a);}
@@ -159,27 +165,24 @@ select.inp{appearance:none;cursor:pointer;}
 .mod.lg{max-width:720px;}
 .mod.xl{max-width:900px;}
 @keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;color:var(--txt);}
-
+.mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;}
 .mb{padding:22px 28px;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
-
+.dark .mod,.dark .mh{background:#1E1E1E;border-color:#333;}
 /* NAV - Samsung white nav */
-.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 20px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:16px;}
-
-.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;white-space:nowrap;flex-shrink:0;min-width:fit-content;}
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
+.dark .nav{background:#121212;border-bottom-color:#333;}
+.logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
 .logo span{color:var(--a);}
 /* ALERTS */
 .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
 .ag{background:rgba(20,40,160,.04);border-left:3px solid #1428A0;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#1428A0;}
 .ay{background:rgba(139,100,0,.04);border-left:3px solid #8B6400;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#8B6400;}
 .ar{background:rgba(192,48,48,.04);border-left:3px solid #C03030;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#C03030;}
-
 /* CARDS */
 .card{background:var(--surf);border:1px solid var(--border);border-radius:8px;}
 .lcard{background:#fff;border:1px solid #EBEBEB;border-radius:0;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
 .lcard:hover{border-color:#1428A0;box-shadow:0 4px 20px rgba(0,0,0,.08);}.lcard:hover .lthumb img{transform:scale(1.03);}
-
 
 .lcard-list{display:flex;flex-direction:row;}
 .lcard-list .lthumb{width:200px;min-width:200px;height:160px;aspect-ratio:unset;}
@@ -195,18 +198,15 @@ select.inp{appearance:none;cursor:pointer;}
 /* PAGINATION */
 .pg{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:40px;flex-wrap:wrap;}
 .pb{min-width:38px;height:38px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:0;border:1px solid #E0E0E0;background:#fff;color:#636363;cursor:pointer;font-size:13px;font-weight:700;transition:all .14s;letter-spacing:.02em;}
-
 .pb.on{background:#1428A0;color:#fff;border-color:#1428A0;}
 /* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border:1px solid #E6E6E6;border-radius:0;padding:14px 18px;font-size:14px;font-family:var(--fn);box-shadow:0 4px 24px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:3px solid #1428A0;}
-
 @keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 /* SOLD BADGE */
 .sold-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 /* IMAGE UPLOAD */
 .img-upload{border:2px dashed #C7C7CC;border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAFA;}
 .img-upload:hover{border-color:var(--a);background:rgba(20,40,160,.02);}
-
 .img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
 .img-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--sh);}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -214,35 +214,27 @@ select.inp{appearance:none;cursor:pointer;}
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;height:480px;}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F4F4F4;border-radius:8px 8px 0 0;}
-
 .chat-msg{max-width:72%;padding:10px 14px;border-radius:4px;font-size:14px;line-height:1.55;font-family:var(--fn);}
 .chat-msg.me{align-self:flex-end;background:#1428A0;color:#fff;border-radius:4px 4px 0 4px;}
 .chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E6E6E6;border-radius:4px 4px 4px 0;}
-
 .chat-msg.blocked{opacity:.5;font-style:italic;}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 8px 8px;}
-
 /* TABS - Samsung underline style */
 .tab-row{display:flex;gap:0;background:transparent;border-bottom:1px solid #E5E5E5;padding:0;overflow-x:auto;margin-bottom:24px;}
-
 .tab{padding:14px 22px;border-radius:0;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s;color:#9E9E9E;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
-
 .tab.on{color:#1428A0;border-bottom-color:#1428A0;}
 /* NOTIF DOT */
 .notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#FF3B30;border-radius:50%;border:2px solid #fff;}
 /* STAT CARD */
-.stat-card{background:#F4F4F4;border:none;border-radius:8px;padding:20px;color:var(--txt);}
-
+.stat-card{background:#F4F4F4;border:none;border-radius:8px;padding:20px;}
 /* PROGRESS */
 .progress{height:4px;background:#E5E5E5;border-radius:2px;overflow:hidden;margin-top:8px;}
 .progress-bar{height:100%;background:var(--a);border-radius:2px;transition:width .6s ease;}
 /* TIMELINE */
 .timeline-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #F0F0F0;}
-
 .timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;margin-top:2px;}
 /* PWA */
 .pwa-banner{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E5E5E5;padding:16px 24px;display:flex;align-items:center;gap:16px;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
-
 /* RESPONSIVE */
 @media(max-width:640px){
   .nav{padding:0 16px;height:50px;}
@@ -1304,6 +1296,58 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
 }
 
 // ── ROLE SWITCHER ─────────────────────────────────────────────────────────────
+// ── MARK AS SOLD MODAL ────────────────────────────────────────────────────────
+function MarkSoldModal({listing, token, notify, onClose, onSuccess}) {
+  const [loading, setLoading] = useState(false);
+
+  const confirm = async (channel) => {
+    setLoading(true);
+    try {
+      await api(`/api/listings/${listing.id}/mark-sold`, {
+        method: "POST",
+        body: JSON.stringify({ channel })
+      }, token);
+      notify(
+        channel === "platform"
+          ? "🎉 Marked as sold via Weka Soko!"
+          : "✅ Marked as sold outside platform.",
+        "success"
+      );
+      onSuccess(listing.id, channel);
+      onClose();
+    } catch(e) { notify(e.message, "error"); }
+    finally { setLoading(false); }
+  };
+
+  return <Modal title="✅ Mark as Sold" onClose={onClose}>
+    <div style={{textAlign:"center", padding:"8px 0 16px"}}>
+      <div style={{fontSize:48, marginBottom:12}}>🏷️</div>
+      <div style={{fontWeight:700, fontSize:16, marginBottom:6}}>{listing.title}</div>
+      <div style={{fontSize:13, color:"var(--mut)", marginBottom:24}}>
+        How did this item sell? This helps us improve Weka Soko.
+      </div>
+
+      <div style={{display:"flex", flexDirection:"column", gap:12}}>
+        <button className="btn bp" style={{width:"100%", padding:"16px", flexDirection:"column", gap:4, height:"auto"}}
+          onClick={()=>confirm("platform")} disabled={loading}>
+          <div style={{fontSize:22}}>🛒</div>
+          <div style={{fontWeight:700, fontSize:14}}>Sold via Weka Soko</div>
+          <div style={{fontSize:12, opacity:.8, fontWeight:400}}>Buyer found me through this platform</div>
+        </button>
+
+        <button className="btn bs" style={{width:"100%", padding:"16px", flexDirection:"column", gap:4, height:"auto"}}
+          onClick={()=>confirm("outside")} disabled={loading}>
+          <div style={{fontSize:22}}>🤝</div>
+          <div style={{fontWeight:700, fontSize:14}}>Sold Outside Platform</div>
+          <div style={{fontSize:12, color:"var(--mut)", fontWeight:400}}>I found the buyer elsewhere</div>
+        </button>
+      </div>
+
+      {loading && <div style={{marginTop:16}}><Spin/></div>}
+    </div>
+  </Modal>;
+}
+
 function RoleSwitcher({user,token,notify,onSwitch}){
   const [loading,setLoading]=useState(false);
   const target=user.role==="seller"?"buyer":"seller";
@@ -1457,19 +1501,8 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
-                  {user&&
-                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
-                      if(user.role!=="seller"){
-                        if(window.confirm("You need to be a Seller to respond. Switch to Seller account?")){
-                          api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));setPitchTarget(r);}).catch(e=>notify(e.message,"error"));
-                        }
-                        return;
-                      }
-                      setPitchTarget(r);
-                    }}>📬 I Have This</button>
-                  }
-                  {!user&&
-                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>onSignIn()}>📬 I Have This</button>
+                  {user&&user.role==="seller"&&user.id!==r.user_id&&
+                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setPitchTarget(r)}>📬 I Have This</button>
                   }
                 </div>
               </div>
@@ -1768,6 +1801,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
   const [selectedListing,setSelectedListing]=useState(null);
   const [showPayModal,setShowPayModal]=useState(null);
   const [editingListing,setEditingListing]=useState(null);
+  const [markSoldListing,setMarkSoldListing]=useState(null);
 
   useEffect(()=>{
     const load=async()=>{
@@ -1814,13 +1848,13 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
   const unreadCount=(notifs.filter(n=>!n.is_read).length||0)+(threads.reduce((a,t)=>a+parseInt(t.unread_count||0),0)||0);
 
-  return <div style={{minHeight:"100vh",background:"var(--bg)",paddingBottom:40,display:"flex",flexDirection:"column"}}>
+  return <div style={{minHeight:"100vh",background:"var(--bg)",paddingBottom:40}}>
     {/* Dashboard top bar */}
     <div style={{position:"sticky",top:0,zIndex:100,background:"var(--surf)",borderBottom:"1px solid var(--border)",padding:"0 16px",display:"flex",alignItems:"center",gap:12,height:56}}>
       <button className="btn bgh" onClick={onClose} style={{padding:"6px 10px",fontSize:20}}>←</button>
       <span style={{fontWeight:700,fontSize:16,flex:1}}>My Account</span>
     </div>
-    <div style={{flex:1,maxWidth:"100%",width:"100%",margin:"0 auto",padding:"20px 16px",overflowY:"auto"}}>
+    <div style={{maxWidth:720,margin:"0 auto",padding:"20px 16px"}}>
     {/* Profile header */}
     <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:22,padding:"16px 20px",background:"linear-gradient(135deg,rgba(20,40,160,.08),rgba(20,40,160,.02))",borderRadius:"var(--r)",border:"1px solid rgba(20,40,160,.12)"}}>
       <div style={{width:56,height:56,borderRadius:"50%",background:"var(--a)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#fff",fontWeight:700,flexShrink:0}}>
@@ -1958,9 +1992,6 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                 <button className="btn bs sm" style={{fontSize:11}} onClick={async(e)=>{e.stopPropagation();await api(`/api/pitches/${n.data.pitch_id}/decline`,{method:"POST"},token).catch(()=>{});notify("Pitch declined","info");}}>✕ Decline</button>
               </div>
             )}
-            {n.type==="request_match"&&n.data&&(
-              <button className="btn bp sm" style={{marginTop:10,fontSize:11,padding:"6px 14px"}} onClick={(e)=>{e.stopPropagation();const data=typeof n.data==="string"?JSON.parse(n.data):n.data;setShowPayModal(data.listing_id);markRead(n.id);}}>💳 Pay KSh 250 to Reply</button>
-            )}
           </div>
           {!n.is_read&&<div style={{width:8,height:8,background:"var(--a)",borderRadius:"50%",flexShrink:0,marginTop:6}}/>}
         </div>
@@ -2041,6 +2072,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                   :<button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock → KSh 250</button>
               )}
               {l.status!=="sold"&&<button className="btn bs sm" onClick={()=>setEditingListing(l)}>✏️ Edit</button>}
+              {(l.status==="active"||l.status==="locked")&&<button className="btn bp sm" onClick={()=>setMarkSoldListing(l)}>✅ Mark Sold</button>}
               {(l.status==="rejected"||l.status==="needs_changes")&&<button className="btn bg2 sm" onClick={async()=>{
                 try{await api(`/api/listings/${l.id}/resubmit`,{method:"POST"},token);
                 setListings(p=>p.map(x=>x.id===l.id?{...x,status:"pending_review",moderation_note:null}:x));
@@ -2085,24 +2117,25 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     {/* Chat thread opener */}
     {selectedListing&&<ChatModal listing={selectedListing} user={user} token={token} onClose={()=>setSelectedListing(null)} notify={notify}/>}
     {editingListing&&<PostAdModal listing={editingListing} token={token} notify={notify} onClose={()=>setEditingListing(null)} onSuccess={(updated)=>{setListings(p=>p.map(l=>l.id===updated.id?updated:l));setEditingListing(null);}}/>}
+    {markSoldListing&&<MarkSoldModal listing={markSoldListing} token={token} notify={notify} onClose={()=>setMarkSoldListing(null)} onSuccess={(id,channel)=>setListings(p=>p.map(l=>l.id===id?{...l,status:"sold",sold_channel:channel}:l))}/>}
 
     {/* Pay to unlock */}
     {showPayModal&&<PayModal
       type="unlock"
-      listingId={typeof showPayModal==="string"?showPayModal:showPayModal.id}
+      listingId={showPayModal.id}
       amount={250}
-      purpose={typeof showPayModal==="string"?"Unlock buyer contact":` Unlock buyer contact for: ${showPayModal.title}`}
+      purpose={`Unlock buyer contact for: ${showPayModal.title}`}
       token={token}
       user={user}
       allowVoucher={true}
       onSuccess={async(result)=>{
-        const lid=typeof showPayModal==="string"?showPayModal:showPayModal.id;
+        const lid=showPayModal.id;
         setShowPayModal(null);
         try{
           const fresh=await api(`/api/listings/${lid}`,{},token);
           const ul=fresh.listing||fresh;
           setListings(p=>p.map(l=>l.id===lid?ul:l));
-        }catch{setListings(p=>p.map(l=>l.id===lid?{...l,is_contact_public:true}:l));}
+        }catch{setListings(p=>p.map(l=>l.id===lid?{...l,is_unlocked:true}:l));}
         notify("🔓 Buyer contact unlocked! Check Notifications for their details.","success");
       }}
       onClose={()=>setShowPayModal(null)}
@@ -2201,7 +2234,7 @@ function Pager({total,perPage,page,onChange}){
 
 // ── MAIN APP ──────────────────────────────────────────────────────────────────
 export default function App(){
-
+  const [dark,setDark]=useState(()=>{try{return localStorage.getItem("ws-theme")==="dark";}catch{return false;}});
   const [user,setUser]=useState(null);
   const [token,setToken]=useState(null);
   const [page,setPage]=useState("home");
@@ -2224,7 +2257,7 @@ export default function App(){
   const notify=useCallback((msg,type="info")=>setToast({msg,type,id:Date.now()}),[]);
   const closeModal=useCallback(()=>setModal(null),[]);
 
-
+  useEffect(()=>{document.documentElement.className=dark?"dark":"";try{localStorage.setItem("ws-theme",dark?"dark":"light");}catch{};},[dark]);
   useEffect(()=>{let el=document.getElementById("ws-css");if(!el){el=document.createElement("style");el.id="ws-css";document.head.appendChild(el);}el.textContent=CSS;},[]);
 
   // Handle Google OAuth callback + password reset token
@@ -2369,9 +2402,9 @@ export default function App(){
   return <>
     {/* NAV — Samsung white nav */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}><WekaSokoLogo size={36} dark={dark}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        
+        <button className="btn bgh sm" onClick={()=>setDark(d=>!d)} style={{fontSize:12,padding:"6px 12px"}}>{dark?"☀ Light":"🌙 Dark"}</button>
         <button className="btn bgh sm" onClick={()=>setPage(p=>p==="sold"?"home":"sold")} style={{display:window.innerWidth>640?"inline-flex":"none",fontSize:12}}>Sold Items</button>
         {user?<>
           <button className="btn bgh sm" style={{position:"relative",fontSize:12}} onClick={()=>setShowDashboard(true)}>
@@ -2602,7 +2635,7 @@ export default function App(){
       <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.4)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:24,display:"inline-flex",alignItems:"center",gap:6}}>← Back</button>
-          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28}/></div>
+          <div style={{marginBottom:16,opacity:0.9}}><WekaSokoLogo size={28} dark/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:12}}>Marketplace</div>
           <h1 style={{fontSize:"clamp(28px,5vw,52px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.0,marginBottom:12}}>Sold on Weka Soko</h1>
           <p style={{fontSize:15,color:"rgba(255,255,255,.7)",maxWidth:480,lineHeight:1.7}}>Real transactions, real people. Every item here found a buyer on Weka Soko.</p>
