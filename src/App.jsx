@@ -1087,25 +1087,23 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     for(const [k,v] of fieldsToCheck){if(v&&checkContactInfo(v))errs[k]="Cannot contain phone numbers, emails, or social handles";}
     if(Object.keys(errs).length>0){setFieldErrors(errs);notify("⚠️ Remove contact info from the flagged fields","warning");return;}
     setFieldErrors({});
+    
+    // For new listings, show payment modal FIRST before creating ad
+    if(!listing){
+      setShowPaymentModal(true);
+      return;
+    }
+    
+    // For edits, save directly
     setLoading(true);
     try{
-      const isEdit=!!listing;
-      const url=isEdit?`/api/listings/${listing.id}`:"/api/listings";
-      const method=isEdit?"PATCH":"POST";
       const fd=new FormData();
       Object.entries({title:f.title,category:f.category,price:f.price,description:f.description,reason_for_sale:f.reason,location:f.location,county:f.county}).forEach(([k,v])=>v&&fd.append(k,v));
       if(f.subcat)fd.append("subcat",f.subcat);
       images.forEach(img=>img.file&&fd.append("photos",img.file));
-      const result=await api(url,{method,body:fd},token);
-      
-      // If Pay Now flow, show payment modal instead of closing
-      if(paymentChoice==="now"&&!isEdit){
-        setCreatedListingId(result.id||result.listing?.id);
-        setShowPaymentModal(true);
-      }else{
-        onSuccess(result);onClose();
-        notify(isEdit?"✅ Ad updated!":"🚀 Ad is live!","success");
-      }
+      const result=await api(`/api/listings/${listing.id}`,{method:"PATCH",body:fd},token);
+      onSuccess(result);onClose();
+      notify("✅ Ad updated!","success");
     }catch(err){
       if(err.violations){
         const msg=err.violations.map(v=>`${v.field}: ${v.reason}`).join(" | ");
@@ -1113,6 +1111,29 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       } else {
         notify(err.message||"Failed to save ad","error");
       }
+    }
+    finally{setLoading(false);}
+  };
+  
+  // Create ad after payment is completed or Pay Later is chosen
+  const createAdAfterPayment=async()=>{
+    setLoading(true);
+    try{
+      const fd=new FormData();
+      Object.entries({title:f.title,category:f.category,price:f.price,description:f.description,reason_for_sale:f.reason,location:f.location,county:f.county}).forEach(([k,v])=>v&&fd.append(k,v));
+      if(f.subcat)fd.append("subcat",f.subcat);
+      images.forEach(img=>img.file&&fd.append("photos",img.file));
+      const result=await api("/api/listings",{method:"POST",body:fd},token);
+      setCreatedListingId(result.id||result.listing?.id);
+      return result;
+    }catch(err){
+      if(err.violations){
+        const msg=err.violations.map(v=>`${v.field}: ${v.reason}`).join(" | ");
+        notify(`❌ Contact info detected — ${msg}`,"error");
+      } else {
+        notify(err.message||"Failed to save ad","error");
+      }
+      throw err;
     }
     finally{setLoading(false);}
   };
@@ -1175,7 +1196,25 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       </FF>
       <div className="alert ay" style={{fontSize:12}}>🔒 Your phone/email are hidden until a buyer pays KSh 250 to unlock them.</div>
     </>}
-    {/* Pay Now flow — show payment modal after listing creation */}
+    {/* Payment modal — shown before ad is created */}
+    {showPaymentModal&&!createdListingId&&<PayModal type="unlock" listingId="temp" amount={250} purpose={`Unlock Your Contact Info for: ${f.title} to Potential Buyers`} token={token} user={{}} allowVoucher={false}
+      onSuccess={async(result)=>{
+        try{
+          const created=await createAdAfterPayment();
+          setShowPaymentModal(false);
+          onSuccess(created);
+          onClose();
+          notify("🚀 Ad posted and payment confirmed!","success");
+        }catch(err){
+          notify("Failed to create ad after payment","error");
+        }
+      }}
+      onClose={()=>{
+        setShowPaymentModal(false);
+        notify("Ad not posted. Complete payment or choose Pay Later to post.","info");
+      }} notify={notify}/>
+    }
+    {/* Pay Later flow — show payment modal after listing creation */}
     {showPaymentModal&&createdListingId&&<PayModal type="unlock" listingId={createdListingId} amount={250} purpose={`Unlock Your Contact Info for: ${f.title} to Potential Buyers`} token={token} user={{}} allowVoucher={false}
       onSuccess={async(result)=>{
         setShowPaymentModal(false);
