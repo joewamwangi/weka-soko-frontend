@@ -835,7 +835,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
         </div>
         <p style={{fontSize:11,color:"var(--dim)",marginTop:5}}>We confirm the code was paid to Till 5673935 before unlocking.</p>
       </div>
-      <button className="btn bs" style={{width:"100%",marginTop:16}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>⏰ Pay Later</button>
+      <button className="btn bs" style={{width:"100%",marginTop:16}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>⏰ Pay Later<div style={{fontSize:11,color:"var(--mut)",marginTop:4}}>Post anonymously, pay KSh 250 anytime to reveal your contact.</div></button>
     </div>}
     {step==="done"&&<div style={{textAlign:"center",padding:"32px 0"}}>
       <div style={{fontSize:64,marginBottom:14}}>✅</div>
@@ -2267,11 +2267,11 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       </div>}
       <div style={{maxWidth:680}}>
         {notifs.map((n,i)=>(
-          <div key={i} onClick={()=>markRead(n.id)} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setSelectedListing({id:d.listing_id});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
-              {({new_message:"💬",buyer_locked_in:"🔥",escrow_released:"💰",payment_confirmed:"✅",warning:"⚠️",admin_edit:"🛠",suspension:"🚫",seller_pitch:"📬",pitch_accepted:"✅",request_match:"🛒"})[n.type]||"🔔"}
+              {({new_message:"💬",buyer_locked_in:"🔥",escrow_released:"💰",payment_confirmed:"✅",warning:"⚠️",admin_edit:"🛠",suspension:"🚫",seller_pitch:"📬",pitch_accepted:"✅",request_match:"🛒",listing_match:"📦"})[n.type]||"🔔"}
             </div>
             <div style={{flex:1}}>
               <div style={{fontWeight:n.is_read?500:700,fontSize:14,marginBottom:2}}>{n.title}</div>
