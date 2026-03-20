@@ -2297,7 +2297,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       </div>}
       <div style={{maxWidth:680}}>
         {notifs.map((n,i)=>(
-          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setModal({type:"detail",listing:{id:d.listing_id,title:d.listing_title,description:d.listing_description,category:d.listing_category,price:d.listing_price,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id}});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setModal({type:"notification_detail",notification:n,listing:{id:d.listing_id,title:d.listing_title,description:d.listing_description,price:d.listing_price,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id}});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
@@ -2949,6 +2949,26 @@ export default function App(){
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
     {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
     {modal?.type==="detail"&&<DetailModal
+    {modal?.type==="notification_detail"&&modal?.notification&&modal?.listing&&<Modal title="📦 Listing Details" onClose={()=>setModal(null)}>
+      <div style={{maxWidth:500}}>
+        <div style={{marginBottom:20}}>
+          <h2 style={{fontSize:18,fontWeight:700,marginBottom:8}}>{modal.listing.title}</h2>
+          <div style={{fontSize:14,color:"var(--mut)",marginBottom:12,lineHeight:1.6}}>{modal.listing.description}</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:12,marginBottom:16}}>
+            <div style={{fontSize:24,fontWeight:700,color:"var(--a)"}}>KSh {modal.listing.price?.toLocaleString()}</div>
+          </div>
+        </div>
+        <div style={{borderTop:"1px solid var(--border)",paddingTop:16,marginBottom:16}}>
+          <div style={{fontSize:12,color:"var(--mut)",marginBottom:12}}>
+            {modal.listing.is_unlocked ? "✅ Contact info revealed" : "🔒 Contact info hidden"}
+          </div>
+        </div>
+        <div style={{display:"flex",gap:10}}>
+          <button className="btn bs" style={{flex:1}} onClick={()=>setModal(null)}>Close</button>
+          <button className="btn bp" style={{flex:1}} onClick={()=>{setSelectedListing(modal.listing);setModal(null);setTab("home");}}>More Info →</button>
+        </div>
+      </div>
+    </Modal>}
       listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
       onShare={()=>setModal({type:"share",listing:modal.listing})}
       onChat={()=>{if(!user){notify("Sign in to chat","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"chat",listing:modal.listing});}}
