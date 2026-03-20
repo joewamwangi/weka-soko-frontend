@@ -760,11 +760,11 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
     <p style={{fontSize:11,color:"var(--dim)",marginTop:5}}>We confirm the code was paid to Till 5673935 before unlocking.</p>
   </div>;
 
-  return <Modal title={type==="unlock"?"🔓 Unlock Buyer Contact":"🔐 Escrow Payment"} onClose={onClose}>
+  return <Modal title={type==="unlock"?"🔓 Unlock Seller Contact":"🔐 Escrow Payment"} onClose={onClose}>
     {step==="form"&&<>
       {/* Seller safety tip — shown only on unlock */}
       {type==="unlock"&&<div style={{background:"rgba(20,40,160,.04)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",padding:"11px 14px",marginBottom:16,fontSize:12,color:"#1428A0",lineHeight:1.7}}>
-        <strong>🛡️ Seller tip:</strong> Once you unlock, you'll see the buyer's contact details. <strong>Do not hand over the item until payment is confirmed.</strong> Use Escrow for full protection — funds are held by Weka Soko until the buyer receives and confirms the item.
+        <strong>🛡️ Seller tip:</strong> Once you unlock, you'll see the buyer's contact details, as they will see yours as well. <strong>Do not hand over the item until payment is confirmed.</strong> Use Escrow for full protection — funds are held by Weka Soko until the buyer receives and confirms the item.
       </div>}
       <div style={{background:"rgba(20,40,160,.06)",border:"1px solid rgba(20,40,160,.2)",borderRadius:"var(--r)",padding:"18px 20px",marginBottom:18}}>
         <div style={{fontSize:11,color:"var(--mut)",marginBottom:4}}>Till Number <strong style={{color:"var(--txt)"}}>5673935</strong> · Weka Soko</div>
@@ -1013,6 +1013,20 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
   const [step,setStep]=useState(1);
   const [loading,setLoading]=useState(false);
   const [images,setImages]=useState([]);
+  const [paymentChoice,setPaymentChoice]=useState(null);
+  const [showPaymentModal,setShowPaymentModal]=useState(false);
+  const [createdListingId,setCreatedListingId]=useState(null);
+
+  useEffect(()=>{
+    const prefilled=sessionStorage.getItem('prefilledFromRequest');
+    if(prefilled){
+      try{
+        const data=JSON.parse(prefilled);
+        setPaymentChoice(data.paymentChoice);
+        sessionStorage.removeItem('prefilledFromRequest');
+      }catch(e){}
+    }
+  },[]);
   const [f,setF]=useState(()=>listing?{
     title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
     price:String(listing.price||""),description:listing.description||"",
@@ -1056,8 +1070,15 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       if(f.subcat)fd.append("subcat",f.subcat);
       images.forEach(img=>img.file&&fd.append("photos",img.file));
       const result=await api(url,{method,body:fd},token);
-      onSuccess(result);onClose();
-      notify(isEdit?"✅ Ad updated!":"🚀 Ad is live!","success");
+      
+      // If Pay Now flow, show payment modal instead of closing
+      if(paymentChoice==="now"&&!isEdit){
+        setCreatedListingId(result.id||result.listing?.id);
+        setShowPaymentModal(true);
+      }else{
+        onSuccess(result);onClose();
+        notify(isEdit?"✅ Ad updated!":"🚀 Ad is live!","success");
+      }
     }catch(err){
       if(err.violations){
         const msg=err.violations.map(v=>`${v.field}: ${v.reason}`).join(" | ");
@@ -1074,7 +1095,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
       <div style={{flex:1}}/>
       {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
-      {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:"Publish Ad 🚀"}</button>}
+      {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:paymentChoice==="now"?"💳 Pay KSh 250 Now":"Publish Ad 🚀"}</button>}
     </div>
   }>
     <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is 100% free. KSh 250 only when a buyer locks in.</div>
@@ -1127,6 +1148,20 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       </FF>
       <div className="alert ay" style={{fontSize:12}}>🔒 Your phone/email are hidden until a buyer pays KSh 250 to unlock them.</div>
     </>}
+    {/* Pay Now flow — show payment modal after listing creation */}
+    {showPaymentModal&&createdListingId&&<PayModal type="unlock" listingId={createdListingId} amount={250} purpose={`Unlock Your Contact Info for: ${f.title} to Potential Buyers`} token={token} user={{}} allowVoucher={false}
+      onSuccess={async(result)=>{
+        setShowPaymentModal(false);
+        onSuccess({id:createdListingId,...f});
+        onClose();
+        notify("🚀 Ad posted and payment confirmed!","success");
+      }}
+      onClose={()=>{
+        setShowPaymentModal(false);
+        onSuccess({id:createdListingId,...f});
+        onClose();
+      }} notify={notify}/>
+    }
   </Modal>;
 }
 
@@ -2339,7 +2374,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     {selectedListing&&<ChatModal listing={selectedListing} user={user} token={token} onClose={()=>setSelectedListing(null)} notify={notify}/>}
     {editingListing&&<PostAdModal listing={editingListing} token={token} notify={notify} onClose={()=>setEditingListing(null)} onSuccess={(updated)=>{setListings(p=>p.map(l=>l.id===updated.id?updated:l));setEditingListing(null);}}/>}
     {markSoldListing&&<MarkSoldModal listing={markSoldListing} token={token} notify={notify} onClose={()=>setMarkSoldListing(null)} onSuccess={(id,channel)=>setListings(p=>p.map(l=>l.id===id?{...l,status:"sold",sold_channel:channel}:l))}/>}
-    {showPayModal&&<PayModal type="unlock" listingId={showPayModal.id} amount={250} purpose={`Unlock buyer contact for: ${showPayModal.title}`} token={token} user={user} allowVoucher={true}
+    {showPayModal&&<PayModal type="unlock" listingId={showPayModal.id} amount={250} purpose={`Unlock Your Contact Info for: ${showPayModal.title} to Potential Buyers`} token={token} user={user} allowVoucher={true}
       onSuccess={async(result)=>{
         const lid=showPayModal.id;setShowPayModal(null);
         try{const fresh=await api(`/api/listings/${lid}`,{},token);const ul=fresh.listing||fresh;setListings(p=>p.map(l=>l.id===lid?ul:l));}
