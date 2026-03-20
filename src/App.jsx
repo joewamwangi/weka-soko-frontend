@@ -1514,15 +1514,16 @@ function RoleSwitcher({user,token,notify,onSwitch}){
 // ── SOLD ITEMS SECTION ───────────────────────────────────────────────────────
 // ── POST REQUEST MODAL ─────────────────────────────────────────────────────
 function PostRequestModal({onClose,token,notify,onSuccess}){
-  const [f,setF]=useState({title:"",description:"",budget:"",county:""});
+  const [f,setF]=useState({title:"",description:"",budget:"",county:"",category:"",subcat:"",keywords:"",min_price:"",max_price:""});
   const [loading,setLoading]=useState(false);
   const sf=(k,v)=>setF(p=>({...p,[k]:v}));
   const COUNTIES=["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Kajiado","Meru","Nyeri","Kisii","Kakamega","Thika","Malindi","Nakuru","Garissa","Embu","Uasin Gishu","Trans Nzoia","Bungoma","Siaya","Homabay","Migori","Vihiga","Busia","Nandi","Kericho","Baringo","Laikipia","Samburu","West Pokot","Turkana","Marsabit","Mandera","Wajir","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Makueni","Kitui","Murang'a","Kirinyaga","Nyandarua","Isiolo","Naivasha"];
   const submit=async()=>{
     if(!f.title.trim()||!f.description.trim()){notify("Title and description are required","warning");return;}
+    if(!f.category){notify("Please select a category","warning");return;}
     setLoading(true);
     try{
-      const result=await api("/api/requests",{method:"POST",body:JSON.stringify({title:f.title.trim(),description:f.description.trim(),budget:f.budget||undefined,county:f.county||undefined})},token);
+      const result=await api("/api/requests",{method:"POST",body:JSON.stringify({title:f.title.trim(),description:f.description.trim(),budget:f.budget||undefined,county:f.county||undefined,category:f.category,subcat:f.subcat||undefined,keywords:f.keywords||undefined,min_price:f.min_price||undefined,max_price:f.max_price||undefined})},token);
       notify("✅ Request submitted! Admin will review and notify you when it goes live.","success");
       onSuccess(result);onClose();
     }catch(err){notify(err.message,"error");}
@@ -1539,10 +1540,30 @@ function PostRequestModal({onClose,token,notify,onSuccess}){
     <FF label="Description" required hint="Be specific — condition, colour, specs, anything important">
       <textarea className="inp" placeholder="e.g. Looking for iPhone 13 Pro 256GB in any colour, screen must be crack-free, battery health above 80%..." value={f.description} onChange={e=>sf("description",e.target.value)} rows={4}/>
     </FF>
+    <FF label="Category" required>
+      <select className="inp" value={f.category} onChange={e=>sf("category",e.target.value)}>
+        <option value="">Select a category</option>
+        {CATS.map(c=><option key={c.name} value={c.name}>{c.icon} {c.name}</option>)}
+      </select>
+    </FF>
+    {f.category && <FF label="Sub-Category">
+      <select className="inp" value={f.subcat} onChange={e=>sf("subcat",e.target.value)}>
+        <option value="">Any sub-category</option>
+        {CATS.find(c=>c.name===f.category)?.sub.map(s=><option key={s} value={s}>{s}</option>)}
+      </select>
+    </FF>}
+    <FF label="Keywords" hint="Optional - helps with matching">
+      <input className="inp" placeholder="e.g. 256GB, good condition, black" value={f.keywords} onChange={e=>sf("keywords",e.target.value)}/>
+    </FF>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-      <FF label="Max Budget (KSh)" hint="Optional">
-        <input className="inp" type="number" placeholder="e.g. 80000" value={f.budget} onChange={e=>sf("budget",e.target.value)} min={0}/>
+      <FF label="Min Price (KSh)" hint="Optional">
+        <input className="inp" type="number" placeholder="e.g. 50000" value={f.min_price} onChange={e=>sf("min_price",e.target.value)} min={0}/>
       </FF>
+      <FF label="Max Price (KSh)" hint="Optional">
+        <input className="inp" type="number" placeholder="e.g. 80000" value={f.max_price} onChange={e=>sf("max_price",e.target.value)} min={0}/>
+      </FF>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
       <FF label="County" hint="Optional">
         <select className="inp" value={f.county} onChange={e=>sf("county",e.target.value)}>
           <option value="">Any county</option>
@@ -2331,31 +2352,38 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 }
 
 
-// ── PITCH MODAL — Seller pitches to a buyer request ─────────────────────────
+// ── PITCH MODAL — Seller posts a listing for a buyer request ─────────────────────────
 function PitchModal({request, user, token, notify, onClose}) {
-  const [msg, setMsg] = useState("");
-  const [price, setPrice] = useState("");
   const [loading, setLoading] = useState(false);
+  const [paymentChoice, setPaymentChoice] = useState(null); // 'now' or 'later'
 
-  const submit = async () => {
-    if (!msg.trim()) return notify("Please write a pitch message","error");
-    if (msg.length > 200) return notify("Message must be 200 characters or less","error");
+  const proceedToListing = async () => {
     setLoading(true);
     try {
-      await api("/api/pitches", {method:"POST", body:JSON.stringify({
+      // Store the request data in sessionStorage so PostAdModal can access it
+      sessionStorage.setItem('prefilledFromRequest', JSON.stringify({
         request_id: request.id,
-        message: msg.trim(),
-        price: price ? parseFloat(price) : undefined
-      })}, token);
-      notify("📬 Pitch sent! The buyer will be notified.","success");
+        category: request.category,
+        subcat: request.subcat,
+        keywords: request.keywords,
+        paymentChoice: paymentChoice,
+        title: request.title // Pre-fill title with request title as suggestion
+      }));
+      notify("📝 Ready to post your listing!", "success");
       onClose();
+      // Trigger page change to post ad (this would be handled by parent component)
+      window.dispatchEvent(new CustomEvent('goToPostAd'));
     } catch(e) { notify(e.message,"error"); }
     finally { setLoading(false); }
   };
 
   return <Modal title="📬 I Have This!" onClose={onClose} footer={
-    <><button className="btn bs" onClick={onClose}>Cancel</button>
-      <button className="btn bp" onClick={submit} disabled={loading||!msg.trim()}>{loading?<Spin/>:"Send Pitch →"}</button></>
+    paymentChoice ? (
+      <><button className="btn bs" onClick={()=>setPaymentChoice(null)}>Back</button>
+        <button className="btn bp" onClick={proceedToListing} disabled={loading}>{loading?<Spin/>:"Post Listing →"}</button></>
+    ) : (
+      <><button className="btn bs" onClick={onClose}>Cancel</button></>
+    )
   }>
     <div style={{marginBottom:16,padding:"12px 14px",background:"var(--sh)",borderRadius:"var(--rs)"}}>
       <div style={{fontWeight:600,fontSize:14,marginBottom:4}}>{request.title}</div>
@@ -2365,24 +2393,33 @@ function PitchModal({request, user, token, notify, onClose}) {
       {request.budget&&<div style={{fontSize:12,color:"#1428A0",fontWeight:700,marginTop:6}}>Budget: {fmtKES(request.budget)}</div>}
     </div>
 
-    <div style={{marginBottom:14}}>
-      <label className="lbl">Your pitch <span style={{color:"var(--mut)",fontWeight:400}}>({200-msg.length} chars left)</span></label>
-      <textarea className="inp" rows={3} style={{resize:"vertical"}}
-        placeholder="e.g. I have a Samsung Galaxy S23, barely used, 8GB RAM. Happy to share photos."
-        value={msg} onChange={e=>setMsg(e.target.value)} maxLength={200}/>
-      <div style={{fontSize:11,color:"var(--mut)",marginTop:4}}>
-        ⚠ Do not include phone numbers, emails or social media handles — your contact will be revealed after the buyer pays KSh 250.
+    {!paymentChoice ? (
+      <div>
+        <div style={{marginBottom:12,fontSize:13,color:"#535353",lineHeight:1.6}}>
+          Great! You can post a listing for this request. When you post, you'll have a choice:
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <button onClick={()=>setPaymentChoice('now')} style={{padding:"14px 16px",border:"2px solid #1428A0",background:"rgba(20,40,160,.08)",borderRadius:"var(--rs)",cursor:"pointer",textAlign:"left",fontFamily:"var(--fn)",transition:"all .15s"}} onMouseEnter={e=>e.target.style.background="rgba(20,40,160,.15)"} onMouseLeave={e=>e.target.style.background="rgba(20,40,160,.08)"}>
+            <div style={{fontWeight:700,fontSize:13,color:"#1428A0",marginBottom:4}}>💳 Pay KSh 250 Now</div>
+            <div style={{fontSize:12,color:"#535353"}}>Your contact info will be visible to buyers immediately</div>
+          </button>
+          <button onClick={()=>setPaymentChoice('later')} style={{padding:"14px 16px",border:"2px solid #E5E5E5",background:"#fff",borderRadius:"var(--rs)",cursor:"pointer",textAlign:"left",fontFamily:"var(--fn)",transition:"all .15s"}} onMouseEnter={e=>e.target.style.borderColor="#1428A0"} onMouseLeave={e=>e.target.style.borderColor="#E5E5E5"}>
+            <div style={{fontWeight:700,fontSize:13,color:"#1D1D1D",marginBottom:4}}>⏰ Pay Later</div>
+            <div style={{fontSize:12,color:"#535353"}}>Post anonymously, pay KSh 250 anytime to reveal your contact</div>
+          </button>
+        </div>
       </div>
-    </div>
-
-    <div style={{marginBottom:14}}>
-      <label className="lbl">Your price (KSh) <span style={{color:"var(--mut)",fontWeight:400}}>— optional</span></label>
-      <input className="inp" type="number" placeholder={request.budget?`Buyer budget: ${fmtKES(request.budget)}`:"e.g. 45000"} value={price} onChange={e=>setPrice(e.target.value)} min={0}/>
-    </div>
-
-    <div style={{background:"rgba(20,40,160,.06)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",padding:"12px 14px",fontSize:12,color:"#1428A0",lineHeight:1.6}}>
-      💡 <strong>How it works:</strong> Your pitch is sent to the buyer anonymously. If they like it, they pay KSh 250 to unlock your contact info. You get notified when they connect.
-    </div>
+    ) : (
+      <div style={{background:"rgba(20,40,160,.06)",border:"1px solid rgba(20,40,160,.15)",borderRadius:"var(--rs)",padding:"12px 14px",fontSize:12,color:"#1428A0",lineHeight:1.6}}>
+        <div style={{marginBottom:8}}>
+          {paymentChoice === 'now' ? (
+            <><strong>✓ Pay Now</strong><br/>Your contact info will be visible to the buyer immediately after you post. You'll pay KSh 250 during the posting process.</>
+          ) : (
+            <><strong>✓ Pay Later</strong><br/>Post your listing anonymously. Pay KSh 250 anytime from your dashboard to reveal your contact info to buyers.</>
+          )}
+        </div>
+      </div>
+    )}
   </Modal>;
 }
 
