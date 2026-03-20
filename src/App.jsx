@@ -2949,6 +2949,13 @@ export default function App(){
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
     {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
     {modal?.type==="detail"&&<DetailModal
+      listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
+      onShare={()=>setModal({type:"share",listing:modal.listing})}
+      onChat={()=>{if(!user){notify("Sign in to chat","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"chat",listing:modal.listing});}}
+      onLockIn={()=>handleLockIn(modal.listing)}
+      onUnlock={()=>setModal({type:"pay",payType:"unlock",listing:modal.listing})}
+      onEscrow={()=>{if(!user){notify("Sign in first","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"pay",payType:"escrow",listing:modal.listing});}}
+    />}
     {modal?.type==="notification_detail"&&modal?.notification&&modal?.listing&&<Modal title="📦 Listing Details" onClose={()=>setModal(null)}>
       <div style={{maxWidth:500}}>
         <div style={{marginBottom:20}}>
@@ -2969,13 +2976,6 @@ export default function App(){
         </div>
       </div>
     </Modal>}
-      listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
-      onShare={()=>setModal({type:"share",listing:modal.listing})}
-      onChat={()=>{if(!user){notify("Sign in to chat","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"chat",listing:modal.listing});}}
-      onLockIn={()=>handleLockIn(modal.listing)}
-      onUnlock={()=>setModal({type:"pay",payType:"unlock",listing:modal.listing})}
-      onEscrow={()=>{if(!user){notify("Sign in first","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"pay",payType:"escrow",listing:modal.listing});}}
-    />}
     {modal?.type==="chat"&&user&&<ChatModal listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}/>}
     {modal?.type==="share"&&<ShareModal listing={modal.listing} onClose={closeModal}/>}
     {modal?.type==="pay"&&user&&<PayModal
