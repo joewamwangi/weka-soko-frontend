@@ -805,9 +805,9 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
           </button>
           <ManualInput/>
           <div style={{marginTop:16,paddingTop:16,borderTop:"1px solid var(--border)"}}>
-            <button className="btn by lg" style={{width:"100%",background:"#D97706",color:"#fff",fontWeight:700}} onClick={()=>{onClose();notify("You can pay KSh 250 anytime to reveal your contact info.","info");}}>
-              ⏰ Pay Later — Post Anonymously
-              <div style={{fontSize:12,color:"rgba(255,255,255,.8)",marginTop:6}}>Post your ad now, pay KSh 250 anytime to reveal contact</div>
+            <button className="btn lg" style={{width:"100%",background:"transparent",color:"var(--a)",border:"2px solid var(--a)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,padding:"16px 24px",lineHeight:1.3}} onClick={()=>{onClose();notify("You can pay KSh 250 anytime to reveal your contact info.","info");}}>
+              <div style={{fontSize:14,fontWeight:700}}>⏰ Pay Later</div>
+              <div style={{fontSize:12,color:"var(--mut)",fontWeight:500}}>Post anonymously, unlock contact info anytime</div>
             </button>
           </div>
         </>}
@@ -849,7 +849,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
         </div>
         {voucherInfo&&<div className="alert ag" style={{marginTop:8,fontSize:12}}>✅ {voucherInfo.description||`${discount}% discount`} — Pay only {fmtKES(finalAmt)}{finalAmt===0?" (FREE!)":""}</div>}
       </div>}
-      <button className="btn by lg" style={{width:"100%",marginTop:16,background:"#D97706",color:"#fff",fontWeight:700}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>⏰ Pay Later — Post Anonymously<div style={{fontSize:12,color:"rgba(255,255,255,.8)",marginTop:6}}>Pay KSh 250 anytime to reveal your contact info</div></button>
+      <button className="btn lg" style={{width:"100%",marginTop:16,background:"transparent",color:"var(--a)",border:"2px solid var(--a)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:8,padding:"16px 24px",lineHeight:1.3}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}><div style={{fontSize:14,fontWeight:700}}>⏰ Pay Later</div><div style={{fontSize:12,color:"var(--mut)",fontWeight:500}}>Pay KSh 250 anytime to reveal your contact info</div></button>
     </div>}
     {step==="done"&&<div style={{textAlign:"center",padding:"32px 0"}}>
       <div style={{fontSize:64,marginBottom:14}}>✅</div>
