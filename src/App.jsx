@@ -725,14 +725,14 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
       const result=await api(endpoint,{method:"POST",body:JSON.stringify(body)},token);
       if(result.unlocked){setStep("done");setTimeout(()=>onSuccess(result),600);return;}
       setStep("polling");
-      let c=90;setCd(90);
+      let c=60;setCd(60);
       pollRef.current=setInterval(async()=>{
         c--;setCd(c);
         if(c<=0){clearInterval(pollRef.current);setStep("timeout");return;}
         try{
           const s=await api(`/api/payments/status/${result.checkoutRequestId}`,{},token);
           if(s.status==="confirmed"){clearInterval(pollRef.current);setStep("done");setTimeout(()=>onSuccess(s),800);}
-          else if(s.status==="failed"){clearInterval(pollRef.current);setStep("error");setErrMsg(s.resultDesc||"Payment failed. Try again.");}
+          else if(s.status==="failed"){clearInterval(pollRef.current);setStep("timeout");return;}
         }catch{}
       },2000);
     }catch(err){setStep("error");setErrMsg(err.message);}
@@ -744,7 +744,8 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
     setVerifying(true);
     try{
       const result=await api("/api/payments/verify-manual",{method:"POST",body:JSON.stringify({mpesa_code:code,listing_id:listingId,type})},token);
-      setStep("done");setTimeout(()=>onSuccess(result),600);
+      if(result.status==="confirmed"){setStep("done");setTimeout(()=>onSuccess(result),600);}
+      else{notify("Transaction code not found or payment not confirmed.","error");}
     }catch(err){notify(err.message,"error");}
     finally{setVerifying(false);}
   };
