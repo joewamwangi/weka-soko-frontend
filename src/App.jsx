@@ -1523,7 +1523,7 @@ function PostRequestModal({onClose,token,notify,onSuccess}){
     setLoading(true);
     try{
       const result=await api("/api/requests",{method:"POST",body:JSON.stringify({title:f.title.trim(),description:f.description.trim(),budget:f.budget||undefined,county:f.county||undefined})},token);
-      notify("✅ Request posted! Sellers will be notified.","success");
+      notify("✅ Request submitted! Admin will review and notify you when it goes live.","success");
       onSuccess(result);onClose();
     }catch(err){notify(err.message,"error");}
     finally{setLoading(false);}
