@@ -822,7 +822,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
       <h3 style={{fontWeight:700,marginBottom:8}}>Request Timed Out</h3>
       <p style={{color:"var(--mut)",fontSize:14,marginBottom:18}}>We didn't receive payment confirmation. Choose an option:</p>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        <button className="btn bp" style={{width:"100%"}} onClick={()=>{setStep("pushing");startPayment();}}>
+        <button className="btn bp" style={{width:"100%"}} onClick={()=>{setStep("form");setTimeout(()=>startPayment(),100);}}>
           📱 Try M-PESA Prompt Again
         </button>
         <div style={{fontSize:12,color:"var(--mut)"}}>Auto-sends to {phone}</div>
@@ -2267,7 +2267,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       </div>}
       <div style={{maxWidth:680}}>
         {notifs.map((n,i)=>(
-          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setSelectedListing({id:d.listing_id});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setModal({type:"detail",listing:{id:d.listing_id,title:d.listing_title,description:d.listing_description,category:d.listing_category,price:d.listing_price}});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
@@ -2588,8 +2588,8 @@ export default function App(){
           try{
             const listing=JSON.parse(pending);
             localStorage.removeItem("ws_pending_listing");
-            // Open PitchModal with the listing
-            setModal({type:"pitch",target:listing});
+            // Convert listing to request format for PitchModal
+            setModal({type:"pitch",target:{id:listing.id,title:listing.title,category:listing.category,subcat:listing.subcat,keywords:"",description:"",budget:listing.price}});
           }catch{}
         }
       }).catch(()=>{localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");setUser(null);setToken(null);});
@@ -2956,6 +2956,7 @@ export default function App(){
       }}
       onClose={closeModal} notify={notify}
     />}
+    {modal?.type==="pitch"&&modal.target&&<PitchModal request={modal.target} user={user} token={token} notify={notify} onClose={closeModal} onOpenPostAd={(data)=>{setModal({type:"post",prefilledData:data});}}/>}
     {resetToken&&<ResetPasswordModal token={resetToken} notify={notify} onClose={()=>{setResetToken(null);setModal({type:"auth",mode:"login"});}}/>}
 
     {page==="sold"&&<div style={{minHeight:"100vh",background:"#F4F4F4"}}>
