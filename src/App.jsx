@@ -1610,7 +1610,7 @@ function PostRequestModal({onClose,token,notify,onSuccess}){
 }
 
 // ── WHAT BUYERS WANT SECTION ───────────────────────────────────────────────
-function WhatBuyersWant({user,token,notify,onSignIn}){
+function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd}){
   const [pitchTarget,setPitchTarget]=useState(null);
   const [requests,setRequests]=useState([]);
   const [total,setTotal]=useState(0);
@@ -1712,7 +1712,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
         </div>
       }
 
-      {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setPitchTarget(null);setModal({type:'post',data});}}/>}
+      {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)} onOpenPostAd={(data)=>{onOpenPostAd(data);setPitchTarget(null);}}/>}
 
       {total>12&&<div style={{textAlign:"center",marginTop:20}}>
         <button style={{background:"transparent",border:"1px solid #1428A0",color:"#1428A0",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
@@ -2810,7 +2810,7 @@ export default function App(){
       </div>
 
       {/* WHAT BUYERS WANT */}
-      <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})}/>
+      <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setModal({type:'post'});}}/>
 
       <div style={{height:52}}/>
 
