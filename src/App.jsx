@@ -820,9 +820,22 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
     {step==="timeout"&&<div style={{textAlign:"center",padding:"24px 0"}}>
       <div style={{fontSize:64,marginBottom:12}}>⏱</div>
       <h3 style={{fontWeight:700,marginBottom:8}}>Request Timed Out</h3>
-      <p style={{color:"var(--mut)",fontSize:14,marginBottom:14}}>Did you pay? Paste your M-Pesa code to verify:</p>
-      <ManualInput/>
-      <button className="btn bs" style={{width:"100%",marginTop:12}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>← Try Again</button>
+      <p style={{color:"var(--mut)",fontSize:14,marginBottom:18}}>We didn't receive payment confirmation. Choose an option:</p>
+      <div style={{display:"flex",flexDirection:"column",gap:10}}>
+        <button className="btn bp" style={{width:"100%"}} onClick={()=>{setStep("pushing");startPayment();}}>
+          📱 Try M-PESA Prompt Again
+        </button>
+        <div style={{fontSize:12,color:"var(--mut)"}}>Auto-sends to {phone}</div>
+      </div>
+      <div style={{marginTop:16,borderTop:"1px solid var(--border)",paddingTop:16}}>
+        <div className="lbl" style={{marginBottom:8}}>Enter M-PESA Transaction Code</div>
+        <div style={{display:"flex",gap:8}}>
+          <input className="inp" placeholder="e.g. RJK2X4ABCD" value={manualCode} onChange={e=>setManualCode(e.target.value.toUpperCase())} style={{flex:1,fontFamily:"monospace",letterSpacing:".05em"}} maxLength={12}/>
+          <button className="btn bg2 sm" onClick={verifyManual} disabled={verifying||manualCode.length<8}>{verifying?<Spin/>:"Verify"}</button>
+        </div>
+        <p style={{fontSize:11,color:"var(--dim)",marginTop:5}}>We confirm the code was paid to Till 5673935 before unlocking.</p>
+      </div>
+      <button className="btn bs" style={{width:"100%",marginTop:16}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>⏰ Pay Later</button>
     </div>}
     {step==="done"&&<div style={{textAlign:"center",padding:"32px 0"}}>
       <div style={{fontSize:64,marginBottom:14}}>✅</div>
@@ -1336,7 +1349,9 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
       <button className="btn bgh sm" onClick={onShare}>↗ Share</button>
       {user&&!isSeller&&<button className="btn bs sm" onClick={onChat}>💬 Chat with Seller</button>}
       {isSeller&&<button className="btn bs sm" onClick={onChat}>💬 View Messages</button>}
-      {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&<button className="btn bg2 sm" onClick={onLockIn}>🔥 I'm Interested — Lock In</button>}
+      {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="buyer"&&<button className="btn bg2 sm" onClick={onLockIn}>🔥 I'm Interested — Lock In</button>}
+      {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="buyer"&&<button className="btn bs sm" onClick={()=>{notify("Switch to seller account to respond to this listing","info");}}>📬 I Have This</button>}
+      {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="seller"&&<button className="btn bg2 sm" onClick={onLockIn}>🔥 I'm Interested — Lock In</button>}
       {!isSeller&&l.status==="active"&&user&&<button className="btn bs sm" onClick={onEscrow}>🔐 Buy with Escrow</button>}
       {isSeller&&l.locked_buyer_id&&!l.is_unlocked&&<button className="btn bp" style={{flex:1}} onClick={onUnlock}>🔓 Pay KSh 250 to See Buyer Contact</button>}
       {!user&&<button className="btn bp" onClick={()=>{}}>Sign In to Contact Seller</button>}
