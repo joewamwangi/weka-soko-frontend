@@ -1712,7 +1712,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
         </div>
       }
 
-      {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)}/>}
+      {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setPitchTarget(null);setModal({type:'post',data});}}/>}
 
       {total>12&&<div style={{textAlign:"center",marginTop:20}}>
         <button style={{background:"transparent",border:"1px solid #1428A0",color:"#1428A0",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
@@ -2388,26 +2388,25 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
 
 // ── PITCH MODAL — Seller posts a listing for a buyer request ─────────────────────────
-function PitchModal({request, user, token, notify, onClose}) {
+function PitchModal({request, user, token, notify, onClose, onOpenPostAd}) {
   const [loading, setLoading] = useState(false);
   const [paymentChoice, setPaymentChoice] = useState(null); // 'now' or 'later'
 
   const proceedToListing = async () => {
     setLoading(true);
     try {
-      // Store the request data in sessionStorage so PostAdModal can access it
-      sessionStorage.setItem('prefilledFromRequest', JSON.stringify({
-        request_id: request.id,
-        category: request.category,
-        subcat: request.subcat,
-        keywords: request.keywords,
-        paymentChoice: paymentChoice,
-        title: request.title // Pre-fill title with request title as suggestion
-      }));
-      notify("📝 Ready to post your listing!", "success");
+      // Pass the data directly to parent component to open PostAdModal
+      if(onOpenPostAd){
+        onOpenPostAd({
+          request_id: request.id,
+          category: request.category,
+          subcat: request.subcat,
+          keywords: request.keywords,
+          paymentChoice: paymentChoice,
+          title: request.title
+        });
+      }
       onClose();
-      // Trigger page change to post ad (this would be handled by parent component)
-      window.dispatchEvent(new CustomEvent('goToPostAd'));
     } catch(e) { notify(e.message,"error"); }
     finally { setLoading(false); }
   };
