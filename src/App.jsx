@@ -1351,7 +1351,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
       {user&&!isSeller&&<button className="btn bs sm" onClick={onChat}>💬 Chat with Seller</button>}
       {isSeller&&<button className="btn bs sm" onClick={onChat}>💬 View Messages</button>}
       {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="buyer"&&<button className="btn bg2 sm" onClick={onLockIn}>🔥 I'm Interested — Lock In</button>}
-      {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="buyer"&&<button className="btn bs sm" onClick={()=>{localStorage.setItem("ws_pending_listing",JSON.stringify({id:l.id,title:l.title,category:l.category,subcat:l.subcat,price:l.price}));notify("Switch to seller account to respond to this listing.","info");}}>📬 I Have This</button>}
+      {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="buyer"&&<button className="btn bs sm" onClick={()=>{localStorage.setItem("ws_pending_listing",JSON.stringify({id:l.id,title:l.title,category:l.category,subcat:l.subcat,price:l.price,description:l.description}));notify("Switch to seller account to respond to this listing.","info");}}>📬 I Have This</button>}
       {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&user.role==="seller"&&<button className="btn bg2 sm" onClick={onLockIn}>🔥 I'm Interested — Lock In</button>}
       {!isSeller&&l.status==="active"&&user&&<button className="btn bs sm" onClick={onEscrow}>🔐 Buy with Escrow</button>}
       {isSeller&&l.locked_buyer_id&&!l.is_unlocked&&<button className="btn bp" style={{flex:1}} onClick={onUnlock}>🔓 Pay KSh 250 to See Buyer Contact</button>}
@@ -2590,7 +2590,7 @@ export default function App(){
             const listing=JSON.parse(pending);
             localStorage.removeItem("ws_pending_listing");
             // Convert listing to request format for PitchModal
-            setModal({type:"pitch",target:{id:listing.id,title:listing.title,category:listing.category,subcat:listing.subcat,keywords:"",description:"",budget:listing.price}});
+            setModal({type:"pitch",target:{id:listing.id,title:listing.title,category:listing.category,subcat:listing.subcat,keywords:"",description:listing.description||"This is a listing I'm interested in.",budget:listing.price}});
           }catch{}
         }
       }).catch(()=>{localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");setUser(null);setToken(null);});
