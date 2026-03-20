@@ -701,6 +701,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
   const [verifying,setVerifying]=useState(false);
   const pollRef=useRef(null);
   const discount=voucherInfo?.discount||voucherInfo?.discount_percent||0;
+  const [showVoucherTimeout,setShowVoucherTimeout]=useState(false);
   const finalAmt=Math.max(0,Math.round(amount*(1-discount/100)));
   const saving=amount-finalAmt;
 
@@ -803,6 +804,12 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
             📱 Send M-Pesa Request → {fmtKES(finalAmt)}
           </button>
           <ManualInput/>
+          <div style={{marginTop:16,paddingTop:16,borderTop:"1px solid var(--border)"}}>
+            <button className="btn by lg" style={{width:"100%",background:"#D97706",color:"#fff",fontWeight:700}} onClick={()=>{onClose();notify("You can pay KSh 250 anytime to reveal your contact info.","info");}}>
+              ⏰ Pay Later — Post Anonymously
+              <div style={{fontSize:12,color:"rgba(255,255,255,.8)",marginTop:6}}>Post your ad now, pay KSh 250 anytime to reveal contact</div>
+            </button>
+          </div>
         </>}
     </>}
     {step==="pushing"&&<div style={{textAlign:"center",padding:"32px 0"}}>
@@ -817,14 +824,12 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
       <div style={{fontSize:48,fontWeight:700,color:"var(--a)",marginBottom:8}}>{cd}s</div>
       <div className="progress"><div className="progress-bar" style={{width:`${(cd/90)*100}%`}}/></div>
       <ManualInput/>
-    </div>}
-    {step==="timeout"&&<div style={{textAlign:"center",padding:"24px 0"}}>
+    </div>}    {step==="timeout"&&<div style={{textAlign:"center",padding:"24px 0"}}>
       <div style={{fontSize:64,marginBottom:12}}>⏱</div>
       <h3 style={{fontWeight:700,marginBottom:8}}>Request Timed Out</h3>
       <p style={{color:"var(--mut)",fontSize:14,marginBottom:18}}>We didn't receive payment confirmation. Choose an option:</p>
       <div style={{display:"flex",flexDirection:"column",gap:10}}>
-        <button className="btn bp" style={{width:"100%"}} onClick={()=>{setStep("form");setTimeout(()=>startPayment(),100);}}>
-          📱 Try M-PESA Prompt Again
+        <button className="btn bp" style={{width:"100%"}} onClick={()=>{setStep("form");setTimeout(()=>startPayment(),100);}}>\n          📱 Try M-PESA Prompt Again
         </button>
         <div style={{fontSize:12,color:"var(--mut)"}}>Auto-sends to {phone}</div>
       </div>
@@ -836,7 +841,15 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
         </div>
         <p style={{fontSize:11,color:"var(--dim)",marginTop:5}}>We confirm the code was paid to Till 5673935 before unlocking.</p>
       </div>
-      <button className="btn bs" style={{width:"100%",marginTop:16}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>⏰ Pay Later<div style={{fontSize:11,color:"var(--mut)",marginTop:4}}>Post anonymously, pay KSh 250 anytime to reveal your contact.</div></button>
+      {allowVoucher&&<div style={{marginTop:16,borderTop:"1px solid var(--border)",paddingTop:16}}>
+        <div className="lbl" style={{marginBottom:8}}>Have a Voucher Code?</div>
+        <div style={{display:"flex",gap:8}}>
+          <input className="inp" placeholder="e.g. WS-FREE50" value={vcode} onChange={e=>{setVcode(e.target.value);if(!e.target.value)setVoucherInfo(null);}} style={{flex:1}} onKeyDown={e=>e.key==="Enter"&&applyVoucher()}/>
+          <button className="btn bs sm" onClick={applyVoucher}>Apply</button>
+        </div>
+        {voucherInfo&&<div className="alert ag" style={{marginTop:8,fontSize:12}}>✅ {voucherInfo.description||`${discount}% discount`} — Pay only {fmtKES(finalAmt)}{finalAmt===0?" (FREE!)":""}</div>}
+      </div>}
+      <button className="btn by lg" style={{width:"100%",marginTop:16,background:"#D97706",color:"#fff",fontWeight:700}} onClick={()=>{setStep("form");if(pollRef.current)clearInterval(pollRef.current);}}>⏰ Pay Later — Post Anonymously<div style={{fontSize:12,color:"rgba(255,255,255,.8)",marginTop:6}}>Pay KSh 250 anytime to reveal your contact info</div></button>
     </div>}
     {step==="done"&&<div style={{textAlign:"center",padding:"32px 0"}}>
       <div style={{fontSize:64,marginBottom:14}}>✅</div>
@@ -2268,7 +2281,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       </div>}
       <div style={{maxWidth:680}}>
         {notifs.map((n,i)=>(
-          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setModal({type:"detail",listing:{id:d.listing_id,title:d.listing_title,description:d.listing_description,category:d.listing_category,price:d.listing_price}});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+          <div key={i} onClick={()=>{markRead(n.id);if(n.type==="listing_match"&&n.data){try{const d=JSON.parse(n.data);setModal({type:"detail",listing:{id:d.listing_id,title:d.listing_title,description:d.listing_description,category:d.listing_category,price:d.listing_price,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id}});}catch{}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
