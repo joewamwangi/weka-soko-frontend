@@ -116,26 +116,18 @@ function urlBase64ToUint8Array(base64String) {
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
-@font-face{font-family:'SamsungSharpSans';font-weight:400;font-style:normal;font-display:swap;
-  src:url('https://db.onlinewebfonts.com/t/339ef4168eec714f8750c1b72eea3528.woff2') format('woff2'),
-      url('https://db.onlinewebfonts.com/t/339ef4168eec714f8750c1b72eea3528.woff') format('woff');}
-@font-face{font-family:'SamsungSharpSans';font-weight:500;font-style:normal;font-display:swap;
-  src:url('https://db.onlinewebfonts.com/t/13c6db781e75e596d9a2f6c8c6807386.woff2') format('woff2'),
-      url('https://db.onlinewebfonts.com/t/13c6db781e75e596d9a2f6c8c6807386.woff') format('woff');}
-@font-face{font-family:'SamsungSharpSans';font-weight:700;font-style:normal;font-display:swap;
-  src:url('https://db.onlinewebfonts.com/t/03fe5644d1605049951f58ca7961c33f.woff2') format('woff2'),
-      url('https://db.onlinewebfonts.com/t/03fe5644d1605049951f58ca7961c33f.woff') format('woff');}
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#FFFFFF;--surf:#FFFFFF;--sh:#F6F6F6;--border:#E6E6E6;
   --a:#1428A0;--a2:#0F1F8A;--gold:#8B6400;--red:#C03030;--blue:#1428A0;
   --txt:#1D1D1D;--mut:#636363;--dim:#ADADAD;
   --r:12px;--rs:8px;
-  --fn:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
-  --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --fn:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --fs:'Plus Jakarta Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --nav-h:66px;
 }
-body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:16px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 26px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.04em;text-transform:none;}
