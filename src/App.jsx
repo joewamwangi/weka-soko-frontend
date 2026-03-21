@@ -2127,20 +2127,6 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     setNotifs(p=>p.map(n=>n.id===id?{...n,is_read:true}:n));
   };
   
-  const handleNotificationClick=(n)=>{
-    markRead(n.id);
-    if(n.data){
-      try{
-        const d=typeof n.data==="string"?JSON.parse(n.data):n.data;
-        if(d?.listing_id){
-          const listingData={id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null};
-          setModal({type:"notification_detail",notification:n,listing:listingData});
-        }
-      }catch(err){
-        console.error("Error handling notification:",err);
-      }
-    }
-  };
 
   const deleteListing=async id=>{
     if(!window.confirm("Delete this listing permanently?"))return;
@@ -2565,6 +2551,21 @@ export default function App(){
   const [vm,setVm]=useState("grid");
   const [toast,setToast]=useState(null);
   const [modal,setModal]=useState(null);
+
+  const handleNotificationClick=(n)=>{
+    markRead(n.id);
+    if(n.data){
+      try{
+        const d=typeof n.data==="string"?JSON.parse(n.data):n.data;
+        if(d?.listing_id){
+          const listingData={id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null};
+          setModal({type:"notification_detail",notification:n,listing:listingData});
+        }
+      }catch(err){
+        console.error("Error handling notification:",err);
+      }
+    }
+  };
   const [showPWA,setShowPWA]=useState(true);
   const [notifCount,setNotifCount]=useState(0);
   const socketRef=useRef(null);
