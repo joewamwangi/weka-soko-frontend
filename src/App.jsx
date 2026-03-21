@@ -648,12 +648,12 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
     {mode==="signup"&&<div style={{background:"#F5F5F5",borderRadius:6,padding:"12px 14px"}}>
       <label style={{display:"flex",alignItems:"flex-start",gap:9,cursor:"pointer",fontSize:13,color:"#888888"}}>
         <input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)} style={{marginTop:3,width:15,height:15}}/>
-        <span>I have read and accept the <button className="btn bgh" style={{display:"inline",padding:"0 2px",color:"#111111",fontWeight:700,fontSize:13}} onClick={()=>setShowTerms(true)}>Terms & Conditions</button></span>
+        <span>I have read and accept the <button className="btn bgh" style={{display:"inline",padding:"0 2px",color:"#1428A0",fontWeight:700,fontSize:13}} onClick={()=>setShowTerms(true)}>Terms & Conditions</button></span>
       </label>
     </div>}
     <p style={{textAlign:"center",marginTop:14,fontSize:13,color:"#888888"}}>
       {mode==="login"?"No account? ":"Already have one? "}
-      <button className="btn bgh" style={{display:"inline",padding:"0 3px",color:"#111111",fontWeight:700,fontSize:13}} onClick={()=>setMode(m=>m==="login"?"signup":"login")}>{mode==="login"?"Sign up free →":"Sign in"}</button>
+      <button className="btn bgh" style={{display:"inline",padding:"0 3px",color:"#1428A0",fontWeight:700,fontSize:13}} onClick={()=>setMode(m=>m==="login"?"signup":"login")}>{mode==="login"?"Sign up free →":"Sign in"}</button>
     </p>
   </Modal>;
 }
@@ -681,7 +681,7 @@ function ShareModal({listing,onClose}){
     </div>
     <div style={{display:"flex",gap:8}}>
       <input className="inp" value={url} readOnly style={{flex:1,fontSize:12}}/>
-      <button className="btn bp sm" style={{background:"#111111",color:"#fff"}} onClick={()=>{navigator.clipboard?.writeText(url);setCopied(true);setTimeout(()=>setCopied(false),2500);}}>{copied?"✓ Copied":"Copy"}</button>
+      <button className="btn bp sm" onClick={()=>{navigator.clipboard?.writeText(url);setCopied(true);setTimeout(()=>setCopied(false),2500);}}>{copied?"✓ Copied":"Copy"}</button>
     </div>
   </Modal>;
 }
@@ -823,7 +823,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
     </div>}
     {step==="done"&&<div style={{textAlign:"center",padding:"32px 0"}}>
       <div style={{fontSize:64,marginBottom:14}}>✅</div>
-      <h3 style={{color:"#111111",fontWeight:700,marginBottom:8}}>Unlocked!</h3>
+      <h3 style={{color:"#1428A0",fontWeight:700,marginBottom:8}}>Unlocked!</h3>
       <p style={{color:"#888888",fontSize:14}}>Buyer contact details are now visible. Check your email for the receipt.</p>
     </div>}
     {step==="error"&&<div style={{textAlign:"center",padding:"32px 0"}}>
@@ -1134,12 +1134,12 @@ function ListingCard({listing:l,onClick,listView}){
     <div className="lthumb">
       {photo?<WatermarkedImage src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>:<span style={{fontSize:44,opacity:.15}}>📦</span>}
       {l.status==="sold"&&<div className="sold-badge">SOLD ✓</div>}
-      {l.locked_buyer_id&&!l.is_unlocked&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"#111111",color:"#fff",fontSize:10,fontWeight:700,padding:"5px 10px",letterSpacing:".04em",textTransform:"uppercase"}}>🔥 Buyer Interested</div>}
+      {l.locked_buyer_id&&!l.is_unlocked&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"#1428A0",color:"#fff",fontSize:10,fontWeight:700,padding:"5px 10px",letterSpacing:".04em",textTransform:"uppercase"}}>🔥 Buyer Interested</div>}
     </div>
     <div style={{padding:"16px",flex:1}}>
       <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:"#888888",marginBottom:6}}>{l.category}</div>
       <h4 style={{fontSize:14,fontWeight:700,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em"}}>{l.title}</h4>
-      <div style={{fontSize:20,fontWeight:700,color:"#111111",marginBottom:8,letterSpacing:"-.01em"}}>{fmtKES(l.price)}</div>
+      <div style={{fontSize:20,fontWeight:700,color:"var(--a)",marginBottom:8,letterSpacing:"-.01em"}}>{fmtKES(l.price)}</div>
       {listView&&l.description&&<p style={{fontSize:13,color:"#888888",marginBottom:8,lineHeight:1.65}}>{l.description.slice(0,130)}...</p>}
       <div style={{display:"flex",gap:12,color:"#888888",fontSize:11,flexWrap:"wrap",borderTop:"1px solid #E8E8E8",paddingTop:8,marginTop:4}}>
         {l.location&&<span>📍 {l.location}</span>}
@@ -1376,7 +1376,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
               href={`https://wa.me/${wa}?text=${msg}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,background:"#111111",color:"#fff",padding:"12px 20px",fontWeight:700,fontSize:14,textDecoration:"none",fontFamily:"var(--fn)",letterSpacing:".01em",transition:"background .15s"}}
+              style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,background:"#25D366",color:"#fff",padding:"12px 20px",fontWeight:700,fontSize:14,textDecoration:"none",fontFamily:"var(--fn)",letterSpacing:".01em",transition:"background .15s"}}
               onMouseOver={e=>e.currentTarget.style.background="#1EA952"}
               onMouseOut={e=>e.currentTarget.style.background="#111111"}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -1641,7 +1641,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#AEAEB2",borderTop:"1px solid #F0F0F0",paddingTop:10}}>
                 <span>{r.requester_anon||"Anonymous"}</span>
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                  {parseInt(r.matching_listings)>0&&<span style={{color:"#111111",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
+                  {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
                   {user&&user.role==="seller"&&user.id!==r.user_id&&
                     <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setPitchTarget(r)}>📬 I Have This</button>
@@ -1656,7 +1656,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
       {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)}/>}
 
       {total>12&&<div style={{textAlign:"center",marginTop:20}}>
-        <button style={{background:"transparent",border:"1.5px solid #111111",color:"#111111",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
+        <button style={{background:"transparent",border:"1.5px solid #1428A0",color:"#1428A0",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
           View all {total} requests
         </button>
       </div>}
@@ -1726,9 +1726,9 @@ function SoldSection({token,user}){
 
     {/* Category filter */}
     {[...new Set(items.map(l=>l.category))].length>1&&<div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:24}}>
-      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#111111":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>All</button>
+      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#1428A0":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>All</button>
       {[...new Set(items.map(l=>l.category))].map(c=>(
-        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#111111":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>{c}</button>
+        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#1428A0":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>{c}</button>
       ))}
     </div>}
 
@@ -1744,7 +1744,7 @@ function SoldSection({token,user}){
               :<span style={{fontSize:40,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.15}}>📦</span>}
             {/* SOLD overlay */}
             <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.55)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <span style={{background:"#1428A0",color:"#111111",fontSize:11,fontWeight:700,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
+              <span style={{background:"#fff",color:"#1428A0",fontSize:11,fontWeight:700,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
             </div>
             {/* Sale channel badge */}
             {l.sold_channel&&<div style={{position:"absolute",top:8,left:8,background:"rgba(0,0,0,.75)",color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px"}}>
@@ -2033,7 +2033,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
   return <>
     {/* Dashboard Hero Header */}
-    <div style={{background:"#111111",padding:"48px 40px 0",marginBottom:0}}>
+    <div style={{background:"linear-gradient(135deg,#1428A0 0%,#0F1F8A 100%)",padding:"48px 40px 0",marginBottom:0}}>
       <div style={{maxWidth:1180,margin:"0 auto"}}>
         <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:16,marginBottom:32}}>
           <div>
@@ -2054,7 +2054,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             </div>
           </div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {user.role==="seller"&&<button className="btn bp sm" style={{background:"#1428A0",color:"#111111",border:"none",fontWeight:700}} onClick={()=>{onClose();onPostAd();}}>+ Post Ad</button>}
+            {user.role==="seller"&&<button className="btn bp sm" style={{background:"#fff",color:"#1428A0",border:"none",fontWeight:700}} onClick={()=>{onClose();onPostAd();}}>+ Post Ad</button>}
             <button className="btn bs sm" style={{border:"1px solid rgba(255,255,255,.4)",color:"#fff",background:"transparent"}} onClick={onClose}>← Back to Home</button>
           </div>
         </div>
@@ -2083,15 +2083,15 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:16,marginBottom:32}}>
         {(user.role==="seller"
           ? [
-              {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"#111111",bg:"rgba(0,0,0,.04)"},
+              {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
               {icon:"✅",label:"Active",val:stats.activeListings,color:"#16a34a",bg:"rgba(22,163,74,.06)"},
               {icon:"🏆",label:"Sold",val:stats.soldListings,color:"#1428A0",bg:"rgba(0,0,0,.04)"},
-              {icon:"👁",label:"Total Views",val:stats.totalViews,color:"#111111",bg:"rgba(0,0,0,.04)"},
+              {icon:"👁",label:"Total Views",val:stats.totalViews,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
               {icon:"🔥",label:"Buyers Waiting",val:stats.buyersWaiting,color:"#444444",bg:"rgba(0,0,0,.04)"},
-              {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"#111111",bg:"rgba(0,0,0,.04)"},
+              {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
             ]
           : [
-              {icon:"🔔",label:"Unread",val:unreadCount||0,color:"#111111",bg:"rgba(0,0,0,.04)"},
+              {icon:"🔔",label:"Unread",val:unreadCount||0,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
             ]
         ).map(s=>(
           <div key={s.label} style={{background:s.bg,border:`1px solid ${s.color}22`,borderRadius:6,padding:"20px 22px",transition:"transform .15s",cursor:"default"}}
@@ -2142,7 +2142,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             </div>
             <div style={{padding:"12px 14px"}}>
               <div style={{fontWeight:700,fontSize:13,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.title}</div>
-              <div style={{fontSize:12,color:"#111111",fontWeight:700}}>{fmtKES(l.price)}</div>
+              <div style={{fontSize:12,color:"#1428A0",fontWeight:700}}>{fmtKES(l.price)}</div>
               <div style={{fontSize:11,color:"#888888",marginTop:4}}>👁 {l.view_count||0} views · 🔥 {l.interest_count||0} interested</div>
             </div>
           </div>;
@@ -2166,7 +2166,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
               onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}
               onClick={()=>setSelectedListing({id:t.listing_id,title:t.title,seller_id:t.seller_id,is_unlocked:t.is_unlocked||false,locked_buyer_id:t.locked_buyer_id})}>
               <div style={{position:"relative",flexShrink:0}}>
-                <div style={{width:44,height:44,borderRadius:"50%",background:"#111111",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,color:"#fff",fontWeight:700}}>
+                <div style={{width:44,height:44,borderRadius:"50%",background:"#1428A0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,color:"#fff",fontWeight:700}}>
                   {t.other_party_anon?.charAt(0)?.toUpperCase()||"?"}
                 </div>
                 {t.is_online&&<div style={{position:"absolute",bottom:1,right:1,width:11,height:11,background:"#22C55E",borderRadius:"50%",border:"2px solid #fff"}}/>}
@@ -2204,7 +2204,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
               <div style={{fontSize:13,color:"#888888",lineHeight:1.6}}>{n.body}</div>
               <div style={{fontSize:11,color:"#CCCCCC",marginTop:4}}>{ago(n.created_at)}</div>
             </div>
-            {!n.is_read&&<div style={{width:8,height:8,background:"#111111",borderRadius:"50%",flexShrink:0,marginTop:6}}/>}
+            {!n.is_read&&<div style={{width:8,height:8,background:"#1428A0",borderRadius:"50%",flexShrink:0,marginTop:6}}/>}
           </div>
         ))}
       </div>
@@ -2359,7 +2359,7 @@ function PitchModal({request, user, token, notify, onClose}) {
       <div style={{fontSize:12,color:"#888888"}}>
         {request.description?.slice(0,100)}{request.description?.length>100?"...":""}
       </div>
-      {request.budget&&<div style={{fontSize:12,color:"#111111",fontWeight:700,marginTop:6}}>Budget: {fmtKES(request.budget)}</div>}
+      {request.budget&&<div style={{fontSize:12,color:"#1428A0",fontWeight:700,marginTop:6}}>Budget: {fmtKES(request.budget)}</div>}
     </div>
 
     <div style={{marginBottom:14}}>
@@ -2632,11 +2632,11 @@ export default function App(){
   return <>
     {/* NAV — dark bg, bright white bottom border */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#FFFFFF"}}><WekaSokoLogo size={36}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#1428A0"}}><WekaSokoLogo size={36}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        <button className="bgh" style={{color:"rgba(255,255,255,.7)",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"var(--fn)",padding:"8px 14px"}} onClick={()=>setPage(p=>p==="sold"?"home":"sold")}>Sold Items</button>
+        <button className="bgh" style={{color:"#636363",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"var(--fn)",padding:"8px 14px"}} onClick={()=>setPage(p=>p==="sold"?"home":"sold")}>Sold Items</button>
         {user?<>
-          <button style={{background:"transparent",border:"none",color:"rgba(255,255,255,.85)",cursor:"pointer",fontSize:13,fontFamily:"var(--fn)",padding:"8px 14px",position:"relative"}} onClick={()=>setPage("dashboard")}>
+          <button style={{background:"transparent",border:"none",color:"#1D1D1D",cursor:"pointer",fontSize:13,fontFamily:"var(--fn)",padding:"8px 14px",position:"relative"}} onClick={()=>setPage("dashboard")}>
             {user.name?.split(" ")[0]}
             {notifCount>0&&<span className="notif-dot"/>}
           </button>
@@ -2651,7 +2651,7 @@ export default function App(){
           }}>+ Post Ad</button>
         </>:<>
           {/* Sign In — light grey bg + dark text = clearly visible on dark nav */}
-          <button style={{background:"transparent",color:"#FFFFFF",border:"1px solid rgba(255,255,255,.25)",padding:"8px 18px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
+          <button style={{background:"transparent",color:"#1428A0",border:"1.5px solid #1428A0",padding:"8px 18px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
           {/* Join Free — pure white bg + dark text = maximum visibility */}
           <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"signup"})}>Join Free</button>
         </>}
@@ -2805,7 +2805,7 @@ export default function App(){
             ["💳","Pay KSh 250","Seller pays once to see buyer contact. Till 5673935. Non-refundable."],
             ["🔐","Safe Escrow","Optional 7.5% escrow. Funds held until you confirm delivery."],
             ["🏆","Deal Done","Leave a review. Build your seller reputation on the platform."]].map(([icon,title,desc])=>(
-            <div key={title} style={{background:"#F0F0F0",padding:"28px 24px",borderRadius:6}}>
+            <div key={title} style={{background:"#F0F4FF",padding:"28px 24px"}}>
               <div style={{fontSize:28,marginBottom:14}}>{icon}</div>
               <div style={{fontWeight:700,fontSize:15,marginBottom:8,letterSpacing:"-.01em",color:"#111111"}}>{title}</div>
               <div style={{fontSize:13,color:"#767676",lineHeight:1.75}}>{desc}</div>
@@ -2861,7 +2861,7 @@ export default function App(){
 
     {page==="sold"&&<div style={{minHeight:"100vh",background:"#F0F0F0"}}>
       {/* Hero banner */}
-      <div style={{background:"#111111",padding:"52px 40px 48px"}}>
+      <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em"}}>← Back to Marketplace</button>
           <div style={{marginBottom:14,opacity:.9}}><WekaSokoLogo size={26}/></div>
