@@ -116,54 +116,55 @@ function urlBase64ToUint8Array(base64String) {
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#F5F5F5;--surf:#FFFFFF;--sh:#F5F5F5;--border:#E5E5E5;
-  --a:#FF6B00;--a2:#E55F00;--gold:#FF6B00;--red:#E53935;--blue:#1A1A1A;
+  --a:#02282C;--a2:#002F34;--teal:#23E5DB;--teal2:#CBF7EE;
+  --gold:#02282C;--red:#D32F2F;--blue:#02282C;
   --txt:#1A1A1A;--mut:#6B6B6B;--dim:#ABABAB;
   --r:8px;--rs:6px;
-  --fn:'Inter',system-ui,-apple-system,sans-serif;
-  --fd:'Inter',system-ui,-apple-system,sans-serif;
-  --fs:'Inter',system-ui,-apple-system,sans-serif;
+  --fn:'Nunito',system-ui,-apple-system,sans-serif;
+  --fd:'Nunito',system-ui,-apple-system,sans-serif;
+  --fs:'Nunito',system-ui,-apple-system,sans-serif;
   --nav-h:60px;
 }
-body{background:#F5F5F5;color:#1A1A1A;font-family:'Inter',system-ui,sans-serif;font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body{background:#F5F5F5;color:#1A1A1A;font-family:'Nunito',system-ui,sans-serif;font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 
 /* ── BUTTONS ─────────────────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif;letter-spacing:0;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;font-family:'Nunito',sans-serif;letter-spacing:0;}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
-/* primary — orange CTA */
-.bp{background:#FF6B00;color:#FFFFFF;border:none;}.bp:hover:not(:disabled){background:#E55F00;}
+/* primary — OLX dark teal */
+.bp{background:#02282C;color:#FFFFFF;border:none;}.bp:hover:not(:disabled){background:#002F34;}
 /* secondary — white outlined */
-.bs{background:#FFFFFF;color:#1A1A1A;border:1.5px solid #D0D0D0;}.bs:hover:not(:disabled){border-color:#1A1A1A;background:#F9F9F9;}
+.bs{background:#FFFFFF;color:#1A1A1A;border:1.5px solid #D8D8D8;}.bs:hover:not(:disabled){border-color:#02282C;color:#02282C;background:#F5F5F5;}
 /* ghost */
-.bgh{background:transparent;color:#6B6B6B;border:none;padding:8px 12px;font-size:13px;}.bgh:hover:not(:disabled){color:#1A1A1A;}
+.bgh{background:transparent;color:#6B6B6B;border:none;padding:8px 12px;font-size:13px;}.bgh:hover:not(:disabled){color:#02282C;}
 /* danger */
-.br2{background:#FFFFFF;color:#E53935;border:1.5px solid #E53935;}.br2:hover:not(:disabled){background:#E53935;color:#FFFFFF;}
-/* bg2 matches primary */
-.bg2{background:#FF6B00;color:#FFFFFF;border:none;}.bg2:hover:not(:disabled){background:#E55F00;}
-/* nav cta */
-.bp-nav{background:#FFFFFF;color:#1A1A1A;border:none;font-weight:700;}.bp-nav:hover:not(:disabled){background:#F0F0F0;}
+.br2{background:#FFFFFF;color:#D32F2F;border:1.5px solid #D32F2F;}.br2:hover:not(:disabled){background:#D32F2F;color:#FFFFFF;}
+/* bg2 = teal accent */
+.bg2{background:#23E5DB;color:#02282C;border:none;font-weight:700;}.bg2:hover:not(:disabled){background:#1FCFCA;}
+/* nav CTA — teal on dark nav */
+.bp-nav{background:#23E5DB;color:#02282C;border:none;font-weight:700;}.bp-nav:hover:not(:disabled){background:#1FCFCA;}
 .sm{padding:7px 14px;font-size:12px;}.lg{padding:13px 28px;font-size:15px;}
 
 /* ── INPUTS ──────────────────────────────────────────────────────────── */
-.inp{width:100%;padding:11px 16px;background:#FFFFFF;border:1.5px solid #E5E5E5;border-radius:6px;color:#1A1A1A;font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .15s;}
-.inp:focus{border-color:#FF6B00;}
+.inp{width:100%;padding:11px 16px;background:#FFFFFF;border:1.5px solid #E5E5E5;border-radius:8px;color:#1A1A1A;font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:#02282C;}
 .inp::placeholder{color:#ABABAB;}
 textarea.inp{resize:vertical;min-height:90px;}
 select.inp{appearance:none;cursor:pointer;}
 
 /* ── LABELS & BADGES ─────────────────────────────────────────────────── */
-.lbl{display:block;font-size:11px;font-weight:600;color:#6B6B6B;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
-.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.03em;}
-.bg-g{background:#FFF3E0;color:#E65100;}
-.bg-y{background:#FFF9E6;color:#F57F17;}
+.lbl{display:block;font-size:11px;font-weight:700;color:#6B6B6B;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;}
+.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.03em;}
+.bg-g{background:#CBF7EE;color:#02282C;}
+.bg-y{background:#FFF9E6;color:#856404;}
 .bg-r{background:#FFEBEE;color:#C62828;}
-.bg-b{background:#FFF3E0;color:#E65100;}
+.bg-b{background:#CBF7EE;color:#02282C;}
 .bg-m{background:#F5F5F5;color:#6B6B6B;}
-.alert-r{background:#FFEBEE;border-left:3px solid #E53935;padding:10px 14px;font-size:12px;color:#C62828;margin-bottom:14px;border-radius:0 4px 4px 0;}
+.alert-r{background:#FFEBEE;border-left:3px solid #D32F2F;padding:10px 14px;font-size:12px;color:#C62828;margin-bottom:14px;border-radius:0 4px 4px 0;}
 
 /* ── MODALS ──────────────────────────────────────────────────────────── */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
@@ -175,15 +176,15 @@ select.inp{appearance:none;cursor:pointer;}
 .mf{padding:14px 24px 20px;border-top:1px solid #E5E5E5;display:flex;gap:8px;justify-content:flex-end;}
 
 /* ── NAV ─────────────────────────────────────────────────────────────── */
-.nav{position:sticky;top:0;z-index:100;background:#FFFFFF;border-bottom:1px solid #E5E5E5;padding:0 24px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.nav{position:sticky;top:0;z-index:100;background:#02282C;padding:0 24px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
 .logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
-.logo span{color:#FF6B00;}
+.logo span{color:#23E5DB;}
 
 /* ── ALERTS ──────────────────────────────────────────────────────────── */
 .alert{padding:12px 16px;border-radius:6px;font-size:13px;line-height:1.6;}
-.ag{background:#FFF3E0;border-left:3px solid #FF6B00;padding-left:14px;color:#E65100;border-top:none;border-right:none;border-bottom:none;}
-.ay{background:#FFFDE7;border-left:3px solid #FDD835;padding-left:14px;color:#F9A825;border-top:none;border-right:none;border-bottom:none;}
-.ar{background:#FFEBEE;border-left:3px solid #E53935;padding-left:14px;color:#C62828;border-top:none;border-right:none;border-bottom:none;}
+.ag{background:#CBF7EE;border-left:3px solid #02282C;padding-left:14px;color:#02282C;border-top:none;border-right:none;border-bottom:none;}
+.ay{background:#FFF9E6;border-left:3px solid #856404;padding-left:14px;color:#856404;border-top:none;border-right:none;border-bottom:none;}
+.ar{background:#FFEBEE;border-left:3px solid #D32F2F;padding-left:14px;color:#C62828;border-top:none;border-right:none;border-bottom:none;}
 
 /* ── CARDS ───────────────────────────────────────────────────────────── */
 .card{background:#FFFFFF;border:1px solid #E5E5E5;border-radius:8px;}
@@ -201,26 +202,26 @@ select.inp{appearance:none;cursor:pointer;}
 .lvc{display:flex;flex-direction:column;gap:0;}
 
 /* ── SPINNER ─────────────────────────────────────────────────────────── */
-.spin{display:inline-block;width:20px;height:20px;border:2px solid #F0F0F0;border-top-color:#FF6B00;border-radius:50%;animation:sp .7s linear infinite;}
+.spin{display:inline-block;width:20px;height:20px;border:2px solid #E5E5E5;border-top-color:#02282C;border-radius:50%;animation:sp .7s linear infinite;}
 @keyframes sp{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:80px 20px;color:#ABABAB;}
 
 /* ── PAGINATION ──────────────────────────────────────────────────────── */
 .pg{display:flex;align-items:center;justify-content:center;gap:4px;margin-top:32px;flex-wrap:wrap;padding:0 0 40px;}
-.pb{min-width:40px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1.5px solid #E5E5E5;background:#FFFFFF;color:#6B6B6B;cursor:pointer;font-size:14px;font-weight:500;transition:all .14s;}
-.pb.on{background:#FF6B00;color:#FFFFFF;border-color:#FF6B00;}
-.pb:hover:not(.on){border-color:#FF6B00;color:#FF6B00;}
+.pb{min-width:40px;height:40px;padding:0 12px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1.5px solid #E5E5E5;background:#FFFFFF;color:#6B6B6B;cursor:pointer;font-size:14px;font-weight:600;transition:all .14s;font-family:'Nunito',sans-serif;}
+.pb.on{background:#02282C;color:#FFFFFF;border-color:#02282C;}
+.pb:hover:not(.on){border-color:#02282C;color:#02282C;}
 
 /* ── TOAST ───────────────────────────────────────────────────────────── */
-.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#FFFFFF;border:1px solid #E5E5E5;border-radius:10px;padding:14px 18px;font-size:14px;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:4px solid #FF6B00;}
+.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#FFFFFF;border:1px solid #E5E5E5;border-radius:10px;padding:14px 18px;font-size:14px;font-family:'Nunito',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:4px solid #23E5DB;}
 @keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 
 /* ── SOLD BADGE ──────────────────────────────────────────────────────── */
-.sold-badge{position:absolute;top:8px;left:8px;background:#FF6B00;color:#FFFFFF;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+.sold-badge{position:absolute;top:8px;left:8px;background:#02282C;color:#FFFFFF;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
 
 /* ── IMAGE UPLOAD ────────────────────────────────────────────────────── */
 .img-upload{border:2px dashed #E5E5E5;border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAFA;}
-.img-upload:hover{border-color:#FF6B00;background:#FFF9F5;}
+.img-upload:hover{border-color:#02282C;background:#F0FDFA;}
 .img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
 .img-thumb{aspect-ratio:1;border-radius:6px;overflow:hidden;position:relative;background:#F5F5F5;}
 .img-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -229,24 +230,24 @@ select.inp{appearance:none;cursor:pointer;}
 /* ── CHAT ────────────────────────────────────────────────────────────── */
 .chat-wrap{display:flex;flex-direction:column;height:480px;}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;background:#F9F9F9;}
-.chat-msg{max-width:72%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;font-family:'Inter',sans-serif;}
-.chat-msg.me{align-self:flex-end;background:#FF6B00;color:#FFFFFF;border-radius:16px 16px 4px 16px;}
+.chat-msg{max-width:72%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;font-family:'Nunito',sans-serif;}
+.chat-msg.me{align-self:flex-end;background:#02282C;color:#FFFFFF;border-radius:16px 16px 4px 16px;}
 .chat-msg.them{align-self:flex-start;background:#FFFFFF;border:1px solid #E5E5E5;border-radius:16px 16px 16px 4px;}
 .chat-msg.blocked{opacity:.45;font-style:italic;}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid #E5E5E5;background:#FFFFFF;}
 
 /* ── TABS ────────────────────────────────────────────────────────────── */
 .tab-row{display:flex;gap:0;background:transparent;border-bottom:2px solid #E5E5E5;padding:0;overflow-x:auto;margin-bottom:24px;}
-.tab{padding:12px 20px;border-radius:0;font-size:13px;font-weight:500;cursor:pointer;transition:color .15s,border-color .15s;color:#ABABAB;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px;}
-.tab.on{color:#FF6B00;border-bottom-color:#FF6B00;font-weight:600;}
+.tab{padding:12px 20px;border-radius:0;font-size:13px;font-weight:600;cursor:pointer;transition:color .15s,border-color .15s;color:#ABABAB;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:'Nunito',sans-serif;}
+.tab.on{color:#02282C;border-bottom-color:#23E5DB;font-weight:700;}
 
 /* ── NOTIF DOT ───────────────────────────────────────────────────────── */
-.notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#FF6B00;border-radius:50%;border:2px solid #FFFFFF;}
+.notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#23E5DB;border-radius:50%;border:2px solid #02282C;}
 
 /* ── MISC ────────────────────────────────────────────────────────────── */
 .stat-card{background:#FFFFFF;border:1px solid #E5E5E5;border-radius:8px;padding:20px;}
-.progress{height:4px;background:#F0F0F0;border-radius:2px;overflow:hidden;margin-top:8px;}
-.progress-bar{height:100%;background:#FF6B00;border-radius:2px;transition:width .6s ease;}
+.progress{height:4px;background:#E5E5E5;border-radius:2px;overflow:hidden;margin-top:8px;}
+.progress-bar{height:100%;background:#02282C;border-radius:2px;transition:width .6s ease;}
 .timeline-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #F0F0F0;}
 .timeline-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .pwa-banner{position:fixed;bottom:0;left:0;right:0;background:#FFFFFF;border-top:1px solid #E5E5E5;padding:16px 24px;display:flex;align-items:center;gap:16px;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
@@ -451,7 +452,7 @@ function WatermarkedImage({src,alt,style={},onClick}){
       ctx.save();
       ctx.translate(w/2,h/2);
       ctx.rotate(-Math.PI/6);
-      ctx.font=`700 ${fontSize}px 'Inter',system-ui,sans-serif,Helvetica,Arial,sans-serif`;
+      ctx.font=`700 ${fontSize}px 'Nunito',sans-serif,Helvetica,Arial,sans-serif`;
       ctx.textAlign="center";
       ctx.textBaseline="middle";
       ctx.shadowColor="rgba(0,0,0,0.30)";
@@ -1161,7 +1162,7 @@ function ListingCard({listing:l,onClick,listView}){
       <div style={{display:"flex",gap:12,color:"#888888",fontSize:11,flexWrap:"wrap",borderTop:"1px solid #E8E8E8",paddingTop:8,marginTop:4}}>
         {l.location&&<span>📍 {l.location}</span>}
         <span>👁 {l.view_count||0}</span>
-        {l.seller_avg_rating>0&&<span style={{color:"#FF6B00",fontWeight:700}}>★ {Number(l.seller_avg_rating).toFixed(1)}</span>}
+        {l.seller_avg_rating>0&&<span style={{color:"#02282C",fontWeight:700}}>★ {Number(l.seller_avg_rating).toFixed(1)}</span>}
         <span style={{marginLeft:"auto"}}>{ago(l.created_at)}</span>
       </div>
     </div>
@@ -1339,7 +1340,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
 
     <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16}}>
       <div>
-        <div style={{fontSize:32,fontWeight:600,color:"#1A1A1A",fontFamily:"'Inter',system-ui,sans-serif"}}>{fmtKES(l.price)}</div>
+        <div style={{fontSize:32,fontWeight:600,color:"#02282C",fontFamily:"'Nunito',sans-serif"}}>{fmtKES(l.price)}</div>
         <div style={{display:"flex",gap:6,marginTop:6,flexWrap:"wrap"}}>
           <span className="badge bg-m">{l.category}</span>
           {l.subcat&&<span className="badge bg-m">{l.subcat}</span>}
@@ -1393,7 +1394,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
               href={`https://wa.me/${wa}?text=${msg}`}
               target="_blank"
               rel="noopener noreferrer"
-              style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,background:"#111111",color:"#fff",padding:"12px 20px",fontWeight:700,fontSize:14,textDecoration:"none",fontFamily:"var(--fn)",letterSpacing:".01em",transition:"background .15s"}}
+              style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,background:"#111111",color:"#fff",padding:"12px 20px",fontWeight:700,fontSize:14,textDecoration:"none",fontFamily:"'Nunito',sans-serif",letterSpacing:".01em",transition:"background .15s"}}
               onMouseOver={e=>e.currentTarget.style.background="#1EA952"}
               onMouseOut={e=>e.currentTarget.style.background="#111111"}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -1409,11 +1410,11 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
             <div style={{fontWeight:600}}>{l.seller_anon||"Anonymous Seller"}</div>
             <div style={{fontSize:12,color:"#888888"}}>Pay KSh 250 to reveal contact details</div>
             <div style={{display:"flex",gap:6,marginTop:5,flexWrap:"wrap",alignItems:"center"}}>
-              {l.seller_avg_rating>0&&<span style={{fontSize:11,background:"rgba(0,0,0,.05)",color:"#FF6B00",padding:"2px 8px",borderRadius:20,fontWeight:700}}>
+              {l.seller_avg_rating>0&&<span style={{fontSize:11,background:"rgba(0,0,0,.05)",color:"#02282C",padding:"2px 8px",borderRadius:20,fontWeight:700}}>
                 ★ {Number(l.seller_avg_rating).toFixed(1)} ({l.seller_review_count||0} review{l.seller_review_count!==1?"s":""})
               </span>}
               {(!l.seller_avg_rating||l.seller_avg_rating===0)&&<span style={{fontSize:11,color:"#CCCCCC"}}>No reviews yet</span>}
-              {l.response_rate!=null&&<span style={{fontSize:11,background:"#F0F0F0",color:"#FF6B00",padding:"2px 8px",borderRadius:6,fontWeight:600}}>
+              {l.response_rate!=null&&<span style={{fontSize:11,background:"#F0F0F0",color:"#02282C",padding:"2px 8px",borderRadius:6,fontWeight:600}}>
                 ⚡ {Math.round(l.response_rate)}% response rate
               </span>}
               {l.avg_response_hours!=null&&l.avg_response_hours<48&&<span style={{fontSize:11,color:"#888888"}}>
@@ -1605,10 +1606,10 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
       <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
         <div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Community</div>
-          <h2 style={{fontSize:"clamp(24px,3vw,36px)",fontWeight:500,letterSpacing:"-.01em",color:"#1A1A1A",fontFamily:"'Inter',system-ui,sans-serif",lineHeight:1.1}}>🛒 What Buyers Want</h2>
+          <h2 style={{fontSize:"clamp(24px,3vw,36px)",fontWeight:500,letterSpacing:"-.01em",color:"#02282C",fontFamily:"'Nunito',sans-serif",lineHeight:1.1}}>🛒 What Buyers Want</h2>
           <p style={{fontSize:13,color:"#767676",marginTop:6}}>{total} active request{total!==1?"s":" "} from buyers looking for items</p>
         </div>
-        <button style={{background:"#111111",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}}
+        <button style={{background:"#111111",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",whiteSpace:"nowrap"}}
           onClick={()=>{if(!user){onSignIn();return;}setShowModal(true);}}>
           + Post a Request
         </button>
@@ -1616,14 +1617,14 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
 
       {/* Search/filter */}
       <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
-        <input style={{flex:1,minWidth:200,padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#FF6B00"}}
+        <input style={{flex:1,minWidth:200,padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"'Nunito',sans-serif",background:"#02282C"}}
           placeholder="Search requests..." value={search} onChange={e=>setSearch(e.target.value)}/>
-        <select style={{padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#FF6B00",cursor:"pointer",minWidth:140}}
+        <select style={{padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"'Nunito',sans-serif",background:"#02282C",cursor:"pointer",minWidth:140}}
           value={county} onChange={e=>setCounty(e.target.value)}>
           <option value="">All Counties</option>
           {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Kajiado","Meru","Nyeri","Kisii","Kakamega"].map(c=><option key={c} value={c}>{c}</option>)}
         </select>
-        {(search||county)&&<button style={{padding:"10px 14px",border:"1px solid #C7C7CC",background:"#FF6B00",cursor:"pointer",fontSize:12,fontFamily:"var(--fn)"}} onClick={()=>{setSearch("");setCounty("");}}>✕ Clear</button>}
+        {(search||county)&&<button style={{padding:"10px 14px",border:"1px solid #C7C7CC",background:"#02282C",cursor:"pointer",fontSize:12,fontFamily:"'Nunito',sans-serif"}} onClick={()=>{setSearch("");setCounty("");}}>✕ Clear</button>}
       </div>
 
       {/* Requests grid */}
@@ -1635,14 +1636,14 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
           </div>
         :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
           {requests.map(r=>(
-            <div key={r.id} style={{background:"#FF6B00",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"2px solid #CCCCCC"}}>
+            <div key={r.id} style={{background:"#02282C",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"2px solid #CCCCCC"}}>
               {/* Header row */}
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
                 <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,letterSpacing:"-.01em",flex:1}}>{r.title}</div>
                 {user?.id===r.user_id&&<button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#AEAEB2",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>}
               </div>
               {/* Description — expandable */}
-              <div style={{fontSize:12,color:"#FF6B00",lineHeight:1.65,marginBottom:10}}>
+              <div style={{fontSize:12,color:"#02282C",lineHeight:1.65,marginBottom:10}}>
                 {expanded===r.id||r.description.length<=120
                   ?r.description
                   :<>{r.description.slice(0,120)}... <button onClick={()=>setExpanded(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#111111",fontSize:12,fontWeight:600,padding:0}}>More</button></>
@@ -1652,7 +1653,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
               {/* Tags */}
               <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
                 {r.budget&&<span style={{background:"rgba(0,0,0,.05)",color:"#111111",padding:"3px 10px",fontSize:11,fontWeight:700}}>Budget: {fmtKES(r.budget)}</span>}
-                {r.county&&<span style={{background:"#F0F0F0",color:"#FF6B00",padding:"3px 10px",fontSize:11,fontWeight:600}}>📍 {r.county}</span>}
+                {r.county&&<span style={{background:"#F0F0F0",color:"#02282C",padding:"3px 10px",fontSize:11,fontWeight:600}}>📍 {r.county}</span>}
               </div>
               {/* Footer */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:11,color:"#AEAEB2",borderTop:"1px solid #F0F0F0",paddingTop:10}}>
@@ -1673,7 +1674,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
       {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)}/>}
 
       {total>12&&<div style={{textAlign:"center",marginTop:20}}>
-        <button style={{background:"transparent",border:"1.5px solid #111111",color:"#111111",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
+        <button style={{background:"transparent",border:"1.5px solid #111111",color:"#111111",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif"}} onClick={()=>{}}>
           View all {total} requests
         </button>
       </div>}
@@ -1728,7 +1729,7 @@ function SoldSection({token,user}){
 
   return<>
     {/* Stats bar */}
-    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#FF6B00"}}>
+    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#02282C"}}>
       {[
         {label:"Total Sales",val:total},
         {label:"Categories",val:[...new Set(items.map(i=>i.category))].length},
@@ -1743,9 +1744,9 @@ function SoldSection({token,user}){
 
     {/* Category filter */}
     {[...new Set(items.map(l=>l.category))].length>1&&<div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:24}}>
-      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#111111":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>All</button>
+      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#111111":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",transition:"all .15s"}}>All</button>
       {[...new Set(items.map(l=>l.category))].map(c=>(
-        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#111111":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>{c}</button>
+        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#111111":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",transition:"all .15s"}}>{c}</button>
       ))}
     </div>}
 
@@ -1754,14 +1755,14 @@ function SoldSection({token,user}){
       {items.map(l=>{
         const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
         const dur=duration(l.created_at,l.sold_at);
-        return<div key={l.id} style={{background:"#FF6B00",border:"1px solid #E5E5E5",overflow:"hidden"}}>
+        return<div key={l.id} style={{background:"#02282C",border:"1px solid #E5E5E5",overflow:"hidden"}}>
           {/* Image */}
           <div style={{aspectRatio:"4/3",background:"#F0F0F0",position:"relative",overflow:"hidden"}}>
             {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
               :<span style={{fontSize:40,position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",opacity:.15}}>📦</span>}
             {/* SOLD overlay */}
             <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.55)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-              <span style={{background:"#FF6B00",color:"#111111",fontSize:11,fontWeight:700,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
+              <span style={{background:"#02282C",color:"#111111",fontSize:11,fontWeight:700,padding:"5px 14px",letterSpacing:".08em",textTransform:"uppercase"}}>SOLD ✓</span>
             </div>
             {/* Sale channel badge */}
             {l.sold_channel&&<div style={{position:"absolute",top:8,left:8,background:"rgba(0,0,0,.75)",color:"#fff",fontSize:10,fontWeight:700,padding:"3px 8px"}}>
@@ -1781,7 +1782,7 @@ function SoldSection({token,user}){
 
             {/* Timeline — listed → sold */}
             <div style={{background:"#F6F6F6",padding:"10px 12px",fontSize:11,lineHeight:1.8}}>
-              <div style={{display:"flex",justifyContent:"space-between",color:"#FF6B00"}}>
+              <div style={{display:"flex",justifyContent:"space-between",color:"#02282C"}}>
                 <span>📅 Listed</span>
                 <span style={{fontWeight:600}}>{fmtDate(l.created_at)}</span>
               </div>
@@ -1869,7 +1870,7 @@ function ReviewsSection({token,user,notify}){
     {stats&&(stats.review_count>0)&&<div style={{background:"#F5F5F5",border:"1px solid #E8E8E8",borderRadius:6,padding:"18px 20px",marginBottom:18,display:"flex",gap:16,alignItems:"center"}}>
       <div style={{textAlign:"center",flexShrink:0}}>
         <div style={{fontSize:44,fontWeight:700,color:"#111111",lineHeight:1}}>{Number(stats.avg_rating||0).toFixed(1)}</div>
-        <div style={{fontSize:16,color:"#FF6B00",marginTop:2}}>{"★".repeat(Math.round(stats.avg_rating||0))}{"☆".repeat(5-Math.round(stats.avg_rating||0))}</div>
+        <div style={{fontSize:16,color:"#02282C",marginTop:2}}>{"★".repeat(Math.round(stats.avg_rating||0))}{"☆".repeat(5-Math.round(stats.avg_rating||0))}</div>
       </div>
       <div>
         <div style={{fontWeight:700,fontSize:16,marginBottom:2}}>Your Rating</div>
@@ -1919,7 +1920,7 @@ function ReviewsSection({token,user,notify}){
     </div>:reviews.map((r,i)=><div key={r.id||i} style={{padding:"14px 16px",background:"#F5F5F5",borderRadius:6,marginBottom:10,border:"1px solid #E8E8E8"}}>
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
-          <span style={{fontSize:16,color:"#FF6B00"}}>{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
+          <span style={{fontSize:16,color:"#02282C"}}>{"★".repeat(r.rating)}{"☆".repeat(5-r.rating)}</span>
           <span style={{fontWeight:700,fontSize:14}}>{r.rating}/5</span>
           <span className={`badge ${r.reviewer_role==="buyer"?"bg-b":"bg-g"}`} style={{fontSize:10}}>{r.reviewer_role==="buyer"?"🛍 Buyer":"🏷 Seller"}</span>
         </div>
@@ -2060,7 +2061,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                 {user.name?.charAt(0)?.toUpperCase()||"U"}
               </div>
               <div>
-                <h1 style={{fontSize:"clamp(22px,3vw,32px)",fontWeight:500,color:"#fff",fontFamily:"'Inter',system-ui,sans-serif",marginBottom:4,letterSpacing:"-.02em"}}>{user.name}</h1>
+                <h1 style={{fontSize:"clamp(22px,3vw,32px)",fontWeight:500,color:"#fff",fontFamily:"'Nunito',sans-serif",marginBottom:4,letterSpacing:"-.02em"}}>{user.name}</h1>
                 <div style={{fontSize:13,color:"rgba(255,255,255,.7)",marginBottom:8}}>{user.email}</div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
                   <span style={{background:"rgba(255,255,255,.2)",color:"#fff",padding:"3px 12px",fontSize:11,fontWeight:700,letterSpacing:".04em"}}>{user.role==="seller"?"🏷 SELLER":"🛍 BUYER"}</span>
@@ -2071,7 +2072,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             </div>
           </div>
           <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-            {user.role==="seller"&&<button className="btn bp sm" style={{background:"#FF6B00",color:"#111111",border:"none",fontWeight:700}} onClick={()=>{onClose();onPostAd();}}>+ Post Ad</button>}
+            {user.role==="seller"&&<button className="btn bp sm" style={{background:"#02282C",color:"#111111",border:"none",fontWeight:700}} onClick={()=>{onClose();onPostAd();}}>+ Post Ad</button>}
             <button className="btn bs sm" style={{border:"1px solid rgba(255,255,255,.4)",color:"#fff",background:"transparent"}} onClick={onClose}>← Back to Home</button>
           </div>
         </div>
@@ -2082,7 +2083,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             ?[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["ads","My Ads"],["sold","Sold"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
             :[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","My Interests"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
           ).map(([id,label])=>(
-            <button key={id} onClick={()=>setTab(id)} style={{padding:"14px 22px",border:"none",background:"transparent",cursor:"pointer",fontSize:13,fontWeight:700,letterSpacing:".04em",whiteSpace:"nowrap",color:tab===id?"#fff":"rgba(255,255,255,.55)",borderBottom:tab===id?"3px solid #fff":"3px solid transparent",transition:"all .15s",fontFamily:"var(--fn)"}}>
+            <button key={id} onClick={()=>setTab(id)} style={{padding:"14px 22px",border:"none",background:"transparent",cursor:"pointer",fontSize:13,fontWeight:700,letterSpacing:".04em",whiteSpace:"nowrap",color:tab===id?"#fff":"rgba(255,255,255,.55)",borderBottom:tab===id?"3px solid #fff":"3px solid transparent",transition:"all .15s",fontFamily:"'Nunito',sans-serif"}}>
               {label}
             </button>
           ))}
@@ -2102,7 +2103,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
           ? [
               {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"#111111",bg:"rgba(0,0,0,.04)"},
               {icon:"✅",label:"Active",val:stats.activeListings,color:"#16a34a",bg:"rgba(22,163,74,.06)"},
-              {icon:"🏆",label:"Sold",val:stats.soldListings,color:"#FF6B00",bg:"rgba(0,0,0,.04)"},
+              {icon:"🏆",label:"Sold",val:stats.soldListings,color:"#02282C",bg:"rgba(0,0,0,.04)"},
               {icon:"👁",label:"Total Views",val:stats.totalViews,color:"#111111",bg:"rgba(0,0,0,.04)"},
               {icon:"🔥",label:"Buyers Waiting",val:stats.buyersWaiting,color:"#444444",bg:"rgba(0,0,0,.04)"},
               {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"#111111",bg:"rgba(0,0,0,.04)"},
@@ -2148,7 +2149,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:14}}>
         {listings.slice(0,4).map(l=>{
           const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-          return <div key={l.id} style={{background:"#FF6B00",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
+          return <div key={l.id} style={{background:"#02282C",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
             onMouseOver={e=>e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,.08)"}
             onMouseOut={e=>e.currentTarget.style.boxShadow="none"}>
             <div style={{height:120,background:"#F5F5F5",overflow:"hidden",position:"relative"}}>
@@ -2178,7 +2179,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         <h3 style={{fontSize:15,fontWeight:700,marginBottom:14,letterSpacing:"-.01em"}}>💬 Chat Threads</h3>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:12,marginBottom:32}}>
           {threads.map((t,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#FF6B00",border:"1px solid #EBEBEB",borderRadius:6,cursor:"pointer",transition:"border-color .15s"}}
+            <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#02282C",border:"1px solid #EBEBEB",borderRadius:6,cursor:"pointer",transition:"border-color .15s"}}
               onMouseOver={e=>e.currentTarget.style.borderColor="#111111"}
               onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}
               onClick={()=>setSelectedListing({id:t.listing_id,title:t.title,seller_id:t.seller_id,is_unlocked:t.is_unlocked||false,locked_buyer_id:t.locked_buyer_id})}>
@@ -2194,7 +2195,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
               </div>
               <div style={{textAlign:"right",flexShrink:0}}>
                 <div style={{fontSize:11,color:"#CCCCCC"}}>{ago(t.last_message_at)}</div>
-                {parseInt(t.unread_count||0)>0&&<div style={{background:"#E55F00",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"2px 7px",marginTop:4,display:"inline-block"}}>{t.unread_count}</div>}
+                {parseInt(t.unread_count||0)>0&&<div style={{background:"#002F34",color:"#fff",borderRadius:10,fontSize:10,fontWeight:700,padding:"2px 7px",marginTop:4,display:"inline-block"}}>{t.unread_count}</div>}
               </div>
             </div>
           ))}
@@ -2239,7 +2240,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:14}}>
           {buyerInterests.map(l=>{
             const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-            return <div key={l.id} style={{background:"#FF6B00",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
+            return <div key={l.id} style={{background:"#02282C",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
               onMouseOver={e=>e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,.08)"}
               onMouseOut={e=>e.currentTarget.style.boxShadow="none"}>
               <div style={{height:140,background:"#F5F5F5",overflow:"hidden",position:"relative"}}>
@@ -2270,7 +2271,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         </div>
         :<div style={{display:"flex",flexDirection:"column",gap:12}}>
           {listings.map(l=>(
-            <div key={l.id} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",background:"#FF6B00",border:"1px solid #EBEBEB",borderRadius:6,transition:"border-color .15s"}}
+            <div key={l.id} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",background:"#02282C",border:"1px solid #EBEBEB",borderRadius:6,transition:"border-color .15s"}}
               onMouseOver={e=>e.currentTarget.style.borderColor="#111111"}
               onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}>
               <div style={{width:56,height:46,borderRadius:6,background:"#F5F5F5",overflow:"hidden",flexShrink:0}}>
@@ -2303,7 +2304,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
     {!loading&&tab==="settings"&&<>
       <div style={{maxWidth:520,display:"flex",flexDirection:"column",gap:12}}>
-        <div style={{padding:"20px 22px",background:"#FF6B00",border:"1px solid #EBEBEB",borderRadius:6}}>
+        <div style={{padding:"20px 22px",background:"#02282C",border:"1px solid #EBEBEB",borderRadius:6}}>
           <div className="lbl" style={{marginBottom:12}}>Account Info</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0",borderBottom:"1px solid #F5F5F5"}}>
@@ -2649,16 +2650,16 @@ export default function App(){
   return <>
     {/* NAV — dark bg, bright white bottom border */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#FFFFFF"}}><WekaSokoLogo size={36}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#FFFFFF"}}><WekaSokoLogo size={36} light={true}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        <button className="bgh" style={{color:"#6B6B6B",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"'Inter',sans-serif",padding:"8px 14px"}} onClick={()=>setPage(p=>p==="sold"?"home":"sold")}>Sold Items</button>
+        <button className="bgh" style={{color:"rgba(255,255,255,.7)",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"'Nunito',sans-serif",padding:"8px 14px"}} onClick={()=>setPage(p=>p==="sold"?"home":"sold")}>Sold Items</button>
         {user?<>
-          <button style={{background:"transparent",border:"none",color:"#6B6B6B",cursor:"pointer",fontSize:13,fontFamily:"var(--fn)",padding:"8px 14px",position:"relative"}} onClick={()=>setPage("dashboard")}>
+          <button style={{background:"transparent",border:"none",color:"rgba(255,255,255,.85)",cursor:"pointer",fontSize:13,fontFamily:"'Nunito',sans-serif",padding:"8px 14px",position:"relative"}} onClick={()=>setPage("dashboard")}>
             {user.name?.split(" ")[0]}
             {notifCount>0&&<span className="notif-dot"/>}
           </button>
           {/* Post Ad — pearl white bg + dark text = visible on dark nav */}
-          <button style={{background:"#FF6B00",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Inter',sans-serif",borderRadius:6}} onClick={()=>{
+          <button style={{background:"#02282C",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",borderRadius:6}} onClick={()=>{
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
                 api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
@@ -2668,29 +2669,36 @@ export default function App(){
           }}>+ Post Ad</button>
         </>:<>
           {/* Sign In — light grey bg + dark text = clearly visible on dark nav */}
-          <button style={{background:"#FFFFFF",color:"#1A1A1A",border:"1.5px solid #E5E5E5",padding:"8px 18px",fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:"'Inter',sans-serif",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
+          <button style={{background:"rgba(255,255,255,.12)",color:"#FFFFFF",border:"1px solid rgba(255,255,255,.25)",padding:"8px 18px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'Nunito',sans-serif",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
           {/* Join Free — pure white bg + dark text = maximum visibility */}
-          <button style={{background:"#FF6B00",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Inter',sans-serif",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"signup"})}>Join Free</button>
+          <button style={{background:"#02282C",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"signup"})}>Join Free</button>
         </>}
       </div>
     </nav>
 
-    {/* ── HERO ── */}
-    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#FFFFFF",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
-      <div style={{maxWidth:1180,margin:"0 auto",display:"flex",alignItems:"center",gap:48,flexWrap:"wrap"}}>
-        <div style={{flex:"1 1 420px"}}>
-          <div style={{fontSize:10,fontWeight:600,letterSpacing:".2em",textTransform:"uppercase",marginBottom:20,color:"#AAAAAA"}}>🇰🇪 Kenya's Resell Platform</div>
-          <h1 style={{fontSize:"clamp(38px,5.5vw,68px)",fontWeight:400,letterSpacing:"-.01em",lineHeight:1.05,marginBottom:20,color:"#1A1A1A",fontFamily:"'Inter',system-ui,sans-serif"}}>
+    {/* ── HERO + CATEGORIES side by side ── */}
+    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#FFFFFF",borderBottom:"1px solid #E5E5E5"}}>
+
+      {/* TOP: Hero text LEFT, Categories RIGHT */}
+      <div style={{display:"flex",alignItems:"stretch",minHeight:320}}>
+
+        {/* LEFT — hero text */}
+        <div style={{flex:"0 0 42%",padding:"44px 40px 36px",borderRight:"1px solid #E5E5E5",display:"flex",flexDirection:"column",justifyContent:"center"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",marginBottom:14,color:"#02282C",display:"flex",alignItems:"center",gap:8}}>
+            <span style={{background:"#CBF7EE",color:"#02282C",padding:"2px 8px",borderRadius:4,fontSize:10}}>🇰🇪 Kenya</span>
+            Resell Platform
+          </div>
+          <h1 style={{fontSize:"clamp(28px,3.5vw,44px)",fontWeight:800,lineHeight:1.12,marginBottom:14,color:"#02282C",fontFamily:"'Nunito',sans-serif",letterSpacing:"-.01em"}}>
             Post Free.<br/>
-            <em style={{fontStyle:"italic",color:"#FF6B00"}}>Pay Only When</em><br/>
-            You Get a Buyer.
+            Pay Only When<br/>
+            <span style={{color:"#23E5DB"}}>You Get a Buyer.</span>
           </h1>
-          <p style={{fontSize:15,color:"#6B6B6B",lineHeight:1.8,marginBottom:32,maxWidth:440,fontWeight:300,fontFamily:"'Inter',system-ui,sans-serif"}}>
-            List items in minutes with photos. Pay KSh 250 only when a serious buyer locks in to buy.
+          <p style={{fontSize:14,color:"#546B6E",lineHeight:1.75,marginBottom:24,fontWeight:400,fontFamily:"'Nunito',sans-serif"}}>
+            List items in minutes. Pay KSh 250 only when a serious buyer locks in.
           </p>
-          <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:28}}>
-            <button style={{background:"#FF6B00",color:"#FFFFFF",border:"none",padding:"12px 28px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'Inter',system-ui,sans-serif",letterSpacing:".02em",borderRadius:6,transition:"background .15s"}}
-              onMouseOver={e=>e.target.style.background="#333333"} onMouseOut={e=>e.target.style.background="#111111"}
+          <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>
+            <button style={{background:"#02282C",color:"#FFFFFF",border:"none",padding:"12px 24px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",borderRadius:8,transition:"background .15s"}}
+              onMouseOver={e=>e.currentTarget.style.background="#002F34"} onMouseOut={e=>e.currentTarget.style.background="#02282C"}
               onClick={()=>{
                 if(!user){setModal({type:"auth",mode:"signup"});return;}
                 if(user.role==="buyer"){
@@ -2703,75 +2711,66 @@ export default function App(){
                   return;
                 }
                 setModal({type:"post"});
-              }}>Post an Ad for Free</button>
-            <button style={{background:"#FFFFFF",color:"#1A1A1A",border:"1.5px solid #E5E5E5",padding:"13px 32px",fontSize:12,fontWeight:500,cursor:"pointer",fontFamily:"'Inter',system-ui,sans-serif",letterSpacing:".1em",textTransform:"uppercase",transition:"all .15s"}}
-              onMouseOver={e=>{e.target.style.borderColor="#111111";}} onMouseOut={e=>{e.target.style.borderColor="#CCCCCC";}}
+              }}>+ Post an Ad for Free</button>
+            <button style={{background:"#FFFFFF",color:"#02282C",border:"1.5px solid #02282C",padding:"12px 22px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"'Nunito',sans-serif",borderRadius:8,transition:"all .15s"}}
+              onMouseOver={e=>{e.currentTarget.style.background="#02282C";e.currentTarget.style.color="#FFFFFF";}} onMouseOut={e=>{e.currentTarget.style.background="#FFFFFF";e.currentTarget.style.color="#02282C";}}
               onClick={()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"})}>Browse Listings</button>
           </div>
-          <div style={{display:"flex",gap:24,fontSize:11,color:"#AAAAAA",fontWeight:400,letterSpacing:".04em"}}>
-            <span>✓ 100% free to post</span><span>✓ Safe anonymous chat</span><span>✓ M-Pesa escrow</span>
+          <div style={{display:"flex",gap:20,fontSize:12,color:"#6B7F82",fontWeight:600}}>
+            <span>✓ Free to post</span><span>✓ Anonymous chat</span><span>✓ M-Pesa escrow</span>
           </div>
         </div>
-        {/* Stats panel */}
-        <div style={{flex:"0 0 auto",background:"#FF6B00",border:"none",padding:"28px 32px",minWidth:240,borderRadius:10}}>
-          <div style={{fontSize:10,fontWeight:600,letterSpacing:".16em",textTransform:"uppercase",color:"#888888",marginBottom:20}}>Platform Stats</div>
-          {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
-            <div key={s.label} style={{paddingBottom:14,marginBottom:14,borderBottom:i<3?"1px solid #FFD0A0":"none"}}>
-              <div style={{fontSize:28,fontWeight:800,color:"#FF6B00",lineHeight:1}}><Counter to={s.val}/></div>
-              <div style={{fontSize:11,color:"#6B6B6B",marginTop:3,fontWeight:500,letterSpacing:".04em",textTransform:"uppercase"}}>{s.label}</div>
-            </div>
-          ))}
+
+        {/* RIGHT — categories */}
+        <div style={{flex:1,padding:"32px 32px 28px",background:"#FAFAFA"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#ABABAB",marginBottom:4}}>Categories</div>
+          <h2 style={{fontSize:18,fontWeight:800,color:"#02282C",marginBottom:20,fontFamily:"'Nunito',sans-serif"}}>What are you looking for?</h2>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(80px,1fr))",gap:6}}>
+            {CATS.map(c=>{
+              const photoMap={Electronics:"https://images.unsplash.com/photo-1598327105854-c8674faddf79?w=120&h=120&fit=crop",Vehicles:"https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=120&h=120&fit=crop",Property:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop",Fashion:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=120&h=120&fit=crop",Furniture:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=120&h=120&fit=crop",Sports:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=120&h=120&fit=crop",Books:"https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=120&h=120&fit=crop",Tools:"https://images.unsplash.com/photo-1504148455328-c376907d081c?w=120&h=120&fit=crop",Pets:"https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=120&h=120&fit=crop",Games:"https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=120&h=120&fit=crop",Baby:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=120&h=120&fit=crop",Health:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=120&h=120&fit=crop"};
+              const photo=photoMap[c.name]||"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=120&h=120&fit=crop";
+              const active=filter.cat===c.name;
+              return <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);setTimeout(()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"}),100);}}
+                style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,padding:"10px 6px",cursor:"pointer",borderRadius:10,background:active?"#CBF7EE":"#FFFFFF",border:`1px solid ${active?"#23E5DB":"#E5E5E5"}`,transition:"all .15s"}}>
+                <div style={{width:52,height:52,borderRadius:"50%",overflow:"hidden",border:`2px solid ${active?"#23E5DB":"#E5E5E5"}`,background:"#F0F0F0",flexShrink:0}}>
+                  <img src={photo} alt={c.name} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                </div>
+                <div style={{fontSize:10,fontWeight:700,color:active?"#02282C":"#1A1A1A",textAlign:"center",lineHeight:1.3}}>{c.name}</div>
+              </div>;
+            })}
+          </div>
         </div>
       </div>
-    </div>}
 
-    {/* ── TRUST BAR ─────────────────────────────────────────────────────── */}
-    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#FFFFFF",borderBottom:"1px solid #E5E5E5",borderTop:"1px solid #E5E5E5",padding:"14px 40px"}}>
-      <div style={{maxWidth:1180,margin:"0 auto",display:"flex",gap:32,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}>
+      {/* Trust bar inside hero section */}
+      <div style={{background:"#02282C",padding:"12px 40px",display:"flex",gap:32,alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
         {["Free to list","Safe anonymous chat","M-Pesa escrow","Kenyan platform"].map(t=>(
-          <span key={t} style={{fontSize:12,fontWeight:600,color:"#FF6B00",display:"flex",alignItems:"center",gap:6}}>
-            <span style={{color:"#FF6B00",fontSize:13}}>✓</span>{t}
+          <span key={t} style={{fontSize:12,fontWeight:600,color:"rgba(255,255,255,.85)",display:"flex",alignItems:"center",gap:6}}>
+            <span style={{color:"#23E5DB",fontSize:14}}>✓</span>{t}
           </span>
         ))}
       </div>
     </div>}
 
-    {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
+    {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:"100%",margin:"0",padding:"0 0 80px"}}>
 
-      {/* CATEGORIES — OLX-style photo circles */}
-      <div style={{background:"#FFFFFF",padding:"28px 32px 32px",borderBottom:"1px solid #E5E5E5",marginBottom:0,marginLeft:-40,marginRight:-40,paddingLeft:40,paddingRight:40}}>
-        <div style={{fontSize:11,fontWeight:600,letterSpacing:".1em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:6}}>Categories</div>
-        <h2 style={{fontSize:20,fontWeight:700,letterSpacing:"-.01em",color:"#1C1C1C",marginBottom:20}}>What are you looking for?</h2>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(90px,1fr))",gap:4}}>
-          {CATS.map(c=>{
-            const photoMap={Electronics:"https://images.unsplash.com/photo-1598327105854-c8674faddf79?w=120&h=120&fit=crop",Vehicles:"https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=120&h=120&fit=crop",Property:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=120&fit=crop",Fashion:"https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=120&h=120&fit=crop",Furniture:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=120&h=120&fit=crop",Sports:"https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=120&h=120&fit=crop",Books:"https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=120&h=120&fit=crop",Tools:"https://images.unsplash.com/photo-1504148455328-c376907d081c?w=120&h=120&fit=crop",Pets:"https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=120&h=120&fit=crop",Games:"https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=120&h=120&fit=crop",Baby:"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=120&h=120&fit=crop",Health:"https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=120&h=120&fit=crop"};
-            const photo=photoMap[c.name]||"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=120&h=120&fit=crop";
-            const active=filter.cat===c.name;
-            return <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);setTimeout(()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"}),100);}}
-              style={{display:"flex",flexDirection:"column",alignItems:"center",gap:9,padding:"13px 6px",cursor:"pointer",borderRadius:10,background:active?"#FFF3E0":"transparent",transition:"background .15s"}}>
-              <div style={{width:62,height:62,borderRadius:"50%",overflow:"hidden",border:active?"2.5px solid #FF6B00":"2px solid #E5E5E5",background:"#E0E0E0",flexShrink:0}}>
-                <img src={photo} alt={c.name} style={{width:"100%",height:"100%",objectFit:"cover",filter:"grayscale(15%)",display:"block"}}/>
-              </div>
-              <div style={{fontSize:11,fontWeight:600,color:active?"#FF6B00":"#1A1A1A",textAlign:"center",lineHeight:1.3}}>{c.name}</div>
-            </div>;
-          })}
-        </div>
-      </div>
+      {/* WHAT BUYERS WANT — full width */}
+      <div style={{maxWidth:1180,margin:"0 auto",padding:"32px 40px 0"}}>
 
       {/* WHAT BUYERS WANT */}
       <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})}/>
+      </div>
 
-      <div style={{height:52}}/>
-
-      {/* SEARCH BAR — Samsung clean integrated search */}
-      <div id="listings-section" style={{marginBottom:36}}>
-        <div style={{display:"flex",border:"1.5px solid #D0D0D0",marginBottom:12,background:"#F5F5F5",borderRadius:8,overflow:"hidden"}}>
-          <input style={{flex:1,padding:"13px 18px",border:"none",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"transparent",color:"#1C1C1C"}} placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
-          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:150}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
+      {/* SEARCH + LISTINGS — full width OLX style */}
+      <div style={{background:"#F5F5F5",padding:"0 40px"}}>
+      <div id="listings-section" style={{maxWidth:1180,margin:"0 auto",paddingTop:28,marginBottom:0}}>
+        <div style={{display:"flex",border:"2px solid #02282C",marginBottom:16,background:"#FFFFFF",borderRadius:10,overflow:"hidden",boxShadow:"0 2px 8px rgba(2,40,44,.08)"}}>
+          <input style={{flex:1,padding:"14px 18px",border:"none",outline:"none",fontSize:15,fontFamily:"'Nunito',sans-serif",background:"transparent",color:"#1A1A1A",fontWeight:500}} placeholder="🔍  Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
+          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"'Nunito',sans-serif",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:150}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
             <option value="">All Counties</option>
             {counties.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
-          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:140}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
+          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"'Nunito',sans-serif",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:140}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
             <option value="price_asc">Price ↑</option>
@@ -2779,7 +2778,7 @@ export default function App(){
             <option value="popular">Most Viewed</option>
             <option value="expiring">Expiring Soon</option>
           </select>
-          <button style={{background:"#111111",color:"#fff",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}} onClick={()=>{
+          <button style={{background:"#02282C",color:"#FFFFFF",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Nunito',sans-serif",whiteSpace:"nowrap"}} onClick={()=>{
             if(!user){setModal({type:"auth",mode:"signup"});return;}
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
@@ -2794,8 +2793,8 @@ export default function App(){
           <span style={{color:"#888888",fontSize:13}}>–</span>
           <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:4,fontSize:13}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
           <div style={{display:"flex",gap:1,marginLeft:8}}>
-            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#111111":"#F4F4F4",color:vm==="grid"?"#fff":"#767676",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>⊞</button>
-            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#111111":"#F4F4F4",color:vm==="list"?"#fff":"#767676",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>☰</button>
+            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#02282C":"#FFFFFF",color:vm==="grid"?"#FFFFFF":"#6B6B6B",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"'Nunito',sans-serif",transition:"all .15s"}}>⊞</button>
+            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#02282C":"#FFFFFF",color:vm==="list"?"#FFFFFF":"#6B6B6B",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"'Nunito',sans-serif",transition:"all .15s"}}>☰</button>
           </div>
           {(filter.cat||filter.county||filter.minPrice||filter.maxPrice||filter.q)&&
             <button className="btn bs sm" style={{borderRadius:4,fontSize:12}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear</button>}
@@ -2813,6 +2812,21 @@ export default function App(){
         :<div className={vm==="grid"?"g3":"lvc"}>{listings.map(l=><ListingCard key={l.id} listing={l} onClick={()=>openListing(l)} listView={vm==="list"}/>)}</div>}
 
       <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
+
+      </div>
+      </div>
+
+      {/* PLATFORM STATS BAR — OLX-style strip at bottom */}
+      {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#02282C",padding:"28px 40px"}}>
+        <div style={{maxWidth:1180,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,textAlign:"center"}}>
+          {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
+            <div key={s.label} style={{padding:"0 20px",borderRight:i<3?"1px solid rgba(255,255,255,.1)":"none"}}>
+              <div style={{fontSize:32,fontWeight:800,color:"#23E5DB",lineHeight:1,fontFamily:"'Nunito',sans-serif"}}><Counter to={s.val}/></div>
+              <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.55)",marginTop:6,letterSpacing:".08em",textTransform:"uppercase"}}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>}
 
       {/* HOW IT WORKS — Samsung Learn section style */}
       <div style={{marginTop:80,paddingTop:64,borderTop:"2px solid #CCCCCC"}}>
@@ -2885,7 +2899,7 @@ export default function App(){
       {/* Hero banner */}
       <div style={{background:"#111111",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
-          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em"}}>← Back to Marketplace</button>
+          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"'Nunito',sans-serif",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em"}}>← Back to Marketplace</button>
           <div style={{marginBottom:14,opacity:.9}}><WekaSokoLogo size={26}/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".12em",textTransform:"uppercase",color:"rgba(255,255,255,.55)",marginBottom:10}}>Sold Listings</div>
           <h1 style={{fontSize:"clamp(30px,5vw,54px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.05,marginBottom:14}}>Sold on Weka Soko</h1>
