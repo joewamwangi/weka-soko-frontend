@@ -2792,21 +2792,6 @@ export default function App(){
 
       <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
 
-      </div>
-      </div>
-
-      {/* PLATFORM STATS BAR — OLX-style strip at bottom */}
-      {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#1428A0",padding:"28px 40px"}}>
-        <div style={{maxWidth:1180,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,textAlign:"center"}}>
-          {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
-            <div key={s.label} style={{padding:"0 20px",borderRight:i<3?"1px solid rgba(255,255,255,.1)":"none"}}>
-              <div style={{fontSize:32,fontWeight:800,color:"#fff",lineHeight:1,fontFamily:"var(--fn)"}}><Counter to={s.val}/></div>
-              <div style={{fontSize:11,fontWeight:600,color:"rgba(255,255,255,.55)",marginTop:6,letterSpacing:".08em",textTransform:"uppercase"}}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>}
-
       {/* HOW IT WORKS — Samsung Learn section style */}
       <div style={{marginTop:80,paddingTop:64,borderTop:"2px solid #CCCCCC"}}>
         <div style={{textAlign:"center",marginBottom:48}}>
