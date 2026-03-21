@@ -156,10 +156,10 @@ select.inp{appearance:none;cursor:pointer;}
 .lbl{display:block;font-size:11px;font-weight:700;color:#636363;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 /* BADGES */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.04em;}
-.bg-g{background:rgba(20,40,160,.08);color:var(--a);}
+.bg-g{background:#F0F0F0;color:var(--a);}
 .bg-y{background:rgba(176,127,16,.1);color:#8B6400;}
 .bg-r{background:rgba(192,48,48,.1);color:var(--red);}
-.bg-b{background:rgba(20,40,160,.08);color:var(--a);}
+.bg-b{background:#F0F0F0;color:var(--a);}
 .bg-m{background:var(--sh);color:var(--mut);}
 /* MODALS */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);}
@@ -176,7 +176,7 @@ select.inp{appearance:none;cursor:pointer;}
 .logo span{color:var(--a);}
 /* ALERTS */
 .alert{padding:12px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
-.ag{background:rgba(20,40,160,.04);border-left:3px solid #1428A0;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#1428A0;}
+.ag{background:#F8F8F8;border-left:3px solid #1428A0;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#1428A0;}
 .ay{background:rgba(139,100,0,.04);border-left:3px solid #8B6400;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#8B6400;}
 .ar{background:rgba(192,48,48,.04);border-left:3px solid #C03030;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#C03030;}
 /* CARDS */
@@ -1134,7 +1134,7 @@ function ListingCard({listing:l,onClick,listView}){
     <div className="lthumb">
       {photo?<WatermarkedImage src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>:<span style={{fontSize:44,opacity:.15}}>📦</span>}
       {l.status==="sold"&&<div className="sold-badge">SOLD ✓</div>}
-      {l.locked_buyer_id&&!l.is_unlocked&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"#1428A0",color:"#fff",fontSize:10,fontWeight:700,padding:"5px 10px",letterSpacing:".04em",textTransform:"uppercase"}}>🔥 Buyer Interested</div>}
+      {l.locked_buyer_id&&!l.is_unlocked&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"#1D1D1D",color:"#fff",fontSize:10,fontWeight:700,padding:"5px 10px",letterSpacing:".04em",textTransform:"uppercase"}}>🔥 Buyer Interested</div>}
     </div>
     <div style={{padding:"16px",flex:1}}>
       <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:"#888888",marginBottom:6}}>{l.category}</div>
@@ -1144,7 +1144,7 @@ function ListingCard({listing:l,onClick,listView}){
       <div style={{display:"flex",gap:12,color:"#888888",fontSize:11,flexWrap:"wrap",borderTop:"1px solid #E8E8E8",paddingTop:8,marginTop:4}}>
         {l.location&&<span>📍 {l.location}</span>}
         <span>👁 {l.view_count||0}</span>
-        {l.seller_avg_rating>0&&<span style={{color:"#1428A0",fontWeight:700}}>★ {Number(l.seller_avg_rating).toFixed(1)}</span>}
+        {l.seller_avg_rating>0&&<span style={{color:"#8B6400",fontWeight:700}}>★ {Number(l.seller_avg_rating).toFixed(1)}</span>}
         <span style={{marginLeft:"auto"}}>{ago(l.created_at)}</span>
       </div>
     </div>
@@ -1582,16 +1582,16 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
     }catch(err){notify(err.message,"error");}
   };
 
-  return <div style={{background:"#F0F0F0",padding:"52px 40px",margin:"0 -40px"}}>
+  return <div style={{background:"#FFFFFF",padding:"48px 40px",margin:"0 -40px",borderTop:"1px solid #EBEBEB",borderBottom:"1px solid #EBEBEB"}}>
     <div style={{maxWidth:1180,margin:"0 auto"}}>
       {/* Header */}
       <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
         <div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Community</div>
-          <h2 style={{fontSize:"clamp(24px,3vw,36px)",fontWeight:500,letterSpacing:"-.01em",color:"#1428A0",fontFamily:"var(--fn)",lineHeight:1.1}}>🛒 What Buyers Want</h2>
+          <h2 style={{fontSize:"clamp(24px,3vw,36px)",fontWeight:500,letterSpacing:"-.01em",color:"#1D1D1D",fontFamily:"var(--fn)",lineHeight:1.1}}>🛒 What Buyers Want</h2>
           <p style={{fontSize:13,color:"#767676",marginTop:6}}>{total} active request{total!==1?"s":" "} from buyers looking for items</p>
         </div>
-        <button style={{background:"#111111",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}}
+        <button style={{background:"#1D1D1D",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:4,whiteSpace:"nowrap"}}
           onClick={()=>{if(!user){onSignIn();return;}setShowModal(true);}}>
           + Post a Request
         </button>
@@ -1599,14 +1599,14 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
 
       {/* Search/filter */}
       <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
-        <input style={{flex:1,minWidth:200,padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#1428A0"}}
+        <input style={{flex:1,minWidth:200,padding:"10px 14px",border:"1px solid #E0E0E0",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#fff",color:"#1D1D1D"}}
           placeholder="Search requests..." value={search} onChange={e=>setSearch(e.target.value)}/>
-        <select style={{padding:"10px 14px",border:"1px solid #C7C7CC",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#1428A0",cursor:"pointer",minWidth:140}}
+        <select style={{padding:"10px 14px",border:"1px solid #E0E0E0",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#fff",cursor:"pointer",minWidth:140,color:"#1D1D1D"}}
           value={county} onChange={e=>setCounty(e.target.value)}>
           <option value="">All Counties</option>
           {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Kajiado","Meru","Nyeri","Kisii","Kakamega"].map(c=><option key={c} value={c}>{c}</option>)}
         </select>
-        {(search||county)&&<button style={{padding:"10px 14px",border:"1px solid #C7C7CC",background:"#1428A0",cursor:"pointer",fontSize:12,fontFamily:"var(--fn)"}} onClick={()=>{setSearch("");setCounty("");}}>✕ Clear</button>}
+        {(search||county)&&<button style={{padding:"10px 14px",border:"1px solid #E0E0E0",background:"#fff",cursor:"pointer",fontSize:12,fontFamily:"var(--fn)",color:"#636363"}} onClick={()=>{setSearch("");setCounty("");}}>✕ Clear</button>}
       </div>
 
       {/* Requests grid */}
@@ -1618,14 +1618,14 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
           </div>
         :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
           {requests.map(r=>(
-            <div key={r.id} style={{background:"#1428A0",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"2px solid #CCCCCC"}}>
+            <div key={r.id} style={{background:"#fff",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"3px solid #E0E0E0"}}>
               {/* Header row */}
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
                 <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,letterSpacing:"-.01em",flex:1}}>{r.title}</div>
                 {user?.id===r.user_id&&<button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#AEAEB2",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>}
               </div>
               {/* Description — expandable */}
-              <div style={{fontSize:12,color:"#1428A0",lineHeight:1.65,marginBottom:10}}>
+              <div style={{fontSize:12,color:"#636363",lineHeight:1.65,marginBottom:10}}>
                 {expanded===r.id||r.description.length<=120
                   ?r.description
                   :<>{r.description.slice(0,120)}... <button onClick={()=>setExpanded(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#111111",fontSize:12,fontWeight:600,padding:0}}>More</button></>
@@ -1656,7 +1656,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
       {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)}/>}
 
       {total>12&&<div style={{textAlign:"center",marginTop:20}}>
-        <button style={{background:"transparent",border:"1.5px solid #1428A0",color:"#1428A0",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
+        <button style={{background:"transparent",border:"1.5px solid #1D1D1D",color:"#1D1D1D",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
           View all {total} requests
         </button>
       </div>}
@@ -1711,7 +1711,7 @@ function SoldSection({token,user}){
 
   return<>
     {/* Stats bar */}
-    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#1428A0"}}>
+    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#fff"}}>
       {[
         {label:"Total Sales",val:total},
         {label:"Categories",val:[...new Set(items.map(i=>i.category))].length},
@@ -1726,9 +1726,9 @@ function SoldSection({token,user}){
 
     {/* Category filter */}
     {[...new Set(items.map(l=>l.category))].length>1&&<div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:24}}>
-      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#1428A0":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>All</button>
+      <button onClick={()=>{setCat("");setPg(1);}} style={{padding:"7px 16px",background:cat===""?"#1D1D1D":"#F4F4F4",color:cat===""?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>All</button>
       {[...new Set(items.map(l=>l.category))].map(c=>(
-        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#1428A0":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>{c}</button>
+        <button key={c} onClick={()=>{setCat(c);setPg(1);}} style={{padding:"7px 16px",background:cat===c?"#1D1D1D":"#F4F4F4",color:cat===c?"#fff":"#535353",border:"none",fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",transition:"all .15s"}}>{c}</button>
       ))}
     </div>}
 
@@ -1737,7 +1737,7 @@ function SoldSection({token,user}){
       {items.map(l=>{
         const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
         const dur=duration(l.created_at,l.sold_at);
-        return<div key={l.id} style={{background:"#1428A0",border:"1px solid #E5E5E5",overflow:"hidden"}}>
+        return<div key={l.id} style={{background:"#fff",border:"1px solid #E5E5E5",overflow:"hidden"}}>
           {/* Image */}
           <div style={{aspectRatio:"4/3",background:"#F0F0F0",position:"relative",overflow:"hidden"}}>
             {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
@@ -1953,7 +1953,7 @@ function MyRequestsTab({token,notify,user}){
           <button className="btn bp" style={{marginTop:14}} onClick={()=>setShowModal(true)}>Post a Request →</button>
         </div>
       :requests.map(r=>(
-        <div key={r.id} style={{padding:"14px 16px",background:"#F5F5F5",borderRadius:6,marginBottom:10,border:"1px solid #E8E8E8",borderLeft:"2px solid #CCCCCC"}}>
+        <div key={r.id} style={{padding:"14px 16px",background:"#F5F5F5",borderRadius:6,marginBottom:10,border:"1px solid #E8E8E8",borderLeft:"3px solid #E0E0E0"}}>
           <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:6}}>
             <div style={{fontWeight:700,fontSize:14}}>{r.title}</div>
             <button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#CCCCCC",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>
@@ -2083,15 +2083,15 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:16,marginBottom:32}}>
         {(user.role==="seller"
           ? [
-              {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
+              {icon:"📦",label:"Total Ads",val:stats.totalListings,color:"#1428A0",bg:"#F4F4F4"},
               {icon:"✅",label:"Active",val:stats.activeListings,color:"#16a34a",bg:"rgba(22,163,74,.06)"},
               {icon:"🏆",label:"Sold",val:stats.soldListings,color:"#1428A0",bg:"rgba(0,0,0,.04)"},
-              {icon:"👁",label:"Total Views",val:stats.totalViews,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
+              {icon:"👁",label:"Total Views",val:stats.totalViews,color:"#1428A0",bg:"#F4F4F4"},
               {icon:"🔥",label:"Buyers Waiting",val:stats.buyersWaiting,color:"#444444",bg:"rgba(0,0,0,.04)"},
-              {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
+              {icon:"💬",label:"Unread Msgs",val:stats.unreadMessages,color:"#1428A0",bg:"#F4F4F4"},
             ]
           : [
-              {icon:"🔔",label:"Unread",val:unreadCount||0,color:"#1428A0",bg:"rgba(20,40,160,.06)"},
+              {icon:"🔔",label:"Unread",val:unreadCount||0,color:"#1428A0",bg:"#F4F4F4"},
             ]
         ).map(s=>(
           <div key={s.label} style={{background:s.bg,border:`1px solid ${s.color}22`,borderRadius:6,padding:"20px 22px",transition:"transform .15s",cursor:"default"}}
@@ -2131,7 +2131,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:14}}>
         {listings.slice(0,4).map(l=>{
           const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-          return <div key={l.id} style={{background:"#1428A0",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
+          return <div key={l.id} style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
             onMouseOver={e=>e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,.08)"}
             onMouseOut={e=>e.currentTarget.style.boxShadow="none"}>
             <div style={{height:120,background:"#F5F5F5",overflow:"hidden",position:"relative"}}>
@@ -2161,7 +2161,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         <h3 style={{fontSize:15,fontWeight:700,marginBottom:14,letterSpacing:"-.01em"}}>💬 Chat Threads</h3>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:12,marginBottom:32}}>
           {threads.map((t,i)=>(
-            <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#1428A0",border:"1px solid #EBEBEB",borderRadius:6,cursor:"pointer",transition:"border-color .15s"}}
+            <div key={i} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 16px",background:"#fffA0",border:"1px solid #EBEBEB",borderRadius:6,cursor:"pointer",transition:"border-color .15s"}}
               onMouseOver={e=>e.currentTarget.style.borderColor="#111111"}
               onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}
               onClick={()=>setSelectedListing({id:t.listing_id,title:t.title,seller_id:t.seller_id,is_unlocked:t.is_unlocked||false,locked_buyer_id:t.locked_buyer_id})}>
@@ -2222,7 +2222,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:14}}>
           {buyerInterests.map(l=>{
             const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
-            return <div key={l.id} style={{background:"#1428A0",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
+            return <div key={l.id} style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:6,overflow:"hidden",transition:"box-shadow .2s"}}
               onMouseOver={e=>e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,.08)"}
               onMouseOut={e=>e.currentTarget.style.boxShadow="none"}>
               <div style={{height:140,background:"#F5F5F5",overflow:"hidden",position:"relative"}}>
@@ -2253,7 +2253,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         </div>
         :<div style={{display:"flex",flexDirection:"column",gap:12}}>
           {listings.map(l=>(
-            <div key={l.id} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",background:"#1428A0",border:"1px solid #EBEBEB",borderRadius:6,transition:"border-color .15s"}}
+            <div key={l.id} style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",background:"#fff",border:"1px solid #EBEBEB",borderRadius:6,transition:"border-color .15s"}}
               onMouseOver={e=>e.currentTarget.style.borderColor="#111111"}
               onMouseOut={e=>e.currentTarget.style.borderColor="#EBEBEB"}>
               <div style={{width:56,height:46,borderRadius:6,background:"#F5F5F5",overflow:"hidden",flexShrink:0}}>
@@ -2286,7 +2286,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
     {!loading&&tab==="settings"&&<>
       <div style={{maxWidth:520,display:"flex",flexDirection:"column",gap:12}}>
-        <div style={{padding:"20px 22px",background:"#1428A0",border:"1px solid #EBEBEB",borderRadius:6}}>
+        <div style={{padding:"20px 22px",background:"#fff",border:"1px solid #EBEBEB",borderRadius:6}}>
           <div className="lbl" style={{marginBottom:12}}>Account Info</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0",borderBottom:"1px solid #F5F5F5"}}>
@@ -2712,7 +2712,7 @@ export default function App(){
       <div style={{maxWidth:1180,margin:"0 auto",display:"flex",gap:32,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}>
         {["Free to list","Safe anonymous chat","M-Pesa escrow","Kenyan platform"].map(t=>(
           <span key={t} style={{fontSize:12,fontWeight:600,color:"#535353",display:"flex",alignItems:"center",gap:6}}>
-            <span style={{color:"#1428A0",fontSize:14}}>✓</span>{t}
+            <span style={{color:"#1D1D1D",fontSize:14}}>✓</span>{t}
           </span>
         ))}
       </div>
@@ -2729,7 +2729,7 @@ export default function App(){
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:8}}>
           {CATS.map(c=>(
             <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);setTimeout(()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"}),100);}}
-              style={{background:filter.cat===c.name?"#1428A0":"#F4F4F4",color:filter.cat===c.name?"#fff":"#1D1D1D",padding:"16px 8px",textAlign:"center",cursor:"pointer",transition:"all .15s",border:filter.cat===c.name?"1px solid #1428A0":"1px solid transparent"}}>
+              style={{background:filter.cat===c.name?"#EEF2FF":"#F4F4F4",color:filter.cat===c.name?"#1428A0":"#1D1D1D",padding:"16px 8px",textAlign:"center",cursor:"pointer",transition:"all .15s",border:filter.cat===c.name?"2px solid #1428A0":"1px solid #E0E0E0"}}>
               <div style={{fontSize:22,marginBottom:5}}>{c.icon}</div>
               <div style={{fontSize:11,fontWeight:700,lineHeight:1.3}}>{c.name}</div>
             </div>
@@ -2743,7 +2743,7 @@ export default function App(){
 
       {/* SEARCH BAR */}
       <div id="listings-section" style={{marginBottom:36}}>
-        <div style={{display:"flex",border:"1px solid #C7C7CC",marginBottom:12,background:"#fff"}}>
+        <div style={{display:"flex",border:"1px solid #E0E0E0",marginBottom:12,background:"#fff"}}>
           <input style={{flex:1,padding:"13px 18px",border:"none",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"transparent",color:"#1D1D1D"}} placeholder="🔍  Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
           <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:150}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
             <option value="">All Counties</option>
@@ -2772,8 +2772,8 @@ export default function App(){
           <span style={{color:"#888888",fontSize:13}}>–</span>
           <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:4,fontSize:13}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
           <div style={{display:"flex",gap:1,marginLeft:8}}>
-            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1428A0":"#F4F4F4",color:vm==="grid"?"#fff":"#767676",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>⊞</button>
-            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1428A0":"#F4F4F4",color:vm==="list"?"#fff":"#767676",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>☰</button>
+            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1D1D1D":"#F4F4F4",color:vm==="grid"?"#fff":"#767676",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>⊞</button>
+            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1D1D1D":"#F4F4F4",color:vm==="list"?"#fff":"#767676",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>☰</button>
           </div>
           {(filter.cat||filter.county||filter.minPrice||filter.maxPrice||filter.q)&&
             <button className="btn bs sm" style={{borderRadius:4,fontSize:12}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear</button>}
@@ -2781,7 +2781,7 @@ export default function App(){
       </div>
 
       {/* LISTINGS HEADER */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:14,borderBottom:"2px solid #1C1C1C"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:14,borderBottom:"2px solid #E5E5E5"}}>
         <h2 style={{fontSize:18,fontWeight:700,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
         <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676"}}>Page {pg} / {Math.ceil(total/PER_PAGE)||1}</div>
       </div>
@@ -2805,7 +2805,7 @@ export default function App(){
             ["💳","Pay KSh 250","Seller pays once to see buyer contact. Till 5673935. Non-refundable."],
             ["🔐","Safe Escrow","Optional 7.5% escrow. Funds held until you confirm delivery."],
             ["🏆","Deal Done","Leave a review. Build your seller reputation on the platform."]].map(([icon,title,desc])=>(
-            <div key={title} style={{background:"#F0F4FF",padding:"28px 24px"}}>
+            <div key={title} style={{background:"#F4F4F4",padding:"28px 24px"}}>
               <div style={{fontSize:28,marginBottom:14}}>{icon}</div>
               <div style={{fontWeight:700,fontSize:15,marginBottom:8,letterSpacing:"-.01em",color:"#111111"}}>{title}</div>
               <div style={{fontSize:13,color:"#767676",lineHeight:1.75}}>{desc}</div>
@@ -2861,7 +2861,7 @@ export default function App(){
 
     {page==="sold"&&<div style={{minHeight:"100vh",background:"#F0F0F0"}}>
       {/* Hero banner */}
-      <div style={{background:"#1428A0",padding:"52px 40px 48px"}}>
+      <div style={{background:"#1D1D1D",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em"}}>← Back to Marketplace</button>
           <div style={{marginBottom:14,opacity:.9}}><WekaSokoLogo size={26}/></div>
