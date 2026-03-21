@@ -171,7 +171,7 @@ select.inp{appearance:none;cursor:pointer;}
 .mb{padding:22px 28px;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
 /* NAV */
-.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 52px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
 .logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
 .logo span{color:var(--a);}
 /* ALERTS */
@@ -1609,7 +1609,7 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
   </div>;
 
   return <div style={{background:"#FFFFFF",padding:"48px 40px",margin:"0 -48px",borderTop:"1px solid #EBEBEB",borderBottom:"1px solid #EBEBEB"}}>
-    <div style={{maxWidth:1280,margin:"0 auto"}}>
+    <div>
       {/* Header */}
       <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
         <div>
@@ -2060,7 +2060,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
   return <>
     {/* Dashboard Hero Header */}
     <div style={{background:"linear-gradient(135deg,#1428A0 0%,#0F1F8A 100%)",padding:"48px 40px 0",marginBottom:0}}>
-      <div style={{maxWidth:1180,margin:"0 auto"}}>
+      <div>
         <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",flexWrap:"wrap",gap:16,marginBottom:32}}>
           <div>
             <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"rgba(255,255,255,.6)",marginBottom:10}}>My Account</div>
@@ -2100,7 +2100,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     </div>
 
     {/* Dashboard Content */}
-    <div style={{maxWidth:1180,margin:"0 auto",padding:"40px 40px 80px"}}>
+    <div style={{padding:"40px 48px 80px"}}>
 
     {loading&&<div style={{textAlign:"center",padding:80}}><Spin s="40px"/></div>}
 
@@ -2686,10 +2686,10 @@ export default function App(){
 
     {/* ── HERO + CATEGORIES side by side ── */}
     {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#FFFFFF",borderBottom:"1px solid #EBEBEB"}}>
-      <div style={{display:"flex",alignItems:"stretch",minHeight:460}}>
+      <div style={{display:"flex",alignItems:"stretch",minHeight:460,maxWidth:"100%"}}>
 
         {/* LEFT — hero text */}
-        <div style={{flex:"0 0 44%",padding:"60px 52px 52px",display:"flex",flexDirection:"column",justifyContent:"center",borderRight:"1px solid #EBEBEB",background:"#fff"}}>
+        <div style={{flex:"0 0 44%",padding:"60px 56px 52px",display:"flex",flexDirection:"column",justifyContent:"center",borderRight:"1px solid #EBEBEB",background:"#fff"}}>
           <div style={{fontSize:13,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",marginBottom:18,color:"#1428A0"}}>
             🇰🇪 Kenya's Resell Platform
           </div>
@@ -2729,7 +2729,7 @@ export default function App(){
         </div>
 
         {/* RIGHT — OLX-style categories with real images */}
-        <div style={{flex:1,padding:"40px 40px 36px",background:"#FAFAFA",overflowY:"auto"}}>
+        <div style={{flex:1,padding:"40px 48px 36px",background:"#FAFAFA",overflowY:"auto"}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:6}}>Browse by Category</div>
           <h2 style={{fontSize:22,fontWeight:700,color:"#1A1A1A",marginBottom:24,letterSpacing:"-.01em",fontFamily:"var(--fn)"}}>What are you looking for?</h2>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(88px,1fr))",gap:10}}>
@@ -2777,34 +2777,17 @@ export default function App(){
       </div>
     </div>}
 
-    {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:1280,margin:"0 auto",padding:"48px 48px 80px"}}>
+    {page!=="dashboard"&&page!=="sold"&&<main style={{padding:"40px 48px 80px"}}>
       {/* ── TWO-COLUMN LAYOUT: sidebar left, content right ── */}
       <div style={{display:"flex",gap:28,alignItems:"flex-start"}}>
 
         {/* ── LEFT SIDEBAR ── */}
-        <div style={{width:260,flexShrink:0,display:"flex",flexDirection:"column",gap:20}}>
+        <div style={{width:240,flexShrink:0,display:"flex",flexDirection:"column",gap:16}}>
 
           {/* Search */}
           <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
             <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:12}}>Search</div>
             <input style={{width:"100%",padding:"11px 14px",border:"1.5px solid #E0E0E0",borderRadius:10,outline:"none",fontSize:14,fontFamily:"var(--fn)",color:"#1A1A1A",background:"#FAFAFA"}} placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
-          </div>
-
-          {/* Category filter */}
-          <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
-            <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:12}}>Category</div>
-            <div style={{display:"flex",flexDirection:"column",gap:2}}>
-              <div onClick={()=>{setFilter(p=>({...p,cat:""}));setPg(1);}}
-                style={{padding:"9px 12px",borderRadius:8,cursor:"pointer",fontSize:14,fontWeight:filter.cat===""?700:400,color:filter.cat===""?"#1428A0":"#333",background:filter.cat===""?"#EEF2FF":"transparent",transition:"all .15s"}}>
-                All Categories
-              </div>
-              {CATS.map(c=>(
-                <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);}}
-                  style={{padding:"9px 12px",borderRadius:8,cursor:"pointer",fontSize:14,fontWeight:filter.cat===c.name?700:400,color:filter.cat===c.name?"#1428A0":"#444",background:filter.cat===c.name?"#EEF2FF":"transparent",transition:"all .15s",display:"flex",alignItems:"center",gap:8}}>
-                  <span style={{fontSize:16}}>{c.icon}</span>{c.name}
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Price range */}
@@ -2880,7 +2863,7 @@ export default function App(){
       </div>{/* end two-column */}
 
       {/* PLATFORM STATS — bottom strip */}
-      <div style={{background:"#1428A0",borderRadius:16,padding:"40px 48px",marginBottom:64,display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,textAlign:"center"}}>
+      <div style={{background:"#1428A0",borderRadius:0,padding:"40px 48px",marginBottom:64,margin:"0 -48px",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,textAlign:"center"}}>
         {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Registered Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
           <div key={s.label} style={{padding:"0 24px",borderRight:i<3?"1px solid rgba(255,255,255,.2)":"none"}}>
             <div style={{fontSize:40,fontWeight:800,color:"#fff",lineHeight:1,fontFamily:"var(--fn)"}}><Counter to={s.val}/></div>
@@ -2959,7 +2942,7 @@ export default function App(){
     {page==="sold"&&<div style={{minHeight:"100vh",background:"#F0F0F0"}}>
       {/* Hero banner */}
       <div style={{background:"#1D1D1D",padding:"52px 40px 48px"}}>
-        <div style={{maxWidth:1180,margin:"0 auto"}}>
+        <div>
           <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em",borderRadius:8}}>← Back to Marketplace</button>
           <div style={{marginBottom:14,opacity:.9}}><WekaSokoLogo size={26}/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".12em",textTransform:"uppercase",color:"rgba(255,255,255,.55)",marginBottom:10}}>Sold Listings</div>
@@ -2968,7 +2951,7 @@ export default function App(){
         </div>
       </div>
       {/* Content */}
-      <div style={{maxWidth:1180,margin:"0 auto",padding:"44px 40px 80px"}}>
+      <div style={{padding:"44px 48px 80px"}}>
         <SoldSection token={token} user={user}/>
       </div>
     </div>}
