@@ -133,9 +133,9 @@ const CSS = `
   --r:12px;--rs:8px;
   --fn:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
-  --nav-h:60px;
+  --nav-h:66px;
 }
-body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
+body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:16px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 26px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.04em;text-transform:none;}
@@ -171,7 +171,7 @@ select.inp{appearance:none;cursor:pointer;}
 .mb{padding:22px 28px;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
 /* NAV */
-.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 48px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid #E6E6E6;padding:0 52px;height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;}
 .logo{cursor:pointer;display:flex;align-items:center;line-height:1;user-select:none;}
 .logo span{color:var(--a);}
 /* ALERTS */
@@ -188,7 +188,7 @@ select.inp{appearance:none;cursor:pointer;}
 .lthumb{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:var(--sh);position:relative;overflow:hidden;}
 .lthumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
 /* GRID */
-.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px;}
+.g3{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:24px;}
 .lvc{display:flex;flex-direction:column;gap:16px;}
 /* SPINNER */
 .spin{display:inline-block;width:20px;height:20px;border:2px solid #E5E5E5;border-top-color:var(--a);border-radius:50%;animation:sp .7s linear infinite;}
@@ -1136,10 +1136,10 @@ function ListingCard({listing:l,onClick,listView}){
       {l.status==="sold"&&<div className="sold-badge">SOLD ✓</div>}
       {l.locked_buyer_id&&!l.is_unlocked&&<div style={{position:"absolute",bottom:0,left:0,right:0,background:"#1D1D1D",color:"#fff",fontSize:10,fontWeight:700,padding:"5px 10px",letterSpacing:".04em",textTransform:"uppercase"}}>🔥 Buyer Interested</div>}
     </div>
-    <div style={{padding:"16px",flex:1}}>
-      <div style={{fontSize:11,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:"#888888",marginBottom:6}}>{l.category}</div>
-      <h4 style={{fontSize:14,fontWeight:700,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em"}}>{l.title}</h4>
-      <div style={{fontSize:20,fontWeight:700,color:"var(--a)",marginBottom:8,letterSpacing:"-.01em"}}>{fmtKES(l.price)}</div>
+    <div style={{padding:"18px 20px",flex:1}}>
+      <div style={{fontSize:12,fontWeight:700,letterSpacing:".06em",textTransform:"uppercase",color:"#888888",marginBottom:6}}>{l.category}</div>
+      <h4 style={{fontSize:15,fontWeight:700,lineHeight:1.3,marginBottom:8,letterSpacing:"-.01em"}}>{l.title}</h4>
+      <div style={{fontSize:22,fontWeight:700,color:"var(--a)",marginBottom:8,letterSpacing:"-.01em"}}>{fmtKES(l.price)}</div>
       {listView&&l.description&&<p style={{fontSize:13,color:"#888888",marginBottom:8,lineHeight:1.65}}>{l.description.slice(0,130)}...</p>}
       <div style={{display:"flex",gap:12,color:"#888888",fontSize:11,flexWrap:"wrap",borderTop:"1px solid #E8E8E8",paddingTop:8,marginTop:4}}>
         {l.location&&<span>📍 {l.location}</span>}
@@ -1583,7 +1583,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
   };
 
   return <div style={{background:"#FFFFFF",padding:"48px 40px",margin:"0 -40px",borderTop:"1px solid #EBEBEB",borderBottom:"1px solid #EBEBEB"}}>
-    <div style={{maxWidth:1180,margin:"0 auto"}}>
+    <div style={{maxWidth:1280,margin:"0 auto"}}>
       {/* Header */}
       <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
         <div>
@@ -1621,7 +1621,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
             <div key={r.id} style={{background:"#fff",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"3px solid #E0E0E0",borderRadius:12}}>
               {/* Header row */}
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
-                <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,letterSpacing:"-.01em",flex:1}}>{r.title}</div>
+                <div style={{fontWeight:700,fontSize:15,lineHeight:1.3,letterSpacing:"-.01em",flex:1}}>{r.title}</div>
                 {user?.id===r.user_id&&<button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#AEAEB2",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>}
               </div>
               {/* Description — expandable */}
@@ -2632,7 +2632,7 @@ export default function App(){
   return <>
     {/* NAV — dark bg, bright white bottom border */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#1428A0"}}><WekaSokoLogo size={36}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#1428A0"}}><WekaSokoLogo size={40}/></div>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
         <button className="bgh" style={{color:"#636363",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"var(--fn)",padding:"8px 14px"}} onClick={()=>setPage(p=>p==="sold"?"home":"sold")}>Sold Items</button>
         {user?<>
@@ -2641,7 +2641,7 @@ export default function App(){
             {notifCount>0&&<span className="notif-dot"/>}
           </button>
           {/* Post Ad — pearl white bg + dark text = visible on dark nav */}
-          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:6}} onClick={()=>{
+          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"9px 20px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8}} onClick={()=>{
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
                 api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
@@ -2651,28 +2651,32 @@ export default function App(){
           }}>+ Post Ad</button>
         </>:<>
           {/* Sign In — light grey bg + dark text = clearly visible on dark nav */}
-          <button style={{background:"transparent",color:"#1428A0",border:"1.5px solid #1428A0",padding:"8px 18px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
+          <button style={{background:"transparent",color:"#1428A0",border:"1.5px solid #1428A0",padding:"9px 20px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
           {/* Join Free — pure white bg + dark text = maximum visibility */}
-          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"8px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:6}} onClick={()=>setModal({type:"auth",mode:"signup"})}>Join Free</button>
+          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"9px 20px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8}} onClick={()=>setModal({type:"auth",mode:"signup"})}>Join Free</button>
         </>}
       </div>
     </nav>
 
-    {/* ── HERO — Samsung.com style ── */}
-    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#F4F4F4",padding:"72px 40px 64px",borderBottom:"1px solid #E5E5E5"}}>
-      <div style={{maxWidth:1180,margin:"0 auto",display:"flex",alignItems:"center",gap:48,flexWrap:"wrap"}}>
-        <div style={{flex:"1 1 420px"}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",marginBottom:16,color:"#767676"}}>🇰🇪 Kenya's Resell Platform</div>
-          <h1 style={{fontSize:"clamp(36px,5.5vw,64px)",fontWeight:700,letterSpacing:"-.02em",lineHeight:1.0,marginBottom:20,color:"#1D1D1D",fontFamily:"var(--fn)"}}>
+    {/* ── HERO + CATEGORIES side by side ── */}
+    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#FFFFFF",borderBottom:"1px solid #EBEBEB"}}>
+      <div style={{display:"flex",alignItems:"stretch",minHeight:460}}>
+
+        {/* LEFT — hero text */}
+        <div style={{flex:"0 0 44%",padding:"60px 52px 52px",display:"flex",flexDirection:"column",justifyContent:"center",borderRight:"1px solid #EBEBEB",background:"#fff"}}>
+          <div style={{fontSize:13,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",marginBottom:18,color:"#1428A0"}}>
+            🇰🇪 Kenya's Resell Platform
+          </div>
+          <h1 style={{fontSize:"clamp(32px,3.5vw,50px)",fontWeight:800,letterSpacing:"-.02em",lineHeight:1.12,marginBottom:20,color:"#1A1A1A",fontFamily:"var(--fn)"}}>
             Post Free.<br/>
             <span style={{color:"#1428A0"}}>Pay Only When</span><br/>
             You Get a Buyer.
           </h1>
-          <p style={{fontSize:16,color:"#767676",lineHeight:1.7,marginBottom:28,maxWidth:440,fontWeight:400}}>
+          <p style={{fontSize:17,color:"#636363",lineHeight:1.8,marginBottom:34,fontWeight:400}}>
             List items in minutes with photos. Pay KSh 250 only when a serious buyer locks in to buy.
           </p>
-          <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:24}}>
-            <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,letterSpacing:".01em",transition:"background .15s"}}
+          <div style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:28}}>
+            <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"16px 34px",fontSize:16,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:10,transition:"background .15s",boxShadow:"0 4px 14px rgba(20,40,160,.25)"}}
               onMouseOver={e=>e.currentTarget.style.background="#0F1F8A"} onMouseOut={e=>e.currentTarget.style.background="#1428A0"}
               onClick={()=>{
                 if(!user){setModal({type:"auth",mode:"signup"});return;}
@@ -2686,70 +2690,81 @@ export default function App(){
                   return;
                 }
                 setModal({type:"post"});
-              }}>Post an Ad for Free</button>
-            <button style={{background:"transparent",color:"#1D1D1D",border:"1px solid #1D1D1D",padding:"13px 28px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,transition:"all .15s"}}
-              onMouseOver={e=>{e.currentTarget.style.background="#1D1D1D";e.currentTarget.style.color="#fff";}} onMouseOut={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#1D1D1D";}}
+              }}>+ Post an Ad for Free</button>
+            <button style={{background:"#fff",color:"#1A1A1A",border:"1.5px solid #D0D0D0",padding:"16px 30px",fontSize:16,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:10,transition:"all .15s"}}
+              onMouseOver={e=>{e.currentTarget.style.borderColor="#1428A0";e.currentTarget.style.color="#1428A0";}} onMouseOut={e=>{e.currentTarget.style.borderColor="#D0D0D0";e.currentTarget.style.color="#1A1A1A";}}
               onClick={()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"})}>Browse Listings</button>
           </div>
-          <div style={{display:"flex",gap:24,fontSize:12,color:"#767676",fontWeight:500}}>
-            <span>✓ 100% free to post</span><span>✓ Safe anonymous chat</span><span>✓ M-Pesa escrow</span>
+          <div style={{display:"flex",gap:22,fontSize:14,color:"#888",fontWeight:500,flexWrap:"wrap"}}>
+            <span style={{display:"flex",alignItems:"center",gap:7}}><span style={{color:"#1428A0",fontWeight:800,fontSize:16}}>✓</span>Free to post</span>
+            <span style={{display:"flex",alignItems:"center",gap:7}}><span style={{color:"#1428A0",fontWeight:800,fontSize:16}}>✓</span>Anonymous chat</span>
+            <span style={{display:"flex",alignItems:"center",gap:7}}><span style={{color:"#1428A0",fontWeight:800,fontSize:16}}>✓</span>M-Pesa escrow</span>
           </div>
         </div>
-        <div style={{flex:"0 0 auto",background:"#fff",border:"1px solid #E5E5E5",padding:"28px 32px",minWidth:240,borderRadius:16}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:20}}>Platform Stats</div>
-          {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
-            <div key={s.label} style={{paddingBottom:16,marginBottom:16,borderBottom:i<3?"1px solid #F0F0F0":"none"}}>
-              <div style={{fontSize:28,fontWeight:700,color:"#1D1D1D",lineHeight:1,letterSpacing:"-.02em"}}><Counter to={s.val}/></div>
-              <div style={{fontSize:12,color:"#767676",marginTop:3,fontWeight:500}}>{s.label}</div>
-            </div>
-          ))}
+
+        {/* RIGHT — OLX-style categories with real images */}
+        <div style={{flex:1,padding:"40px 40px 36px",background:"#FAFAFA",overflowY:"auto"}}>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:6}}>Browse by Category</div>
+          <h2 style={{fontSize:22,fontWeight:700,color:"#1A1A1A",marginBottom:24,letterSpacing:"-.01em",fontFamily:"var(--fn)"}}>What are you looking for?</h2>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(88px,1fr))",gap:10}}>
+            {CATS.map(c=>{
+              const photoMap={
+                Electronics:"https://images.unsplash.com/photo-1498049794561-7780e7231661?w=140&h=140&fit=crop&crop=center",
+                Vehicles:"https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=140&h=140&fit=crop&crop=center",
+                Property:"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=140&h=140&fit=crop&crop=center",
+                Fashion:"https://images.unsplash.com/photo-1483985988355-763728e1935b?w=140&h=140&fit=crop&crop=center",
+                Furniture:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=140&h=140&fit=crop&crop=center",
+                "Home & Garden":"https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=140&h=140&fit=crop&crop=center",
+                Sports:"https://images.unsplash.com/photo-1517649763962-0c623066013b?w=140&h=140&fit=crop&crop=center",
+                "Baby & Kids":"https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=140&h=140&fit=crop&crop=center",
+                Books:"https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=140&h=140&fit=crop&crop=center",
+                Agriculture:"https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=140&h=140&fit=crop&crop=center",
+                Services:"https://images.unsplash.com/photo-1504148455328-c376907d081c?w=140&h=140&fit=crop&crop=center",
+                Jobs:"https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=140&h=140&fit=crop&crop=center",
+                Food:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=140&h=140&fit=crop&crop=center",
+                "Health & Beauty":"https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=140&h=140&fit=crop&crop=center",
+                Pets:"https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=140&h=140&fit=crop&crop=center",
+                Other:"https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=140&h=140&fit=crop&crop=center",
+              };
+              const photo=photoMap[c.name]||photoMap.Other;
+              const active=filter.cat===c.name;
+              return <div key={c.name}
+                onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);setTimeout(()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"}),100);}}
+                style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,padding:"12px 4px",cursor:"pointer",borderRadius:14,background:active?"#EEF2FF":"#fff",border:`1.5px solid ${active?"#1428A0":"#EBEBEB"}`,transition:"all .15s",boxShadow:active?"0 0 0 2px rgba(20,40,160,.1)":"none"}}>
+                <div style={{width:62,height:62,borderRadius:"50%",overflow:"hidden",flexShrink:0,border:`2.5px solid ${active?"#1428A0":"#E5E5E5"}`,boxShadow:"0 2px 8px rgba(0,0,0,.1)"}}>
+                  <img src={photo} alt={c.name} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                </div>
+                <div style={{fontSize:11,fontWeight:600,color:active?"#1428A0":"#333",textAlign:"center",lineHeight:1.3,wordBreak:"break-word"}}>{c.name}</div>
+              </div>;
+            })}
+          </div>
         </div>
       </div>
-    </div>}
 
-    {/* ── TRUST BAR ── */}
-    {page!=="dashboard"&&page!=="sold"&&<div style={{background:"#fff",borderBottom:"1px solid #E5E5E5",padding:"14px 40px"}}>
-      <div style={{maxWidth:1180,margin:"0 auto",display:"flex",gap:32,flexWrap:"wrap",alignItems:"center",justifyContent:"center"}}>
+      {/* Trust bar */}
+      <div style={{background:"#1428A0",padding:"14px 48px",display:"flex",gap:40,alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
         {["Free to list","Safe anonymous chat","M-Pesa escrow","Kenyan platform"].map(t=>(
-          <span key={t} style={{fontSize:12,fontWeight:600,color:"#535353",display:"flex",alignItems:"center",gap:6}}>
-            <span style={{color:"#1D1D1D",fontSize:14}}>✓</span>{t}
+          <span key={t} style={{fontSize:14,fontWeight:600,color:"rgba(255,255,255,.92)",display:"flex",alignItems:"center",gap:8}}>
+            <span style={{color:"#fff",fontSize:16,fontWeight:800}}>✓</span>{t}
           </span>
         ))}
       </div>
     </div>}
 
-    {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:1180,margin:"0 auto",padding:"48px 40px 80px"}}>
-
-      {/* CATEGORIES */}
-      <div style={{marginBottom:52}}>
-        <div style={{marginBottom:20}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:8}}>Categories</div>
-          <h2 style={{fontSize:26,fontWeight:700,letterSpacing:"-.02em",color:"#1D1D1D"}}>What are you looking for?</h2>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(100px,1fr))",gap:8}}>
-          {CATS.map(c=>(
-            <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);setTimeout(()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"}),100);}}
-              style={{background:filter.cat===c.name?"#EEF2FF":"#F4F4F4",color:filter.cat===c.name?"#1428A0":"#1D1D1D",padding:"16px 8px",textAlign:"center",cursor:"pointer",transition:"all .15s",border:filter.cat===c.name?"2px solid #1428A0":"1px solid #E0E0E0"}}>
-              <div style={{fontSize:22,marginBottom:5}}>{c.icon}</div>
-              <div style={{fontSize:11,fontWeight:700,lineHeight:1.3}}>{c.name}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
+    {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:1280,margin:"0 auto",padding:"48px 48px 80px"}}>
       {/* WHAT BUYERS WANT */}
       <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setModal({type:'post'});}}/>
       <div style={{height:52}}/>
 
       {/* SEARCH BAR */}
       <div id="listings-section" style={{marginBottom:36}}>
-        <div style={{display:"flex",border:"1px solid #E0E0E0",marginBottom:12,background:"#fff"}}>
-          <input style={{flex:1,padding:"13px 18px",border:"none",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"transparent",color:"#1D1D1D"}} placeholder="🔍  Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
-          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:150}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
+        <div style={{display:"flex",border:"1.5px solid #D5D5D5",marginBottom:16,background:"#fff",borderRadius:12,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.06)"}}>
+          <input style={{flex:1,padding:"14px 20px",border:"none",outline:"none",fontSize:15,fontFamily:"var(--fn)",background:"transparent",color:"#1D1D1D"}} placeholder="🔍  Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
+          <select style={{padding:"14px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:160}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
             <option value="">All Counties</option>
             {counties.map(c=><option key={c} value={c}>{c}</option>)}
           </select>
-          <select style={{padding:"13px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:13,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:140}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
+          <select style={{padding:"14px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:150}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
             <option value="price_asc">Price ↑</option>
@@ -2782,7 +2797,7 @@ export default function App(){
 
       {/* LISTINGS HEADER */}
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:14,borderBottom:"2px solid #E5E5E5"}}>
-        <h2 style={{fontSize:18,fontWeight:700,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
+        <h2 style={{fontSize:20,fontWeight:700,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
         <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676"}}>Page {pg} / {Math.ceil(total/PER_PAGE)||1}</div>
       </div>
 
@@ -2791,6 +2806,16 @@ export default function App(){
         :<div className={vm==="grid"?"g3":"lvc"}>{listings.map(l=><ListingCard key={l.id} listing={l} onClick={()=>openListing(l)} listView={vm==="list"}/>)}</div>}
 
       <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
+
+      {/* PLATFORM STATS — bottom strip */}
+      <div style={{background:"#1428A0",borderRadius:16,padding:"40px 48px",marginBottom:64,display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,textAlign:"center"}}>
+        {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Registered Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
+          <div key={s.label} style={{padding:"0 24px",borderRight:i<3?"1px solid rgba(255,255,255,.2)":"none"}}>
+            <div style={{fontSize:40,fontWeight:800,color:"#fff",lineHeight:1,fontFamily:"var(--fn)"}}><Counter to={s.val}/></div>
+            <div style={{fontSize:14,fontWeight:500,color:"rgba(255,255,255,.7)",marginTop:8,letterSpacing:".02em"}}>{s.label}</div>
+          </div>
+        ))}
+      </div>
 
       {/* HOW IT WORKS — Samsung Learn section style */}
       <div style={{marginTop:80,paddingTop:64,borderTop:"2px solid #CCCCCC"}}>
@@ -2807,8 +2832,8 @@ export default function App(){
             ["🏆","Deal Done","Leave a review. Build your seller reputation on the platform."]].map(([icon,title,desc])=>(
             <div key={title} style={{background:"#F4F4F4",padding:"28px 24px"}}>
               <div style={{fontSize:28,marginBottom:14}}>{icon}</div>
-              <div style={{fontWeight:700,fontSize:15,marginBottom:8,letterSpacing:"-.01em",color:"#111111"}}>{title}</div>
-              <div style={{fontSize:13,color:"#767676",lineHeight:1.75}}>{desc}</div>
+              <div style={{fontWeight:700,fontSize:16,marginBottom:10,letterSpacing:"-.01em",color:"#1A1A1A"}}>{title}</div>
+              <div style={{fontSize:15,color:"#636363",lineHeight:1.75}}>{desc}</div>
             </div>
           ))}
         </div>
