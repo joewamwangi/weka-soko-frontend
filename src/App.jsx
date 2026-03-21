@@ -2297,7 +2297,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       </div>}
       <div style={{maxWidth:680}}>
         {notifs.map((n,i)=>(
-          <div key={i} onClick={()=>{markRead(n.id);if(n.data){try{const d=JSON.parse(n.data);if(n.type==="listing_match"||n.type==="listing_approved"){setModal({type:"notification_detail",notification:n,listing:{id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null}});}else{console.log("Notification type",n.type,"not yet handled");}}catch(err){console.error("Error parsing notification:",err);}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+          <div key={i} onClick={()=>{markRead(n.id);if(n.data){try{const d=JSON.parse(n.data);if(n.type==="listing_match"||n.type==="listing_approved"){const listingData={id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null};console.log("Setting modal with:",{type:"notification_detail",notification:n,listing:listingData});setModal({type:"notification_detail",notification:n,listing:listingData});}else{console.log("Notification type",n.type,"not yet handled");}}catch(err){console.error("Error parsing notification:",err);}}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
@@ -2956,7 +2956,7 @@ export default function App(){
       onUnlock={()=>setModal({type:"pay",payType:"unlock",listing:modal.listing})}
       onEscrow={()=>{if(!user){notify("Sign in first","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"pay",payType:"escrow",listing:modal.listing});}}
     />}
-    {modal?.type==="notification_detail"&&modal?.notification&&modal?.listing&&<Modal title="📦 Listing Details" onClose={()=>setModal(null)}>
+    {modal?.type==="notification_detail"&&<Modal title="📦 Listing Details" onClose={()=>setModal(null)}>
       <div style={{maxWidth:500}}>
         <div style={{marginBottom:20}}>
           <h2 style={{fontSize:18,fontWeight:700,marginBottom:8}}>{modal.listing.title}</h2>
