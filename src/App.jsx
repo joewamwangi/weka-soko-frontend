@@ -2298,7 +2298,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
       </div>}
       <div style={{maxWidth:680}}>
         {notifs.map((n,i)=>(
-          <div key={i} onClick={()=>handleNotificationClick(n)} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
+          <div key={i} onClick={async()=>{await markRead(n.id);if(n.data){const d=typeof n.data==="string"?JSON.parse(n.data):n.data;if(d?.listing_id){const listingData={id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null};setModal({type:"notification_detail",notification:n,listing:listingData});}}} style={{display:"flex",gap:14,padding:"16px 0",borderBottom:"1px solid #F5F5F5",cursor:"pointer",opacity:n.is_read?.7:1,transition:"opacity .15s"}}
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F4F4F4":"rgba(20,40,160,.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
@@ -2552,20 +2552,6 @@ export default function App(){
   const [toast,setToast]=useState(null);
   const [modal,setModal]=useState(null);
 
-  const handleNotificationClick=(n)=>{
-    markRead(n.id);
-    if(n.data){
-      try{
-        const d=typeof n.data==="string"?JSON.parse(n.data):n.data;
-        if(d?.listing_id){
-          const listingData={id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null};
-          setModal({type:"notification_detail",notification:n,listing:listingData});
-        }
-      }catch(err){
-        console.error("Error handling notification:",err);
-      }
-    }
-  };
   const [showPWA,setShowPWA]=useState(true);
   const [notifCount,setNotifCount]=useState(0);
   const socketRef=useRef(null);
