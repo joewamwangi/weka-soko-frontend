@@ -2303,8 +2303,11 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                 if(n.data){
                   try{
                     const d=typeof n.data==="string"?JSON.parse(n.data):n.data;
+                    console.log("Parsed data type:",typeof d);
                     console.log("Parsed data:",d);
-                    if(d.listing_id){  // Handle any notification with listing data
+                    console.log("listing_id value:",d?.listing_id);
+                    console.log("listing_id exists?",d?.listing_id!==undefined);
+                    if(d?.listing_id){  // Handle any notification with listing data
                       const listingData={id:d.listing_id||"unknown",title:d.listing_title||"Listing",description:d.listing_description||"",price:d.listing_price||0,seller_id:d.seller_id,is_unlocked:d.is_unlocked||false,locked_buyer_id:d.locked_buyer_id||null};
                       const modalData={type:"notification_detail",notification:n,listing:listingData};
                       console.log("Setting modal:",modalData);
