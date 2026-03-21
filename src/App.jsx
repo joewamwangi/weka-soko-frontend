@@ -130,7 +130,7 @@ const CSS = `
   --bg:#FFFFFF;--surf:#FFFFFF;--sh:#F6F6F6;--border:#E6E6E6;
   --a:#1428A0;--a2:#0F1F8A;--gold:#8B6400;--red:#C03030;--blue:#1428A0;
   --txt:#1D1D1D;--mut:#636363;--dim:#ADADAD;
-  --r:2px;--rs:2px;
+  --r:12px;--rs:8px;
   --fn:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --fs:'SamsungSharpSans','Helvetica Neue',Helvetica,Arial,sans-serif;
   --nav-h:60px;
@@ -138,7 +138,7 @@ const CSS = `
 body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;line-height:1.55;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:#CCCCCC;}::-webkit-scrollbar-thumb:hover{background:#AAAAAA;}
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 26px;border-radius:0;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.04em;text-transform:none;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 26px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:background .15s,color .15s,border-color .15s;white-space:nowrap;font-family:var(--fn);letter-spacing:.04em;text-transform:none;}
 .btn:disabled{opacity:.4;cursor:not-allowed;}
 .bp{background:#1428A0;color:#fff;border:2px solid #1428A0;}.bp:hover:not(:disabled){background:#0F1F8A;border-color:#0F1F8A;}
 .bs{background:transparent;color:var(--txt);border:1.5px solid var(--txt);}.bs:hover:not(:disabled){background:var(--txt);color:#fff;}
@@ -147,7 +147,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--fn);font-size:15px;
 .br2{background:transparent;color:var(--red);border:1px solid var(--red);}.br2:hover:not(:disabled){background:var(--red);color:#fff;}
 .sm{padding:8px 18px;font-size:12px;letter-spacing:.04em;}.lg{padding:14px 36px;font-size:15px;letter-spacing:.04em;}
 /* INPUTS */
-.inp{width:100%;padding:11px 16px;background:#fff;border:1px solid #D9D9D9;border-radius:0;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;letter-spacing:.01em;}
+.inp{width:100%;padding:11px 16px;background:#fff;border:1px solid #D9D9D9;border-radius:8px;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;letter-spacing:.01em;}
 .inp:focus{border-color:#1428A0;outline:none;}
 .inp::placeholder{color:#AEAEB2;}
 textarea.inp{resize:vertical;min-height:90px;}
@@ -155,7 +155,7 @@ select.inp{appearance:none;cursor:pointer;}
 /* LABELS */
 .lbl{display:block;font-size:11px;font-weight:700;color:#636363;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 /* BADGES */
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.04em;}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.04em;}
 .bg-g{background:#F0F0F0;color:var(--a);}
 .bg-y{background:rgba(176,127,16,.1);color:#8B6400;}
 .bg-r{background:rgba(192,48,48,.1);color:var(--red);}
@@ -163,11 +163,11 @@ select.inp{appearance:none;cursor:pointer;}
 .bg-m{background:var(--sh);color:var(--mut);}
 /* MODALS */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px);}
-.mod{background:#fff;border:1px solid #E0E0E0;border-radius:0;width:100%;max-width:540px;max-height:94vh;overflow-y:auto;animation:su .18s ease;box-shadow:0 8px 40px rgba(0,0,0,.14);}
+.mod{background:#fff;border:1px solid #E0E0E0;border-radius:16px;width:100%;max-width:540px;max-height:94vh;overflow-y:auto;animation:su .18s ease;box-shadow:0 8px 40px rgba(0,0,0,.14);}
 .mod.lg{max-width:720px;}
 .mod.xl{max-width:900px;}
 @keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;}
+.mh{padding:20px 28px 16px;border-bottom:1px solid #E6E6E6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;border-radius:16px 16px 0 0;}
 .mb{padding:22px 28px;}
 .mf{padding:14px 28px 22px;border-top:1px solid #E6E6E6;display:flex;gap:8px;justify-content:flex-end;}
 /* NAV */
@@ -180,8 +180,8 @@ select.inp{appearance:none;cursor:pointer;}
 .ay{background:rgba(139,100,0,.04);border-left:3px solid #8B6400;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#8B6400;}
 .ar{background:rgba(192,48,48,.04);border-left:3px solid #C03030;border-top:none;border-right:none;border-bottom:none;padding-left:14px;color:#C03030;}
 /* CARDS */
-.card{background:var(--surf);border:1px solid var(--border);border-radius:8px;}
-.lcard{background:#fff;border:1px solid #EBEBEB;border-radius:0;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:12px;}
+.lcard{background:#fff;border:1px solid #EBEBEB;border-radius:12px;overflow:hidden;transition:border-color .2s,box-shadow .2s;cursor:pointer;}
 .lcard:hover{border-color:#1428A0;box-shadow:0 4px 20px rgba(0,0,0,.08);}.lcard:hover .lthumb img{transform:scale(1.03);}
 .lcard-list{display:flex;flex-direction:row;}
 .lcard-list .lthumb{width:200px;min-width:200px;height:160px;aspect-ratio:unset;}
@@ -196,15 +196,15 @@ select.inp{appearance:none;cursor:pointer;}
 .empty{text-align:center;padding:80px 20px;color:var(--mut);}
 /* PAGINATION */
 .pg{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:40px;flex-wrap:wrap;}
-.pb{min-width:38px;height:38px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:0;border:1px solid #E0E0E0;background:#fff;color:#636363;cursor:pointer;font-size:13px;font-weight:700;transition:all .14s;letter-spacing:.02em;}
+.pb{min-width:38px;height:38px;padding:0 10px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid #E0E0E0;background:#fff;color:#636363;cursor:pointer;font-size:13px;font-weight:700;transition:all .14s;letter-spacing:.02em;}
 .pb.on{background:#1428A0;color:#fff;border-color:#1428A0;}
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border:1px solid #E6E6E6;border-radius:0;padding:14px 18px;font-size:14px;font-family:var(--fn);box-shadow:0 4px 24px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:3px solid #1428A0;}
+.toast{position:fixed;bottom:24px;right:24px;z-index:2000;background:#fff;border:1px solid #E6E6E6;border-radius:12px;padding:14px 18px;font-size:14px;font-family:var(--fn);box-shadow:0 4px 24px rgba(0,0,0,.12);animation:ti .18s ease;display:flex;align-items:center;gap:10px;max-width:360px;border-left:3px solid #1428A0;}
 @keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 /* SOLD BADGE */
 .sold-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
 /* IMAGE UPLOAD */
-.img-upload{border:2px dashed #C7C7CC;border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAFA;}
+.img-upload{border:2px dashed #C7C7CC;border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all .15s;background:#FAFAFA;}
 .img-upload:hover{border-color:var(--a);background:rgba(20,40,160,.02);}
 .img-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;}
 .img-thumb{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;background:var(--sh);}
@@ -213,21 +213,21 @@ select.inp{appearance:none;cursor:pointer;}
 /* CHAT */
 .chat-wrap{display:flex;flex-direction:column;height:480px;}
 .chat-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#F4F4F4;border-radius:8px 8px 0 0;}
-.chat-msg{max-width:72%;padding:10px 14px;border-radius:4px;font-size:14px;line-height:1.55;font-family:var(--fn);}
-.chat-msg.me{align-self:flex-end;background:#1428A0;color:#fff;border-radius:4px 4px 0 4px;}
-.chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E6E6E6;border-radius:4px 4px 4px 0;}
+.chat-msg{max-width:72%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55;font-family:var(--fn);}
+.chat-msg.me{align-self:flex-end;background:#1428A0;color:#fff;border-radius:16px 16px 4px 16px;}
+.chat-msg.them{align-self:flex-start;background:#fff;border:1px solid #E6E6E6;border-radius:16px 16px 16px 4px;}
 .chat-msg.blocked{opacity:.5;font-style:italic;}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#fff;border-radius:0 0 8px 8px;}
 /* TABS */
 .tab-row{display:flex;gap:0;background:transparent;border-bottom:1px solid #E5E5E5;padding:0;overflow-x:auto;margin-bottom:24px;}
-.tab{padding:14px 22px;border-radius:0;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s;color:#9E9E9E;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab{padding:14px 22px;border-radius:8px 8px 0 0;font-size:13px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:color .15s,border-color .15s;color:#9E9E9E;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px;}
 .tab.on{color:#1428A0;border-bottom-color:#1428A0;}
 /* NOTIF DOT */
 .notif-dot{position:absolute;top:-3px;right:-3px;width:8px;height:8px;background:#FF3B30;border-radius:50%;border:2px solid #fff;}
 /* STAT CARD */
-.stat-card{background:#F4F4F4;border:none;border-radius:8px;padding:20px;}
+.stat-card{background:#F4F4F4;border:none;border-radius:12px;padding:20px;}
 /* PROGRESS */
-.progress{height:4px;background:#E5E5E5;border-radius:2px;overflow:hidden;margin-top:8px;}
+.progress{height:4px;background:#E5E5E5;border-radius:4px;overflow:hidden;margin-top:8px;}
 .progress-bar{height:100%;background:var(--a);border-radius:2px;transition:width .6s ease;}
 /* TIMELINE */
 .timeline-item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #F0F0F0;}
@@ -472,7 +472,7 @@ function Lightbox({photos,startIdx,onClose}){
     <div style={{position:"absolute",top:20,left:"50%",transform:"translateX(-50%)",color:"rgba(255,255,255,.7)",fontSize:13,zIndex:10}}>{idx+1} / {photos.length}</div>
     <div onClick={e=>e.stopPropagation()} style={{display:"flex",alignItems:"center",justifyContent:"center",maxWidth:"92vw",maxHeight:"82vh"}}>
       <WatermarkedImage src={photos[idx]} alt=""
-        style={{maxWidth:"92vw",maxHeight:"82vh",objectFit:"contain",borderRadius:4,boxShadow:"0 8px 40px rgba(0,0,0,.6)",display:"block"}}/>
+        style={{maxWidth:"92vw",maxHeight:"82vh",objectFit:"contain",borderRadius:8,boxShadow:"0 8px 40px rgba(0,0,0,.6)",display:"block"}}/>
     </div>
     {photos.length>1&&<>
       <button onClick={e=>{e.stopPropagation();prev();}} style={{position:"absolute",left:16,top:"50%",transform:"translateY(-50%)",background:"rgba(255,255,255,.15)",border:"none",color:"#fff",fontSize:28,width:50,height:50,borderRadius:"50%",cursor:"pointer",zIndex:10}}>‹</button>
@@ -480,7 +480,7 @@ function Lightbox({photos,startIdx,onClose}){
     </>}
     {photos.length>1&&<div style={{position:"absolute",bottom:20,display:"flex",gap:8,overflowX:"auto",maxWidth:"90vw",padding:"0 8px",zIndex:10}}>
       {photos.map((p,i)=><img key={i} src={p} alt="" onClick={e=>{e.stopPropagation();setIdx(i);}}
-        style={{width:56,height:44,objectFit:"cover",borderRadius:4,cursor:"pointer",opacity:i===idx?1:.45,border:i===idx?"2px solid #fff":"2px solid transparent",flexShrink:0,transition:"opacity .2s"}}/>)}
+        style={{width:56,height:44,objectFit:"cover",borderRadius:8,cursor:"pointer",opacity:i===idx?1:.45,border:i===idx?"2px solid #fff":"2px solid transparent",flexShrink:0,transition:"opacity .2s"}}/>)}
     </div>}
   </div>;
 }
@@ -556,7 +556,7 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
         <strong style={{color:"var(--txt)"}}>{verifyEmail}</strong><br/><br/>
         Click the link in that email to activate your account. It expires in 24 hours.
       </p>
-      <div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:"12px 16px",fontSize:12,color:"#111111",marginBottom:20,textAlign:"left"}}>
+      <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"12px 16px",fontSize:12,color:"#111111",marginBottom:20,textAlign:"left"}}>
         <strong>Can't find the email?</strong> Check your spam or junk folder.<br/>
         Make sure you signed up with <strong>{verifyEmail}</strong>.
       </div>
@@ -582,7 +582,7 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
         ?<button className="btn bp" style={{marginBottom:12}} onClick={()=>resendVerification(unverifiedEmail)} disabled={resendLoading}>
             {resendLoading?<Spin/>:"Resend verification email"}
           </button>
-        :<div style={{marginBottom:12,padding:"10px 14px",background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,fontSize:13,color:"#111111"}}>
+        :<div style={{marginBottom:12,padding:"10px 14px",background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,fontSize:13,color:"#111111"}}>
             ✅ Email sent! Click the link in your inbox to activate your account.
           </div>}
       <button className="btn bgh" style={{display:"block",margin:"0 auto"}} onClick={()=>setUnverifiedEmail(null)}>← Back to Sign In</button>
@@ -633,7 +633,7 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
       const label=score<=2?"Weak":score===3?"Fair":score===4?"Good":"Strong";
       return <div style={{marginTop:-10,marginBottom:12}}>
         <div style={{display:"flex",gap:4,marginBottom:6}}>
-          {[1,2,3,4,5].map(i=><div key={i} style={{flex:1,height:3,borderRadius:2,background:i<=score?color:"#E8E8E8",transition:"background .2s"}}/>)}
+          {[1,2,3,4,5].map(i=><div key={i} style={{flex:1,height:3,borderRadius:8,background:i<=score?color:"#E8E8E8",transition:"background .2s"}}/>)}
         </div>
         <div style={{fontSize:11,color,fontWeight:600}}>{label} password</div>
         <div style={{fontSize:11,color:"#CCCCCC",marginTop:3}}>
@@ -760,10 +760,10 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
   return <Modal title={type==="unlock"?"🔓 Unlock Buyer Contact":"🔐 Escrow Payment"} onClose={onClose}>
     {step==="form"&&<>
       {/* Seller safety tip — shown only on unlock */}
-      {type==="unlock"&&<div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:"11px 14px",marginBottom:16,fontSize:12,color:"#111111",lineHeight:1.7}}>
+      {type==="unlock"&&<div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"11px 14px",marginBottom:16,fontSize:12,color:"#111111",lineHeight:1.7}}>
         <strong>🛡️ Seller tip:</strong> Once you unlock, you'll see the buyer's contact details. <strong>Do not hand over the item until payment is confirmed.</strong> Use Escrow for full protection — funds are held by Weka Soko until the buyer receives and confirms the item.
       </div>}
-      <div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.1)",borderRadius:6,padding:"18px 20px",marginBottom:18}}>
+      <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"18px 20px",marginBottom:18}}>
         <div style={{fontSize:11,color:"#888888",marginBottom:4}}>Till Number <strong style={{color:"var(--txt)"}}>5673935</strong> · Weka Soko</div>
         <div style={{display:"flex",alignItems:"baseline",gap:12,flexWrap:"wrap"}}>
           <div style={{fontSize:36,fontWeight:700,color:"#111111"}}>{fmtKES(finalAmt)}</div>
@@ -792,7 +792,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
             </div>
           </FF>
           {/* Safety tip before payment */}
-          <div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:"10px 13px",marginBottom:12,fontSize:12,color:"#333333",lineHeight:1.65}}>
+          <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"10px 13px",marginBottom:12,fontSize:12,color:"#333333",lineHeight:1.65}}>
             <strong>⚠️ Security reminder:</strong> This KSh 250 is paid to <strong>Weka Soko Till 5673935</strong> only. We will <strong>never</strong> ask you to send money to a seller's personal number before meeting. If anyone does, report it immediately.
           </div>
           <button className="btn bp lg" style={{width:"100%"}} onClick={startPayment} disabled={phone.length<10}>
@@ -1312,7 +1312,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
             onClick={()=>setLightbox({photos,idx:photos.indexOf(mainPhoto)<0?0:photos.indexOf(mainPhoto)})}/>
         :<span style={{fontSize:80,opacity:.15}}>📦</span>}
       {/* Zoom hint */}
-      {mainPhoto&&<div style={{position:"absolute",bottom:10,right:10,background:"rgba(0,0,0,.45)",color:"#fff",fontSize:11,padding:"4px 10px",borderRadius:20,pointerEvents:"none"}}>🔍 Click to enlarge</div>}
+      {mainPhoto&&<div style={{position:"absolute",bottom:10,right:10,background:"rgba(0,0,0,.45)",color:"#fff",fontSize:11,padding:"4px 10px",borderRadius:80,pointerEvents:"none"}}>🔍 Click to enlarge</div>}
       {l.status==="sold"&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,.4)",display:"flex",alignItems:"center",justifyContent:"center",pointerEvents:"none"}}><div style={{background:"#111111",color:"#fff",padding:"8px 28px",borderRadius:6,fontWeight:600,fontSize:18,letterSpacing:".08em"}}>SOLD ✓</div></div>}
     </div>
     {photos.length>1&&<div style={{display:"flex",gap:6,marginBottom:16,overflowX:"auto"}}>
@@ -1345,7 +1345,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
     <div style={{marginBottom:16}}>
       <div className="lbl">Seller</div>
       {l.is_unlocked
-        ?<div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:"16px 18px"}}>
+        ?<div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"16px 18px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}>
             <span style={{fontSize:18}}>🔓</span>
             <div>
@@ -1392,7 +1392,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
             <div style={{fontWeight:600}}>{l.seller_anon||"Anonymous Seller"}</div>
             <div style={{fontSize:12,color:"#888888"}}>Pay KSh 250 to reveal contact details</div>
             <div style={{display:"flex",gap:6,marginTop:5,flexWrap:"wrap",alignItems:"center"}}>
-              {l.seller_avg_rating>0&&<span style={{fontSize:11,background:"rgba(0,0,0,.05)",color:"#1428A0",padding:"2px 8px",borderRadius:20,fontWeight:700}}>
+              {l.seller_avg_rating>0&&<span style={{fontSize:11,background:"rgba(0,0,0,.05)",color:"#1428A0",padding:"2px 8px",borderRadius:80,fontWeight:700}}>
                 ★ {Number(l.seller_avg_rating).toFixed(1)} ({l.seller_review_count||0} review{l.seller_review_count!==1?"s":""})
               </span>}
               {(!l.seller_avg_rating||l.seller_avg_rating===0)&&<span style={{fontSize:11,color:"#CCCCCC"}}>No reviews yet</span>}
@@ -1409,7 +1409,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
     </div>
 
     {/* ── Buyer safety tip ───────────────────────────────────────────── */}
-    {!isSeller&&l.status==="active"&&<div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:"12px 14px",marginBottom:10}}>
+    {!isSeller&&l.status==="active"&&<div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"12px 14px",marginBottom:10}}>
       <div style={{fontSize:12,fontWeight:700,color:"#111111",marginBottom:4}}>🛡️ Stay Safe on Weka Soko</div>
       <div style={{fontSize:12,color:"#888888",lineHeight:1.7}}>
         • <strong>Never pay outside this platform.</strong> If a seller asks for M-Pesa directly before you've met, that's a scam.<br/>
@@ -1591,7 +1591,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
           <h2 style={{fontSize:"clamp(24px,3vw,36px)",fontWeight:500,letterSpacing:"-.01em",color:"#1D1D1D",fontFamily:"var(--fn)",lineHeight:1.1}}>🛒 What Buyers Want</h2>
           <p style={{fontSize:13,color:"#767676",marginTop:6}}>{total} active request{total!==1?"s":" "} from buyers looking for items</p>
         </div>
-        <button style={{background:"#1D1D1D",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:4,whiteSpace:"nowrap"}}
+        <button style={{background:"#1D1D1D",color:"#fff",border:"none",padding:"12px 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,whiteSpace:"nowrap"}}
           onClick={()=>{if(!user){onSignIn();return;}setShowModal(true);}}>
           + Post a Request
         </button>
@@ -1618,7 +1618,7 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
           </div>
         :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(280px,1fr))",gap:12}}>
           {requests.map(r=>(
-            <div key={r.id} style={{background:"#fff",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"3px solid #E0E0E0"}}>
+            <div key={r.id} style={{background:"#fff",border:"1px solid #E5E5E5",padding:"18px 20px",position:"relative",transition:"border-color .15s",borderLeft:"3px solid #E0E0E0",borderRadius:12}}>
               {/* Header row */}
               <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:8,gap:8}}>
                 <div style={{fontWeight:700,fontSize:14,lineHeight:1.3,letterSpacing:"-.01em",flex:1}}>{r.title}</div>
@@ -1711,7 +1711,7 @@ function SoldSection({token,user}){
 
   return<>
     {/* Stats bar */}
-    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#fff"}}>
+    <div style={{display:"flex",gap:0,border:"1px solid #E5E5E5",marginBottom:32,background:"#fff",borderRadius:12,overflow:"hidden"}}>
       {[
         {label:"Total Sales",val:total},
         {label:"Categories",val:[...new Set(items.map(i=>i.category))].length},
@@ -1737,7 +1737,7 @@ function SoldSection({token,user}){
       {items.map(l=>{
         const photo=Array.isArray(l.photos)?l.photos.find(p=>typeof p==="string")||l.photos[0]?.url||null:null;
         const dur=duration(l.created_at,l.sold_at);
-        return<div key={l.id} style={{background:"#fff",border:"1px solid #E5E5E5",overflow:"hidden"}}>
+        return<div key={l.id} style={{background:"#fff",border:"1px solid #E5E5E5",overflow:"hidden",borderRadius:12}}>
           {/* Image */}
           <div style={{aspectRatio:"4/3",background:"#F0F0F0",position:"relative",overflow:"hidden"}}>
             {photo?<img src={photo} alt={l.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
@@ -1763,7 +1763,7 @@ function SoldSection({token,user}){
             <div style={{fontSize:18,fontWeight:700,color:"#111111",letterSpacing:"-.02em",marginBottom:10}}>{fmtKES(l.price)}</div>
 
             {/* Timeline — listed → sold */}
-            <div style={{background:"#F6F6F6",padding:"10px 12px",fontSize:11,lineHeight:1.8}}>
+            <div style={{background:"#F6F6F6",padding:"10px 12px",fontSize:11,lineHeight:1.8,borderRadius:8}}>
               <div style={{display:"flex",justifyContent:"space-between",color:"#1428A0"}}>
                 <span>📅 Listed</span>
                 <span style={{fontWeight:600}}>{fmtDate(l.created_at)}</span>
@@ -2377,7 +2377,7 @@ function PitchModal({request, user, token, notify, onClose}) {
       <input className="inp" type="number" placeholder={request.budget?`Buyer budget: ${fmtKES(request.budget)}`:"e.g. 45000"} value={price} onChange={e=>setPrice(e.target.value)} min={0}/>
     </div>
 
-    <div style={{background:"rgba(0,0,0,.04)",border:"1px solid rgba(0,0,0,.08)",borderRadius:6,padding:"12px 14px",fontSize:12,color:"#111111",lineHeight:1.6}}>
+    <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"12px 14px",fontSize:12,color:"#111111",lineHeight:1.6}}>
       💡 <strong>How it works:</strong> Your pitch is sent to the buyer anonymously. If they like it, they pay KSh 250 to unlock your contact info. You get notified when they connect.
     </div>
   </Modal>;
@@ -2672,7 +2672,7 @@ export default function App(){
             List items in minutes with photos. Pay KSh 250 only when a serious buyer locks in to buy.
           </p>
           <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:24}}>
-            <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:0,letterSpacing:".01em",transition:"background .15s"}}
+            <button style={{background:"#1428A0",color:"#fff",border:"none",padding:"13px 28px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,letterSpacing:".01em",transition:"background .15s"}}
               onMouseOver={e=>e.currentTarget.style.background="#0F1F8A"} onMouseOut={e=>e.currentTarget.style.background="#1428A0"}
               onClick={()=>{
                 if(!user){setModal({type:"auth",mode:"signup"});return;}
@@ -2687,7 +2687,7 @@ export default function App(){
                 }
                 setModal({type:"post"});
               }}>Post an Ad for Free</button>
-            <button style={{background:"transparent",color:"#1D1D1D",border:"1px solid #1D1D1D",padding:"13px 28px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:0,transition:"all .15s"}}
+            <button style={{background:"transparent",color:"#1D1D1D",border:"1px solid #1D1D1D",padding:"13px 28px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,transition:"all .15s"}}
               onMouseOver={e=>{e.currentTarget.style.background="#1D1D1D";e.currentTarget.style.color="#fff";}} onMouseOut={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#1D1D1D";}}
               onClick={()=>document.getElementById("listings-section")?.scrollIntoView({behavior:"smooth"})}>Browse Listings</button>
           </div>
@@ -2695,7 +2695,7 @@ export default function App(){
             <span>✓ 100% free to post</span><span>✓ Safe anonymous chat</span><span>✓ M-Pesa escrow</span>
           </div>
         </div>
-        <div style={{flex:"0 0 auto",background:"#fff",border:"1px solid #E5E5E5",padding:"28px 32px",minWidth:240}}>
+        <div style={{flex:"0 0 auto",background:"#fff",border:"1px solid #E5E5E5",padding:"28px 32px",minWidth:240,borderRadius:16}}>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".1em",textTransform:"uppercase",color:"#767676",marginBottom:20}}>Platform Stats</div>
           {[{label:"Active Listings",val:stats.activeAds||0},{label:"Items Sold",val:stats.sold||0},{label:"Users",val:stats.users||0},{label:"Total Views",val:stats.views||0}].map((s,i)=>(
             <div key={s.label} style={{paddingBottom:16,marginBottom:16,borderBottom:i<3?"1px solid #F0F0F0":"none"}}>
@@ -2757,7 +2757,7 @@ export default function App(){
             <option value="popular">Most Viewed</option>
             <option value="expiring">Expiring Soon</option>
           </select>
-          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap"}} onClick={()=>{
+          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap",borderRadius:"0 8px 8px 0"}} onClick={()=>{
             if(!user){setModal({type:"auth",mode:"signup"});return;}
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
@@ -2768,15 +2768,15 @@ export default function App(){
           }}>+ Post Ad</button>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:4,fontSize:13}} placeholder="Min KSh" type="number" value={filter.minPrice} onChange={e=>{setFilter(p=>({...p,minPrice:e.target.value}));setPg(1);}}/>
+          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:8,fontSize:13}} placeholder="Min KSh" type="number" value={filter.minPrice} onChange={e=>{setFilter(p=>({...p,minPrice:e.target.value}));setPg(1);}}/>
           <span style={{color:"#888888",fontSize:13}}>–</span>
-          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:4,fontSize:13}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
+          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:8,fontSize:13}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
           <div style={{display:"flex",gap:1,marginLeft:8}}>
             <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1D1D1D":"#F4F4F4",color:vm==="grid"?"#fff":"#767676",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>⊞</button>
             <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1D1D1D":"#F4F4F4",color:vm==="list"?"#fff":"#767676",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>☰</button>
           </div>
           {(filter.cat||filter.county||filter.minPrice||filter.maxPrice||filter.q)&&
-            <button className="btn bs sm" style={{borderRadius:4,fontSize:12}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear</button>}
+            <button className="btn bs sm" style={{borderRadius:8,fontSize:12}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear</button>}
         </div>
       </div>
 
@@ -2863,7 +2863,7 @@ export default function App(){
       {/* Hero banner */}
       <div style={{background:"#1D1D1D",padding:"52px 40px 48px"}}>
         <div style={{maxWidth:1180,margin:"0 auto"}}>
-          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em"}}>← Back to Marketplace</button>
+          <button onClick={()=>setPage("home")} style={{background:"transparent",border:"1px solid rgba(255,255,255,.35)",color:"#fff",padding:"7px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",marginBottom:28,display:"inline-flex",alignItems:"center",gap:6,letterSpacing:".02em",borderRadius:8}}>← Back to Marketplace</button>
           <div style={{marginBottom:14,opacity:.9}}><WekaSokoLogo size={26}/></div>
           <div style={{fontSize:11,fontWeight:700,letterSpacing:".12em",textTransform:"uppercase",color:"rgba(255,255,255,.55)",marginBottom:10}}>Sold Listings</div>
           <h1 style={{fontSize:"clamp(30px,5vw,54px)",fontWeight:700,letterSpacing:"-.03em",color:"#fff",lineHeight:1.05,marginBottom:14}}>Sold on Weka Soko</h1>
