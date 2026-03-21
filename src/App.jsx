@@ -1551,7 +1551,7 @@ function PostRequestModal({onClose,token,notify,onSuccess}){
 }
 
 // ── WHAT BUYERS WANT SECTION ───────────────────────────────────────────────
-function WhatBuyersWant({user,token,notify,onSignIn}){
+function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
   const [pitchTarget,setPitchTarget]=useState(null);
   const [requests,setRequests]=useState([]);
   const [total,setTotal]=useState(0);
@@ -1582,7 +1582,33 @@ function WhatBuyersWant({user,token,notify,onSignIn}){
     }catch(err){notify(err.message,"error");}
   };
 
-  return <div style={{background:"#FFFFFF",padding:"48px 40px",margin:"0 -40px",borderTop:"1px solid #EBEBEB",borderBottom:"1px solid #EBEBEB"}}>
+  if(compact) return <div style={{padding:"4px 0"}}>
+    <div style={{display:"flex",flexDirection:"column",gap:0}}>
+      {loading?<div style={{textAlign:"center",padding:20}}><Spin/></div>
+        :requests.length===0?<div style={{textAlign:"center",padding:"20px 0",color:"#AAAAAA",fontSize:13}}>
+          <div style={{fontSize:28,marginBottom:8,opacity:.3}}>🛒</div>
+          No requests yet
+        </div>
+        :requests.slice(0,4).map(r=>(
+          <div key={r.id} style={{padding:"12px 0",borderBottom:"1px solid #F0F0F0"}}>
+            <div style={{fontWeight:700,fontSize:13,marginBottom:3,color:"#1A1A1A",lineHeight:1.3}}>{r.title}</div>
+            <div style={{fontSize:12,color:"#777",lineHeight:1.5,marginBottom:6}}>{r.description?.slice(0,60)}{r.description?.length>60?"...":""}</div>
+            <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"space-between"}}>
+              {r.budget&&<span style={{fontSize:11,fontWeight:600,color:"#1428A0"}}>KSh {Number(r.budget).toLocaleString()}</span>}
+              {user&&user.role==="seller"&&user.id!==r.user_id&&
+                <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px",borderRadius:6}} onClick={()=>setPitchTarget(r)}>📬 I Have This</button>}
+            </div>
+          </div>
+        ))
+      }
+      <button style={{width:"100%",marginTop:12,padding:"10px",background:"#1428A0",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)"}}
+        onClick={()=>{if(!user){onSignIn();return;}setShowModal(true);}}>+ Post a Request</button>
+    </div>
+    {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)} onOpenPostAd={(data)=>{onOpenPostAd(data);setPitchTarget(null);}}/>}
+    {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);setTotal(t=>t+1);}}/>}
+  </div>;
+
+  return <div style={{background:"#FFFFFF",padding:"48px 40px",margin:"0 -48px",borderTop:"1px solid #EBEBEB",borderBottom:"1px solid #EBEBEB"}}>
     <div style={{maxWidth:1280,margin:"0 auto"}}>
       {/* Header */}
       <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:28,flexWrap:"wrap",gap:12}}>
@@ -2752,60 +2778,106 @@ export default function App(){
     </div>}
 
     {page!=="dashboard"&&page!=="sold"&&<main style={{maxWidth:1280,margin:"0 auto",padding:"48px 48px 80px"}}>
-      {/* WHAT BUYERS WANT */}
-      <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setModal({type:'post'});}}/>
-      <div style={{height:52}}/>
+      {/* ── TWO-COLUMN LAYOUT: sidebar left, content right ── */}
+      <div style={{display:"flex",gap:28,alignItems:"flex-start"}}>
 
-      {/* SEARCH BAR */}
-      <div id="listings-section" style={{marginBottom:36}}>
-        <div style={{display:"flex",border:"1.5px solid #D5D5D5",marginBottom:16,background:"#fff",borderRadius:12,overflow:"hidden",boxShadow:"0 2px 8px rgba(0,0,0,.06)"}}>
-          <input style={{flex:1,padding:"14px 20px",border:"none",outline:"none",fontSize:15,fontFamily:"var(--fn)",background:"transparent",color:"#1D1D1D"}} placeholder="🔍  Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
-          <select style={{padding:"14px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:160}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
-            <option value="">All Counties</option>
-            {counties.map(c=><option key={c} value={c}>{c}</option>)}
-          </select>
-          <select style={{padding:"14px 16px",border:"none",borderLeft:"1px solid #E5E5E5",outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"#F5F5F5",color:"#444444",cursor:"pointer",minWidth:150}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
-            <option value="newest">Newest</option>
-            <option value="oldest">Oldest</option>
-            <option value="price_asc">Price ↑</option>
-            <option value="price_desc">Price ↓</option>
-            <option value="popular">Most Viewed</option>
-            <option value="expiring">Expiring Soon</option>
-          </select>
-          <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"0 24px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",whiteSpace:"nowrap",borderRadius:"0 8px 8px 0"}} onClick={()=>{
-            if(!user){setModal({type:"auth",mode:"signup"});return;}
-            if(user.role==="buyer"){
-              if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
-                api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
-              return;
-            }
-            setModal({type:"post"});
-          }}>+ Post Ad</button>
-        </div>
-        <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:8,fontSize:13}} placeholder="Min KSh" type="number" value={filter.minPrice} onChange={e=>{setFilter(p=>({...p,minPrice:e.target.value}));setPg(1);}}/>
-          <span style={{color:"#888888",fontSize:13}}>–</span>
-          <input className="inp" style={{width:110,flex:"0 0 auto",borderRadius:8,fontSize:13}} placeholder="Max KSh" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
-          <div style={{display:"flex",gap:1,marginLeft:8}}>
-            <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1D1D1D":"#F4F4F4",color:vm==="grid"?"#fff":"#767676",border:"1px solid #E5E5E5",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>⊞</button>
-            <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1D1D1D":"#F4F4F4",color:vm==="list"?"#fff":"#767676",border:"1px solid #E5E5E5",borderLeft:"none",padding:"7px 14px",cursor:"pointer",fontSize:14,fontFamily:"var(--fn)",transition:"all .15s"}}>☰</button>
+        {/* ── LEFT SIDEBAR ── */}
+        <div style={{width:260,flexShrink:0,display:"flex",flexDirection:"column",gap:20}}>
+
+          {/* Search */}
+          <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:12}}>Search</div>
+            <input style={{width:"100%",padding:"11px 14px",border:"1.5px solid #E0E0E0",borderRadius:10,outline:"none",fontSize:14,fontFamily:"var(--fn)",color:"#1A1A1A",background:"#FAFAFA"}} placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);}}/>
           </div>
+
+          {/* Category filter */}
+          <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:12}}>Category</div>
+            <div style={{display:"flex",flexDirection:"column",gap:2}}>
+              <div onClick={()=>{setFilter(p=>({...p,cat:""}));setPg(1);}}
+                style={{padding:"9px 12px",borderRadius:8,cursor:"pointer",fontSize:14,fontWeight:filter.cat===""?700:400,color:filter.cat===""?"#1428A0":"#333",background:filter.cat===""?"#EEF2FF":"transparent",transition:"all .15s"}}>
+                All Categories
+              </div>
+              {CATS.map(c=>(
+                <div key={c.name} onClick={()=>{setFilter(p=>({...p,cat:p.cat===c.name?"":c.name}));setPg(1);}}
+                  style={{padding:"9px 12px",borderRadius:8,cursor:"pointer",fontSize:14,fontWeight:filter.cat===c.name?700:400,color:filter.cat===c.name?"#1428A0":"#444",background:filter.cat===c.name?"#EEF2FF":"transparent",transition:"all .15s",display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:16}}>{c.icon}</span>{c.name}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Price range */}
+          <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:12}}>Price Range (KSh)</div>
+            <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              <input className="inp" style={{borderRadius:8,fontSize:14}} placeholder="Min price" type="number" value={filter.minPrice} onChange={e=>{setFilter(p=>({...p,minPrice:e.target.value}));setPg(1);}}/>
+              <input className="inp" style={{borderRadius:8,fontSize:14}} placeholder="Max price" type="number" value={filter.maxPrice} onChange={e=>{setFilter(p=>({...p,maxPrice:e.target.value}));setPg(1);}}/>
+            </div>
+          </div>
+
+          {/* County */}
+          <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:12}}>Location</div>
+            <select className="inp" style={{borderRadius:8,fontSize:14}} value={filter.county} onChange={e=>{setFilter(p=>({...p,county:e.target.value}));setPg(1);}}>
+              <option value="">All Counties</option>
+              {counties.map(c=><option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          {/* Clear filters */}
           {(filter.cat||filter.county||filter.minPrice||filter.maxPrice||filter.q)&&
-            <button className="btn bs sm" style={{borderRadius:8,fontSize:12}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear</button>}
+            <button className="btn bs" style={{width:"100%",borderRadius:10,fontSize:14}} onClick={()=>{setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}}>✕ Clear All Filters</button>}
+
+          {/* What Buyers Want — in sidebar */}
+          <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
+            <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:4}}>Community</div>
+            <div style={{fontSize:16,fontWeight:700,color:"#1A1A1A",marginBottom:12}}>🛒 Buyers Want</div>
+            <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setModal({type:'post'});}} compact={true}/>
+          </div>
+
         </div>
-      </div>
 
-      {/* LISTINGS HEADER */}
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,paddingBottom:14,borderBottom:"2px solid #E5E5E5"}}>
-        <h2 style={{fontSize:20,fontWeight:700,letterSpacing:"-.02em"}}>{filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:13,color:"#767676"}}>{total} items</span></h2>
-        <div style={{fontSize:11,fontWeight:600,letterSpacing:".06em",textTransform:"uppercase",color:"#767676"}}>Page {pg} / {Math.ceil(total/PER_PAGE)||1}</div>
-      </div>
+        {/* ── RIGHT: main content ── */}
+        <div style={{flex:1,minWidth:0}} id="listings-section">
 
-      {loading?<div style={{textAlign:"center",padding:"80px 0"}}><Spin s="40px"/></div>
-        :listings.length===0?<div className="empty"><div style={{fontSize:56,marginBottom:16,opacity:.15}}>🔍</div><h3 style={{fontWeight:700,fontSize:20,marginBottom:8,letterSpacing:"-.02em"}}>No listings found</h3><p style={{color:"#767676"}}>Try a different search or category</p></div>
-        :<div className={vm==="grid"?"g3":"lvc"}>{listings.map(l=><ListingCard key={l.id} listing={l} onClick={()=>openListing(l)} listView={vm==="list"}/>)}</div>}
+          {/* Top bar: sort + view toggle + post ad */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginBottom:20,flexWrap:"wrap"}}>
+            <h2 style={{fontSize:22,fontWeight:700,letterSpacing:"-.02em",color:"#1A1A1A"}}>
+              {filter.cat||"All Listings"} <span style={{fontWeight:400,fontSize:15,color:"#AAAAAA"}}>{total} items</span>
+            </h2>
+            <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+              <select style={{padding:"9px 14px",border:"1.5px solid #E0E0E0",borderRadius:8,outline:"none",fontSize:14,fontFamily:"var(--fn)",background:"#fff",color:"#444",cursor:"pointer"}} value={filter.sort} onChange={e=>{setFilter(p=>({...p,sort:e.target.value}));setPg(1);}}>
+                <option value="newest">Newest first</option>
+                <option value="oldest">Oldest first</option>
+                <option value="price_asc">Price: Low → High</option>
+                <option value="price_desc">Price: High → Low</option>
+                <option value="popular">Most Viewed</option>
+                <option value="expiring">Expiring Soon</option>
+              </select>
+              <div style={{display:"flex",gap:2}}>
+                <button onClick={()=>setVm("grid")} style={{background:vm==="grid"?"#1428A0":"#fff",color:vm==="grid"?"#fff":"#767676",border:"1.5px solid #E0E0E0",padding:"8px 14px",cursor:"pointer",fontSize:15,fontFamily:"var(--fn)",borderRadius:"8px 0 0 8px",transition:"all .15s"}}>⊞</button>
+                <button onClick={()=>setVm("list")} style={{background:vm==="list"?"#1428A0":"#fff",color:vm==="list"?"#fff":"#767676",border:"1.5px solid #E0E0E0",borderLeft:"none",padding:"8px 14px",cursor:"pointer",fontSize:15,fontFamily:"var(--fn)",borderRadius:"0 8px 8px 0",transition:"all .15s"}}>☰</button>
+              </div>
+              {user&&<button className="btn bp" style={{borderRadius:9,fontSize:14,padding:"9px 20px"}} onClick={()=>{
+                if(user.role==="buyer"){
+                  if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
+                    api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
+                  return;
+                }
+                setModal({type:"post"});
+              }}>+ Post Ad</button>}
+            </div>
+          </div>
 
-      <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
+          {loading?<div style={{textAlign:"center",padding:"80px 0"}}><Spin s="40px"/></div>
+            :listings.length===0?<div className="empty"><div style={{fontSize:56,marginBottom:16,opacity:.15}}>🔍</div><h3 style={{fontWeight:700,fontSize:20,marginBottom:8}}>No listings found</h3><p style={{color:"#767676"}}>Try a different search or filter</p></div>
+            :<div className={vm==="grid"?"g3":"lvc"}>{listings.map(l=><ListingCard key={l.id} listing={l} onClick={()=>openListing(l)} listView={vm==="list"}/>)}</div>}
+
+          <Pager total={total} perPage={PER_PAGE} page={pg} onChange={p=>{setPg(p);window.scrollTo({top:400,behavior:"smooth"});}}/>
+
+        </div>
+      </div>{/* end two-column */}
 
       {/* PLATFORM STATS — bottom strip */}
       <div style={{background:"#1428A0",borderRadius:16,padding:"40px 48px",marginBottom:64,display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,textAlign:"center"}}>
