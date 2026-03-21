@@ -2005,8 +2005,8 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
   const [markSoldListing,setMarkSoldListing]=useState(null);
 
   useEffect(()=>{
-    const load=async()=>{
-      setLoading(true);
+    const load=async(silent=false)=>{
+      if(!silent)setLoading(true);
       try{
         const [ls,ns,th]=await Promise.all([
           user.role==="seller"?api("/api/listings/seller/mine",{},token).catch(()=>[]):Promise.resolve([]),
@@ -2031,9 +2031,12 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
           unreadNotifs:(Array.isArray(ns)?ns:[]).filter(n=>!n.is_read).length,
           unreadMessages:(Array.isArray(th)?th:[]).reduce((a,t)=>a+parseInt(t.unread_count||0),0),
         });
-      }finally{setLoading(false);}
+      }finally{if(!silent)setLoading(false);}
     };
-    load();
+    load(false);
+    // Silent background refresh: listings+notifs every 45s, threads every 30s
+    const iv=setInterval(()=>load(true),45000);
+    return()=>clearInterval(iv);
   },[token]);
 
   const markRead=async id=>{
@@ -2522,10 +2525,15 @@ export default function App(){
     return()=>clearInterval(iv);
   },[]);
 
-  // Listings
+  // Listings — fetch on filter/page change + silent background refresh every 60s
+  const listingsFilterRef=useRef(filter);
+  const listingsPgRef=useRef(pg);
+  useEffect(()=>{listingsFilterRef.current=filter;},[filter]);
+  useEffect(()=>{listingsPgRef.current=pg;},[pg]);
+
   useEffect(()=>{
-    const load=async()=>{
-      setLoading(true);
+    const load=async(silent=false)=>{
+      if(!silent)setLoading(true);
       try{
         const p=new URLSearchParams({page:pg,limit:PER_PAGE,sort:filter.sort||"newest"});
         if(filter.cat)p.set("category",filter.cat);
@@ -2536,10 +2544,13 @@ export default function App(){
         const data=await api(`/api/listings?${p}`);
         setListings(data.listings||[]);
         setTotal(data.total||0);
-      }catch{setListings([]);}
-      finally{setLoading(false);}
+      }catch{if(!silent)setListings([]);}
+      finally{if(!silent)setLoading(false);}
     };
-    load();
+    load(false);
+    // Silent background refresh every 60s
+    const iv=setInterval(()=>load(true),60000);
+    return()=>clearInterval(iv);
   },[pg,filter]);
 
   // Real-time notifications for logged-in user
@@ -2577,12 +2588,15 @@ export default function App(){
     return()=>s.disconnect();
   },[token,user]);
 
-  // Fetch unread count on login
+  // Fetch unread count on login + poll every 20s silently
   useEffect(()=>{
     if(!token)return;
-    api("/api/notifications",{},token).then(ns=>{
+    const fetchUnread=()=>api("/api/notifications",{},token).then(ns=>{
       if(Array.isArray(ns))setNotifCount(ns.filter(n=>!n.is_read).length);
     }).catch(()=>{});
+    fetchUnread();
+    const iv=setInterval(fetchUnread,20000);
+    return()=>clearInterval(iv);
   },[token]);
 
   // ── Web Push subscription ─────────────────────────────────────────────────
