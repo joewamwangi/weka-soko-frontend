@@ -1732,8 +1732,19 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
             <div style={{fontSize:12,color:"#777",lineHeight:1.5,marginBottom:6}}>{r.description?.slice(0,60)}{r.description?.length>60?"...":""}</div>
             <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"space-between"}}>
               {r.budget&&<span style={{fontSize:11,fontWeight:600,color:"#1428A0"}}>KSh {Number(r.budget).toLocaleString()}</span>}
-              {user&&user.role==="seller"&&user.id!==r.user_id&&
-                <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px",borderRadius:6}} onClick={()=>setPitchTarget(r)}>📬 I Have This</button>}
+              {user&&user.id!==r.user_id&&
+                <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px",borderRadius:6}} onClick={()=>{
+                  if(user.role==="buyer"){
+                    if(window.confirm("You need a Seller account to pitch. Switch to Seller now?")){
+                      api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
+                        localStorage.setItem("ws_user",JSON.stringify(d.user));
+                        window.location.reload();
+                      }).catch(err=>notify(err.message,"error"));
+                    }
+                  } else {
+                    setPitchTarget(r);
+                  }
+                }}>📬 I Have This</button>}
             </div>
           </div>
         ))
@@ -1806,8 +1817,19 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
-                  {user&&user.role==="seller"&&user.id!==r.user_id&&
-                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>setPitchTarget(r)}>📬 I Have This</button>
+                  {user&&user.id!==r.user_id&&
+                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
+                      if(user.role==="buyer"){
+                        if(window.confirm("You need a Seller account to pitch. Switch to Seller now?")){
+                          api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
+                            localStorage.setItem("ws_user",JSON.stringify(d.user));
+                            window.location.reload();
+                          }).catch(err=>notify(err.message,"error"));
+                        }
+                      } else {
+                        setPitchTarget(r);
+                      }
+                    }}>📬 I Have This</button>
                   }
                 </div>
               </div>
