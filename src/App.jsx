@@ -1729,7 +1729,7 @@ function PostRequestModal({onClose,token,notify,onSuccess}){
 }
 
 // ── WHAT BUYERS WANT SECTION ───────────────────────────────────────────────
-function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
+function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd,compact=false}){
   const [pitchTarget,setPitchTarget]=useState(null);
   const [requests,setRequests]=useState([]);
   const [total,setTotal]=useState(0);
