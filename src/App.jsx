@@ -1138,8 +1138,10 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
   const [f,setF]=useState(()=>listing?{
     title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
     price:String(listing.price||""),description:listing.description||"",
-    reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||""
-  }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:""});
+    reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||"",
+    request_id:listing.request_id||"",is_contact_public:listing.is_contact_public||false
+  }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
+    request_id:"",is_contact_public:false});
   const [existingPhotos,setExistingPhotos]=useState(()=>{
     if(!listing)return[];
     const ph=listing.photos||[];
@@ -1174,7 +1176,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       const url=isEdit?`/api/listings/${listing.id}`:"/api/listings";
       const method=isEdit?"PATCH":"POST";
       const fd=new FormData();
-      Object.entries({title:f.title,category:f.category,price:f.price,description:f.description,reason_for_sale:f.reason,location:f.location,county:f.county}).forEach(([k,v])=>v&&fd.append(k,v));
+      Object.entries({title:f.title,category:f.category,price:f.price,description:f.description,reason_for_sale:f.reason,location:f.location,county:f.county,request_id:f.request_id,is_contact_public:f.is_contact_public}).forEach(([k,v])=>v&&fd.append(k,v));
       if(f.subcat)fd.append("subcat",f.subcat);
       images.forEach(img=>img.file&&fd.append("photos",img.file));
       const result=await api(url,{method,body:fd},token);
@@ -1247,6 +1249,16 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
           {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Thika","Kiambu","Machakos","Kajiado","Murang'a","Nyeri","Meru","Embu","Kirinyaga","Nyandarua","Laikipia","Nakuru","Baringo","Nandi","Uasin Gishu","Trans Nzoia","Elgeyo Marakwet","West Pokot","Turkana","Samburu","Isiolo","Marsabit","Mandera","Wajir","Garissa","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Mombasa","Vihiga","Bungoma","Busia","Kakamega","Siaya","Kisumu","Homabay","Migori","Kisii","Nyamira"].map(c=><option key={c} value={c}>{c}</option>)}
         </select>
       </FF>
+      <FF label="Link to Buyer Request (optional)" hint="If you are posting this ad in response to a buyer request, link it here.">
+        <input className="inp" placeholder="Enter Request ID" value={f.request_id} onChange={e=>sf("request_id",e.target.value)}/>
+      </FF>
+      <div style={{marginBottom:14}}>
+        <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+          <input type="checkbox" checked={f.is_contact_public} onChange={e=>sf("is_contact_public",e.target.checked)}/>
+          <span style={{fontSize:14,fontWeight:500,color:"var(--txt)"}}>Make my contact info public (phone/email)</span>
+        </label>
+        <div style={{fontSize:11,color:"#888888",marginTop:4}}>If checked, buyers can see your contact details immediately without paying.</div>
+      </div>
       <div className="alert ay" style={{fontSize:12}}>🔒 Your phone/email are hidden until a buyer pays KSh 250 to unlock them.</div>
     </>}
   </Modal>;
