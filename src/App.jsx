@@ -2686,7 +2686,7 @@ function MobileLayout({
           .then(r=>r.json()).then(d=>{localStorage.setItem("ws_user",JSON.stringify(d.user));window.location.reload();});
       return;
     }
-    setModal({type:"post"});
+    setModal({type:"post",listing:null});
   };
 
   return <div className="mob-root">
@@ -3117,7 +3117,7 @@ export default function App(){
     />
     {/* Modals still render on mobile */}
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
-    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
+    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} listing={modal.listing} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
     {modal?.type==="detail"&&<DetailModal listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
       onShare={()=>setModal({type:"share",listing:modal.listing})}
       onChat={()=>{if(!user){notify("Sign in to chat","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"chat",listing:modal.listing});}}
@@ -3157,10 +3157,10 @@ export default function App(){
           <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"9px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,whiteSpace:"nowrap"}} onClick={()=>{
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
-                api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
+                api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post",listing:null});}).catch(e=>notify(e.message,"error"));
               return;
             }
-            setModal({type:"post"});
+            setModal({type:"post",listing:null});
           }}>+ Post Ad</button>
         </>:<>
           <button style={{background:"transparent",color:"#1428A0",border:"1.5px solid #1428A0",padding:"8px 16px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,whiteSpace:"nowrap"}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
@@ -3195,12 +3195,12 @@ export default function App(){
                   if(window.confirm("You're currently a Buyer. To post an ad, switch to a Seller account.\n\nSwitch to Seller now?")){
                     api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
                       const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));
-                      notify("Switched to Seller! Now post your ad.","success");setModal({type:"post"});
+                      notify("Switched to Seller! Now post your ad.","success");setModal({type:"post",listing:null});
                     }).catch(e=>notify(e.message,"error"));
                   }
                   return;
                 }
-                setModal({type:"post"});
+                setModal({type:"post",listing:null});
               }}>+ Post an Ad for Free</button>
             <button style={{background:"#fff",color:"#1A1A1A",border:"1.5px solid #D0D0D0",padding:"16px 30px",fontSize:16,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:10,transition:"all .15s"}}
               onMouseOver={e=>{e.currentTarget.style.borderColor="#1428A0";e.currentTarget.style.color="#1428A0";}} onMouseOut={e=>{e.currentTarget.style.borderColor="#D0D0D0";e.currentTarget.style.color="#1A1A1A";}}
@@ -3301,7 +3301,7 @@ export default function App(){
           <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
             <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:4}}>Community</div>
             <div style={{fontSize:16,fontWeight:700,color:"#1A1A1A",marginBottom:12}}>🛒 Buyers Want</div>
-            <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>{sessionStorage.setItem('prefilledFromRequest',JSON.stringify(data));setModal({type:'post'});}} compact={true}/>
+            <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>setModal({type:'post',listing:data})} compact={true}/>
           </div>
 
         </div>
@@ -3330,10 +3330,10 @@ export default function App(){
               {user&&<button className="btn bp" style={{borderRadius:9,fontSize:14,padding:"9px 20px"}} onClick={()=>{
                 if(user.role==="buyer"){
                   if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
-                    api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
+                    api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post",listing:null});}).catch(e=>notify(e.message,"error"));
                   return;
                 }
-                setModal({type:"post"});
+                setModal({type:"post",listing:null});
               }}>+ Post Ad</button>}
             </div>
           </div>
@@ -3383,7 +3383,7 @@ export default function App(){
 
     {/* MODALS */}
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
-    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
+    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} listing={modal.listing} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
     {modal?.type==="detail"&&<DetailModal
       listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
       onShare={()=>setModal({type:"share",listing:modal.listing})}
@@ -3441,7 +3441,7 @@ export default function App(){
       </div>
     </div>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
-    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")}/>}
+    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post",listing:null});}} onClose={()=>setPage("home")}/>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
   </>;
