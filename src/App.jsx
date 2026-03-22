@@ -1143,7 +1143,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
   }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
     request_id:"",is_contact_public:false});
   const [payStep,setPayStep]=useState("none"); // none, phone, pushing, polling, fallback
-  const [payPhone,setPayPhone]=useState(user?.phone||"07");
+  const [payPhone,setPayPhone]=useState(user?.phone||"");
   const [cd,setCd]=useState(60);
   const [manualCode,setManualCode]=useState("");
   const [createdListing,setCreatedListing]=useState(null);
@@ -1245,7 +1245,12 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
         {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
         {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public && !listing?.id ? "Pay Now (250)" : "Publish Ad 🚀")}</button>}
       </div>
-    ) : null
+    ) : (payStep==="fallback" ? (
+      <div style={{display:"flex",gap:8,width:"100%"}}>
+        <button className="btn bs" style={{flex:1}} onClick={()=>{onSuccess(createdListing);onClose();notify("🚀 Ad posted! You can unlock contact details later.","info");}}>2. Pay Later</button>
+        <button className="btn bp" style={{flex:1}} onClick={()=>startMpesa(createdListing.id,payPhone)}>1. Try Again</button>
+      </div>
+    ) : null)
   }>
     {payStep==="phone"&&<div style={{padding:"10px 0"}}>
       <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"18px 20px",marginBottom:18}}>
@@ -1285,9 +1290,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
         <p style={{color:"#888888",fontSize:14}}>The M-Pesa prompt timed out or was cancelled.</p>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:12}}>
-        <button className="btn bp" style={{width:"100%",padding:14}} onClick={()=>startMpesa(createdListing.id,payPhone)}>1. Try Again (Resend Prompt)</button>
-        <button className="btn bs" style={{width:"100%",padding:14}} onClick={()=>{onSuccess(createdListing);onClose();notify("🚀 Ad posted! You can unlock contact details later.","info");}}>2. Pay Later (Publish Anyway)</button>
-        <div style={{marginTop:8,padding:16,background:"#F8F8F8",borderRadius:12,border:"1px solid #E8E8E8"}}>
+        <div style={{padding:16,background:"#F8F8F8",borderRadius:12,border:"1px solid #E8E8E8"}}>
           <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>3. Enter M-Pesa Transaction Code</div>
           <div style={{display:"flex",gap:8}}>
             <input className="inp" placeholder="e.g. RJK2X4ABCD" value={manualCode} onChange={e=>setManualCode(e.target.value.toUpperCase())} style={{flex:1,fontFamily:"monospace"}} maxLength={12}/>
