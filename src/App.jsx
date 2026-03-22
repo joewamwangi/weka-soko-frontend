@@ -1243,7 +1243,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
         <div style={{flex:1}}/>
         {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
         {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
-        {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public && !listing?.id ? "Pay Now (250)" : "Publish Ad 🚀")}</button>}
+        {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public && !listing?.id || (f.is_contact_public && f.request_id) ? "Pay Now (250)" : "Publish Ad 🚀")}</button>}
       </div>
     ) : (payStep==="fallback" ? (
       <div style={{display:"flex",gap:8,width:"100%"}}>
