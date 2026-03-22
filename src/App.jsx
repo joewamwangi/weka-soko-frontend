@@ -1139,7 +1139,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
     price:listing.price ? String(listing.price) : "",description:listing.description||"",
     reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||"",
-    request_id:listing.request_id||listing.id||"",is_contact_public:listing.is_contact_public||false
+    request_id:listing.request_id||"",is_contact_public:false
   }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
     request_id:"",is_contact_public:false});
   const [payStep,setPayStep]=useState("none"); // none, phone, pushing, polling, fallback
@@ -1243,7 +1243,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
         <div style={{flex:1}}/>
         {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
         {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
-        {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public && !listing?.id || (f.is_contact_public && f.request_id) ? "Pay Now (250)" : "Publish Ad 🚀")}</button>}
+        {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public ? "Pay Now (250)" : "Publish Ad 🚀")}</button>}
       </div>
     ) : (payStep==="fallback" ? (
       <div style={{display:"flex",gap:8,width:"100%"}}>
