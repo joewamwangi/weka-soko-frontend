@@ -1131,7 +1131,7 @@ function ChatModal({listing,user,token,onClose,notify}){
 
 
 // ── POST AD ───────────────────────────────────────────────────────────────────
-function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
+function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
   const [step,setStep]=useState(listing?.id ? 1 : 0);
   const [loading,setLoading]=useState(false);
   const [images,setImages]=useState([]);
