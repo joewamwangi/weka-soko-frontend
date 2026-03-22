@@ -1142,6 +1142,12 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     request_id:listing.request_id||listing.id||"",is_contact_public:listing.is_contact_public||false
   }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
     request_id:"",is_contact_public:false});
+  const [payStep,setPayStep]=useState("none"); // none, phone, pushing, polling, fallback
+  const [payPhone,setPayPhone]=useState(user?.phone||"07");
+  const [cd,setCd]=useState(60);
+  const [manualCode,setManualCode]=useState("");
+  const [createdListing,setCreatedListing]=useState(null);
+  const pollRef=useRef(null);
   const [existingPhotos,setExistingPhotos]=useState(()=>{
     if(!listing)return[];
     const ph=listing.photos||[];
@@ -1163,6 +1169,25 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     return hasPhone||hasEmail||hasSocial||hasWordDigits;
   };
 
+  const startMpesa=async(lId,ph)=>{
+    setPayStep("pushing");
+    try{
+      const res=await api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:lId,phone:ph})},token);
+      setPayStep("polling");
+      let c=60;setCd(60);
+      if(pollRef.current)clearInterval(pollRef.current);
+      pollRef.current=setInterval(async()=>{
+        c--;setCd(c);
+        if(c<=0){clearInterval(pollRef.current);setPayStep("fallback");return;}
+        try{
+          const s=await api(`/api/payments/status/${res.checkoutRequestId}`,{},token);
+          if(s.status==="confirmed"){clearInterval(pollRef.current);onSuccess(createdListing||listing);onClose();notify("🚀 Ad posted and contact unlocked!","success");}
+          else if(s.status==="failed"){clearInterval(pollRef.current);setPayStep("fallback");}
+        }catch{}
+      },2000);
+    }catch(err){setPayStep("fallback");notify(err.message,"error");}
+  };
+
   const submit=async()=>{
     if(!f.reason.trim()||!f.location.trim()){notify("Please fill in all required fields.","warning");return;}
     const errs={};
@@ -1180,18 +1205,12 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       if(f.subcat)fd.append("subcat",f.subcat);
       images.forEach(img=>img.file&&fd.append("photos",img.file));
       const result=await api(url,{method,body:fd},token);
-      if(!isEdit && result.status === "pending_payment"){
-        // Trigger payment flow
-        api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:result.id,phone:user.phone})},token).then(payRes=>{
-          notify("🚀 Ad posted! Please confirm the M-Pesa prompt to reveal contact info.","success");
-          onSuccess(result);onClose();
-        }).catch(err=>{
-          notify("🚀 Ad posted anonymously (Pay Later).","info");
-          onSuccess(result);onClose();
-        });
+      setCreatedListing(result);
+      if(!isEdit && f.is_contact_public){
+        setPayStep("phone");
       } else {
         onSuccess(result);onClose();
-        notify(isEdit?"✅ Ad updated!":"🚀 Ad is live!","success");
+        notify(isEdit?"✅ Ad updated!":"🚀 Ad submitted for approval!","success");
       }
     }catch(err){
       if(err.violations){
@@ -1204,16 +1223,82 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     finally{setLoading(false);}
   };
 
-  return <Modal title={step===0 ? "Choose Monetization" : listing?`Edit Ad — Step ${step}/2`:`Post Ad — Step ${step}/2`} onClose={onClose} footer={
-    <div style={{display:"flex",gap:8,width:"100%"}}>
-      {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
-      {step===1&&!listing?.id&&<button className="btn bs" onClick={()=>setStep(0)}>← Back</button>}
-      <div style={{flex:1}}/>
-      {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
-      {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
-      {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:"Publish Ad 🚀"}</button>}
-    </div>
+  const verifyManual=async()=>{
+    if(!manualCode||manualCode.length<8){notify("Enter a valid M-Pesa code","warning");return;}
+    setLoading(true);
+    try{
+      await api("/api/payments/verify-manual",{method:"POST",body:JSON.stringify({mpesa_code:manualCode,listing_id:createdListing.id,type:"unlock"})},token);
+      onSuccess(createdListing);onClose();notify("🚀 Ad posted and code submitted for verification!","success");
+    }catch(err){notify(err.message,"error");}
+    finally{setLoading(false);}
+  };
+
+  useEffect(()=>()=>{if(pollRef.current)clearInterval(pollRef.current);},[]);
+
+  return <Modal title={payStep!=="none"?"Unlock Buyer Contact":step===0 ? "Choose Monetization" : listing?`Edit Ad — Step ${step}/2`:`Post Ad — Step ${step}/2`} onClose={onClose} footer={
+    payStep==="none" ? (
+      <div style={{display:"flex",gap:8,width:"100%"}}>
+        {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
+        {step===1&&!listing?.id&&<button className="btn bs" onClick={()=>setStep(0)}>← Back</button>}
+        <div style={{flex:1}}/>
+        {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
+        {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
+        {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public && !listing?.id ? "Pay Now (250)" : "Publish Ad 🚀")}</button>}
+      </div>
+    ) : null
   }>
+    {payStep==="phone"&&<div style={{padding:"10px 0"}}>
+      <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"18px 20px",marginBottom:18}}>
+        <div style={{fontSize:11,color:"#888888",marginBottom:4}}>Till Number <strong style={{color:"var(--txt)"}}>5673935</strong> · Weka Soko</div>
+        <div style={{fontSize:36,fontWeight:700,color:"#111111"}}>KSh 250</div>
+        <div style={{fontSize:13,color:"#888888",marginTop:6}}>Unlock buyer contact for: {f.title}</div>
+      </div>
+      <FF label="Your M-Pesa Number" required>
+        <div style={{display:"flex"}}>
+          <div style={{background:"#F5F5F5",border:"1.5px solid #E0E0E0",borderRight:"none",borderRadius:6,padding:"10px 12px",fontSize:13,color:"#888888",whiteSpace:"nowrap"}}>🇰🇪 +254</div>
+          <input className="inp" style={{borderRadius:6}} value={payPhone} onChange={e=>setPayPhone(e.target.value.replace(/[^0-9]/g,""))} placeholder="0712345678" maxLength={10}/>
+        </div>
+      </FF>
+      <button className="btn bp lg" style={{width:"100%",marginTop:12}} onClick={()=>startMpesa(createdListing.id,payPhone)} disabled={payPhone.length<10}>
+        📱 Send M-Pesa Request → KSh 250
+      </button>
+    </div>}
+
+    {payStep==="pushing"&&<div style={{textAlign:"center",padding:"32px 0"}}>
+      <div style={{marginBottom:18}}><Spin s="48px"/></div>
+      <h3 style={{fontWeight:700,marginBottom:8}}>Sending M-Pesa Request...</h3>
+      <p style={{color:"#888888",fontSize:14}}>Watch for a push notification on <strong>{payPhone}</strong></p>
+    </div>}
+
+    {payStep==="polling"&&<div style={{textAlign:"center",padding:"24px 0"}}>
+      <div style={{fontSize:64,marginBottom:12}}>📱</div>
+      <h3 style={{fontWeight:700,marginBottom:8}}>Enter Your M-Pesa PIN</h3>
+      <p style={{color:"#888888",fontSize:14,marginBottom:16}}>Check your phone · Pay Till <strong>5673935</strong> · KSh 250</p>
+      <div style={{fontSize:48,fontWeight:700,color:"#111111",marginBottom:8}}>{cd}s</div>
+      <div className="progress"><div className="progress-bar" style={{width:`${(cd/60)*100}%`}}/></div>
+    </div>}
+
+    {payStep==="fallback"&&<div style={{padding:"10px 0"}}>
+      <div style={{textAlign:"center",marginBottom:24}}>
+        <div style={{fontSize:48,marginBottom:12}}>⏱</div>
+        <h3 style={{fontWeight:700,marginBottom:8}}>Payment Not Confirmed</h3>
+        <p style={{color:"#888888",fontSize:14}}>The M-Pesa prompt timed out or was cancelled.</p>
+      </div>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <button className="btn bp" style={{width:"100%",padding:14}} onClick={()=>startMpesa(createdListing.id,payPhone)}>1. Try Again (Resend Prompt)</button>
+        <button className="btn bs" style={{width:"100%",padding:14}} onClick={()=>{onSuccess(createdListing);onClose();notify("🚀 Ad posted! You can unlock contact details later.","info");}}>2. Pay Later (Publish Anyway)</button>
+        <div style={{marginTop:8,padding:16,background:"#F8F8F8",borderRadius:12,border:"1px solid #E8E8E8"}}>
+          <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>3. Enter M-Pesa Transaction Code</div>
+          <div style={{display:"flex",gap:8}}>
+            <input className="inp" placeholder="e.g. RJK2X4ABCD" value={manualCode} onChange={e=>setManualCode(e.target.value.toUpperCase())} style={{flex:1,fontFamily:"monospace"}} maxLength={12}/>
+            <button className="btn bg2 sm" onClick={verifyManual} disabled={loading||manualCode.length<8}>{loading?<Spin/>:"Verify"}</button>
+          </div>
+          <p style={{fontSize:11,color:"#888",marginTop:6}}>System will verify this code before approving the ad.</p>
+        </div>
+      </div>
+    </div>}
+
+    {payStep==="none" && <>
     {step===0 && <div style={{padding:"10px 0"}}>
       <div style={{fontSize:15,fontWeight:700,marginBottom:12}}>How would you like to post this ad?</div>
       <div style={{display:"flex",flexDirection:"column",gap:12}}>
