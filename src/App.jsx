@@ -1132,16 +1132,16 @@ function ChatModal({listing,user,token,onClose,notify}){
 
 // ── POST AD ───────────────────────────────────────────────────────────────────
 function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
-  const [step,setStep]=useState(1);
+  const [step,setStep]=useState(listing?.request_id || (listing && !listing.id) ? 0 : 1);
   const [loading,setLoading]=useState(false);
   const [images,setImages]=useState([]);
   const [f,setF]=useState(()=>listing?{
     title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
-    price:String(listing.price||""),description:listing.description||"",
+    price:listing.price ? String(listing.price) : "",description:listing.description||"",
     reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||"",
-    request_id:listing.request_id||"",is_contact_public:listing.is_contact_public||false
-  }:{title:listing?.title||"",category:listing?.category||"",subcat:listing?.subcat||"",price:"",description:"",reason:"",location:"",county:"",
-    request_id:listing?.id||"",is_contact_public:!!listing?.id});
+    request_id:listing.request_id||listing.id||"",is_contact_public:listing.is_contact_public||false
+  }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
+    request_id:"",is_contact_public:false});
   const [existingPhotos,setExistingPhotos]=useState(()=>{
     if(!listing)return[];
     const ph=listing.photos||[];
@@ -1204,15 +1204,44 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     finally{setLoading(false);}
   };
 
-  return <Modal title={listing?`Edit Ad — Step ${step}/2`:`Post Ad — Step ${step}/2`} onClose={onClose} footer={
+  return <Modal title={step===0 ? "Choose Monetization" : listing?`Edit Ad — Step ${step}/2`:`Post Ad — Step ${step}/2`} onClose={onClose} footer={
     <div style={{display:"flex",gap:8,width:"100%"}}>
       {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
+      {step===1&&f.request_id&&<button className="btn bs" onClick={()=>setStep(0)}>← Back</button>}
       <div style={{flex:1}}/>
+      {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
       {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
       {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:"Publish Ad 🚀"}</button>}
     </div>
   }>
-    <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is 100% free. KSh 250 only when a buyer locks in.</div>
+    {step===0 && <div style={{padding:"10px 0"}}>
+      <div style={{fontSize:15,fontWeight:700,marginBottom:12}}>How would you like to post this ad?</div>
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <div style={{padding:16,border:`2px solid ${f.is_contact_public?"#1428A0":"#EEE"}`,borderRadius:12,cursor:"pointer",background:f.is_contact_public?"#F0F4FF":"#FFF"}} onClick={()=>sf("is_contact_public",true)}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <div style={{fontSize:24}}>⚡</div>
+            <div>
+              <div style={{fontWeight:700,fontSize:14}}>Pay Now (KSh 250)</div>
+              <div style={{fontSize:12,color:"#666"}}>Reveal buyer contact immediately upon posting. Best for quick sales.</div>
+            </div>
+            <input type="radio" checked={f.is_contact_public} readOnly style={{marginLeft:"auto"}}/>
+          </div>
+        </div>
+        <div style={{padding:16,border:`2px solid ${!f.is_contact_public?"#1428A0":"#EEE"}`,borderRadius:12,cursor:"pointer",background:!f.is_contact_public?"#F0F4FF":"#FFF"}} onClick={()=>sf("is_contact_public",false)}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            <div style={{fontSize:24}}>🕵️</div>
+            <div>
+              <div style={{fontWeight:700,fontSize:14}}>Pay Later (Post Anonymously)</div>
+              <div style={{fontSize:12,color:"#666"}}>Post for free. Pay later to reveal contact info when you're ready.</div>
+            </div>
+            <input type="radio" checked={!f.is_contact_public} readOnly style={{marginLeft:"auto"}}/>
+          </div>
+        </div>
+      </div>
+      <div style={{marginTop:20,fontSize:11,color:"#888",textAlign:"center"}}>You are responding to: <strong>{listing?.title}</strong></div>
+    </div>}
+
+    {step > 0 && <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is 100% free. KSh 250 only when a buyer locks in.</div>}
     {step===1&&<>
       <FF label="Item Title" required>
         <input className="inp" placeholder="e.g. iPhone 14 Pro 256GB" value={f.title} onChange={e=>{sf("title",e.target.value);setFieldErrors(p=>({...p,title:undefined}));}}/>
@@ -1260,36 +1289,6 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
           {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Thika","Kiambu","Machakos","Kajiado","Murang'a","Nyeri","Meru","Embu","Kirinyaga","Nyandarua","Laikipia","Nakuru","Baringo","Nandi","Uasin Gishu","Trans Nzoia","Elgeyo Marakwet","West Pokot","Turkana","Samburu","Isiolo","Marsabit","Mandera","Wajir","Garissa","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Mombasa","Vihiga","Bungoma","Busia","Kakamega","Siaya","Kisumu","Homabay","Migori","Kisii","Nyamira"].map(c=><option key={c} value={c}>{c}</option>)}
         </select>
       </FF>
-      {f.request_id && <div style={{marginTop:16,padding:12,background:"#F8F8F8",borderRadius:8,border:"1px solid #EEE"}}>
-        <div style={{fontSize:12,fontWeight:700,marginBottom:8,color:"#111"}}>Monetization Option:</div>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
-            <input type="radio" checked={f.is_contact_public} onChange={()=>sf("is_contact_public",true)}/>
-            <div style={{fontSize:12}}>
-              <strong>Pay Now (KSh 250)</strong>
-              <div style={{color:"#666"}}>Reveal buyer contact immediately upon posting.</div>
-            </div>
-          </label>
-          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
-            <input type="radio" checked={!f.is_contact_public} onChange={()=>sf("is_contact_public",false)}/>
-            <div style={{fontSize:12}}>
-              <strong>Pay Later</strong>
-              <div style={{color:"#666"}}>Post anonymously. Pay later to reveal contact info.</div>
-            </div>
-          </label>
-        </div>
-      </div>}
-    </>}F label="Link to Buyer Request (optional)" hint="If you are posting this ad in response to a buyer request, link it here.">
-        <input className="inp" placeholder="Enter Request ID" value={f.request_id} onChange={e=>sf("request_id",e.target.value)}/>
-      </FF>
-      <div style={{marginBottom:14}}>
-        <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
-          <input type="checkbox" checked={f.is_contact_public} onChange={e=>sf("is_contact_public",e.target.checked)}/>
-          <span style={{fontSize:14,fontWeight:500,color:"var(--txt)"}}>Make my contact info public (phone/email)</span>
-        </label>
-        <div style={{fontSize:11,color:"#888888",marginTop:4}}>If checked, buyers can see your contact details immediately without paying.</div>
-      </div>
-      <div className="alert ay" style={{fontSize:12}}>🔒 Your phone/email are hidden until a buyer pays KSh 250 to unlock them.</div>
     </>}
   </Modal>;
 }
