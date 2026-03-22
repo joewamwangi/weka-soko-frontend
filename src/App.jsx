@@ -1132,7 +1132,7 @@ function ChatModal({listing,user,token,onClose,notify}){
 
 // ── POST AD ───────────────────────────────────────────────────────────────────
 function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
-  const [step,setStep]=useState(listing?.request_id || (listing && !listing.id) ? 0 : 1);
+  const [step,setStep]=useState(listing?.id ? 1 : 0);
   const [loading,setLoading]=useState(false);
   const [images,setImages]=useState([]);
   const [f,setF]=useState(()=>listing?{
@@ -1207,7 +1207,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
   return <Modal title={step===0 ? "Choose Monetization" : listing?`Edit Ad — Step ${step}/2`:`Post Ad — Step ${step}/2`} onClose={onClose} footer={
     <div style={{display:"flex",gap:8,width:"100%"}}>
       {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
-      {step===1&&f.request_id&&<button className="btn bs" onClick={()=>setStep(0)}>← Back</button>}
+      {step===1&&!listing?.id&&<button className="btn bs" onClick={()=>setStep(0)}>← Back</button>}
       <div style={{flex:1}}/>
       {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
       {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
@@ -1238,7 +1238,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
           </div>
         </div>
       </div>
-      <div style={{marginTop:20,fontSize:11,color:"#888",textAlign:"center"}}>You are responding to: <strong>{listing?.title}</strong></div>
+      {listing?.title && <div style={{marginTop:20,fontSize:11,color:"#888",textAlign:"center"}}>You are responding to: <strong>{listing?.title}</strong></div>}
     </div>}
 
     {step > 0 && <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is 100% free. KSh 250 only when a buyer locks in.</div>}
