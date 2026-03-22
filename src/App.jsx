@@ -1140,8 +1140,8 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
     price:String(listing.price||""),description:listing.description||"",
     reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||"",
     request_id:listing.request_id||"",is_contact_public:listing.is_contact_public||false
-  }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
-    request_id:"",is_contact_public:false});
+  }:{title:listing?.title||"",category:listing?.category||"",subcat:listing?.subcat||"",price:"",description:"",reason:"",location:"",county:"",
+    request_id:listing?.id||"",is_contact_public:!!listing?.id});
   const [existingPhotos,setExistingPhotos]=useState(()=>{
     if(!listing)return[];
     const ph=listing.photos||[];
@@ -1180,8 +1180,19 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
       if(f.subcat)fd.append("subcat",f.subcat);
       images.forEach(img=>img.file&&fd.append("photos",img.file));
       const result=await api(url,{method,body:fd},token);
-      onSuccess(result);onClose();
-      notify(isEdit?"✅ Ad updated!":"🚀 Ad is live!","success");
+      if(!isEdit && result.status === "pending_payment"){
+        // Trigger payment flow
+        api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:result.id,phone:user.phone})},token).then(payRes=>{
+          notify("🚀 Ad posted! Please confirm the M-Pesa prompt to reveal contact info.","success");
+          onSuccess(result);onClose();
+        }).catch(err=>{
+          notify("🚀 Ad posted anonymously (Pay Later).","info");
+          onSuccess(result);onClose();
+        });
+      } else {
+        onSuccess(result);onClose();
+        notify(isEdit?"✅ Ad updated!":"🚀 Ad is live!","success");
+      }
     }catch(err){
       if(err.violations){
         const msg=err.violations.map(v=>`${v.field}: ${v.reason}`).join(" | ");
@@ -1249,7 +1260,26 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null}){
           {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Thika","Kiambu","Machakos","Kajiado","Murang'a","Nyeri","Meru","Embu","Kirinyaga","Nyandarua","Laikipia","Nakuru","Baringo","Nandi","Uasin Gishu","Trans Nzoia","Elgeyo Marakwet","West Pokot","Turkana","Samburu","Isiolo","Marsabit","Mandera","Wajir","Garissa","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Mombasa","Vihiga","Bungoma","Busia","Kakamega","Siaya","Kisumu","Homabay","Migori","Kisii","Nyamira"].map(c=><option key={c} value={c}>{c}</option>)}
         </select>
       </FF>
-      <FF label="Link to Buyer Request (optional)" hint="If you are posting this ad in response to a buyer request, link it here.">
+      {f.request_id && <div style={{marginTop:16,padding:12,background:"#F8F8F8",borderRadius:8,border:"1px solid #EEE"}}>
+        <div style={{fontSize:12,fontWeight:700,marginBottom:8,color:"#111"}}>Monetization Option:</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+            <input type="radio" checked={f.is_contact_public} onChange={()=>sf("is_contact_public",true)}/>
+            <div style={{fontSize:12}}>
+              <strong>Pay Now (KSh 250)</strong>
+              <div style={{color:"#666"}}>Reveal buyer contact immediately upon posting.</div>
+            </div>
+          </label>
+          <label style={{display:"flex",alignItems:"center",gap:8,cursor:"pointer"}}>
+            <input type="radio" checked={!f.is_contact_public} onChange={()=>sf("is_contact_public",false)}/>
+            <div style={{fontSize:12}}>
+              <strong>Pay Later</strong>
+              <div style={{color:"#666"}}>Post anonymously. Pay later to reveal contact info.</div>
+            </div>
+          </label>
+        </div>
+      </div>}
+    </>}F label="Link to Buyer Request (optional)" hint="If you are posting this ad in response to a buyer request, link it here.">
         <input className="inp" placeholder="Enter Request ID" value={f.request_id} onChange={e=>sf("request_id",e.target.value)}/>
       </FF>
       <div style={{marginBottom:14}}>
@@ -1543,6 +1573,18 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
           </div>
           {isSeller&&l.locked_buyer_id&&<button className="btn bp sm" style={{marginLeft:"auto"}} onClick={onUnlock}>Unlock → KSh 250</button>}
         </div>}
+        {isSeller && !l.is_unlocked && <div style={{marginTop:12,padding:12,background:"#FFF9E6",border:"1px solid #FFE58F",borderRadius:8}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#856404",marginBottom:4}}>⚠️ Contact Info Locked</div>
+          <div style={{fontSize:11,color:"#856404",marginBottom:8}}>You haven't paid the reveal fee yet. Buyers cannot see your contact info, and you cannot see theirs.</div>
+          <div style={{display:"flex",gap:8}}>
+            <button className="btn bp sm" onClick={onUnlock}>Retry M-Pesa Payment</button>
+            <button className="btn bs sm" onClick={()=>{
+              const code = window.prompt("Enter Voucher Code:");
+              if(code) api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:l.id,voucher_code:code})},token)
+                .then(()=>window.location.reload()).catch(err=>notify(err.message,"error"));
+            }}>Use Voucher</button>
+          </div>
+        </div>}
     </div>
 
     {/* ── Buyer safety tip ───────────────────────────────────────────── */}
@@ -1742,7 +1784,7 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
                       }).catch(err=>notify(err.message,"error"));
                     }
                   } else {
-                    setPitchTarget(r);
+                    onOpenPostAd(r);
                   }
                 }}>📬 I Have This</button>}
             </div>
@@ -1826,11 +1868,11 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false}){
                             window.location.reload();
                           }).catch(err=>notify(err.message,"error"));
                         }
-                      } else {
-                        setPitchTarget(r);
-                      }
-                    }}>📬 I Have This</button>
+                  } else {
+                    onOpenPostAd(r);
                   }
+                }}>📬 I Have This</button>
+              }
                 </div>
               </div>
             </div>
@@ -2457,7 +2499,14 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                 <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="rejected"?"br2":"bg-m"}`} style={{fontSize:10}}>{l.status==="pending_review"?"⏳ Review":l.status==="rejected"?"❌ Rejected":l.status}</span>
                 {!l.is_unlocked&&l.status!=="sold"&&(l.free_unlock_approved
                   ?<button className="btn bg2 sm" onClick={async()=>{try{await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);setListings(p=>p.map(x=>x.id===l.id?{...x,is_unlocked:true}:x));notify("🔓 Unlocked!","success");}catch{setShowPayModal(l);}}}>🎁 Free</button>
-                  :<button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock</button>)}
+                  :<div style={{display:"flex",gap:4}}>
+                    <button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock</button>
+                    <button className="btn bs sm" onClick={()=>{
+                      const code = window.prompt("Enter Voucher Code:");
+                      if(code) api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:l.id,voucher_code:code})},token)
+                        .then(()=>window.location.reload()).catch(err=>notify(err.message,"error"));
+                    }}>🎫</button>
+                  </div>)}
                 {(l.status==="active"||l.status==="locked")&&<button className="btn bp sm" onClick={()=>setMarkSoldListing(l)}>✅ Sold</button>}
                 {l.status!=="sold"&&<button className="btn bs sm" onClick={()=>setEditingListing(l)}>✏️</button>}
                 {(l.status==="rejected"||l.status==="needs_changes")&&<button className="btn bg2 sm" onClick={async()=>{try{await api(`/api/listings/${l.id}/resubmit`,{method:"POST"},token);setListings(p=>p.map(x=>x.id===l.id?{...x,status:"pending_review",moderation_note:null}:x));notify("⏳ Resubmitted","success");}catch(e){notify(e.message,"error");}}}>↺</button>}
