@@ -1205,7 +1205,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null,linkedRequest=
       } else {
         // Pay Later — listing is live but contact hidden
         onSuccess(result);onClose();
-        notify("✅ Ad posted! Pay KSh 250 anytime from your dashboard to reveal the buyer's contact.","success");
+        notify("⏳ Ad submitted! It's under review — you'll be notified once it goes live.","info");
       }
     }catch(err){
       if(err.violations){
@@ -1242,7 +1242,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null,linkedRequest=
       </div>
     </div>}
 
-    <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is free. KSh 250 only to reveal the buyer's contact info.</div>
+    <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is free. Your ad goes to admin review first — you'll be notified when it's live. KSh 250 to reveal buyer contact.</div>
 
     {step===1&&<>
       <FF label="Item Title" required>
@@ -1337,14 +1337,14 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null,linkedRequest=
         setShowPayModal(false);
         onSuccess({id:createdListingId,...f});
         onClose();
-        notify("🔓 Buyer contact revealed! Check your dashboard.","success");
+        notify("⏳ Ad under review — you'll be notified when it's live. Buyer contact will be revealed on approval.","info");
       }}
       onClose={()=>{
         // Payment failed/cancelled → listing stays in Pay Later state
         setShowPayModal(false);
         onSuccess({id:createdListingId,...f});
         onClose();
-        notify("Ad posted anonymously. Pay KSh 250 from your dashboard to reveal buyer contact.","info");
+        notify("⏳ Ad submitted for review. Pay KSh 250 from your dashboard to reveal buyer contact once live.","info");
       }}
       notify={notify}
     />}
@@ -3639,6 +3639,11 @@ export default function App(){
       if(n.type==="request_match"){
         // A new listing matches a buyer's open request
         notify(n.body||n.title,"success");
+        setNotifCount(c=>c+1);
+        return;
+      }
+      if(n.type==="listing_approved"){
+        notify("🎉 Your ad is now live on Weka Soko! "+(n.body||""),"success");
         setNotifCount(c=>c+1);
         return;
       }
