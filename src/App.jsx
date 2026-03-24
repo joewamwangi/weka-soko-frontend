@@ -1139,7 +1139,7 @@ function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
     title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
     price:listing.price ? String(listing.price) : "",description:listing.description||"",
     reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||"",
-    request_id:listing.request_id||listing.id||"",is_contact_public:false
+    request_id:listing.request_id||listing.id||"",is_contact_public:listing.is_contact_public||false
   }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
     request_id:"",is_contact_public:false});
   const [payStep,setPayStep]=useState("none"); // none, phone, pushing, polling, fallback
@@ -1946,20 +1946,20 @@ function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd,compact=false})
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
-                  {user&&user.id!==r.user_id&&
-                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
-                      if(user.role==="buyer"){
-                        if(window.confirm("You need a Seller account to pitch. Switch to Seller now?")){
-                          api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
-                            localStorage.setItem("ws_user",JSON.stringify(d.user));
-                            window.location.reload();
-                          }).catch(err=>notify(err.message,"error"));
-                        }
-                  } else {
-                    onOpenPostAd(r);
-                  }
-                }}>📬 I Have This</button>
-              }
+	                  {user&&user.id!==r.user_id&&
+	                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
+	                      if(user.role==="buyer"){
+	                        if(window.confirm("You need a Seller account to pitch. Switch to Seller now?")){
+	                          api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
+	                            localStorage.setItem("ws_user",JSON.stringify(d.user));
+	                            window.location.reload();
+	                          }).catch(err=>notify(err.message,"error"));
+	                        }
+	                      } else {
+	                        onOpenPostAd(r);
+	                      }
+	                    }}>📬 I Have This</button>
+	                  }
                 </div>
               </div>
             </div>
@@ -3534,3 +3534,5 @@ export default function App(){
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
   </>;
 }
+
+export default App;
