@@ -768,7 +768,7 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
 
 // ── SHARE MODAL ───────────────────────────────────────────────────────────────
 function ShareModal({listing,onClose}){
-  const url=`${window.location.origin}?listing=${listing.id}`;
+  const url=`${window.location.origin}/?listing=${listing.id}`;
   const txt=`"${listing.title}" — ${fmtKES(listing.price)} on Weka Soko`;
   const [copied,setCopied]=useState(false);
 
@@ -2864,8 +2864,19 @@ function MobileDashboard({
 }
 
 
-function Dashboard({user,token,notify,onPostAd,onClose,onUserUpdate}){
-  const [tab,setTab]=useState("overview");
+function Dashboard({user,token,notify,onPostAd,onClose,onUserUpdate,initialTab}){
+  const [tab,setTab]=useState(()=>{
+    // Restore from URL or prop
+    const fromUrl = window.__initialDashTab;
+    window.__initialDashTab = null;
+    return fromUrl || initialTab || "overview";
+  });
+  // Sync dashboard tab to URL
+  useEffect(()=>{
+    const path = tab === "overview" ? "/dashboard" : `/dashboard/${tab}`;
+    if(window.location.pathname !== path)
+      window.history.pushState({},'',path);
+  },[tab]);
   const [listings,setListings]=useState([]);
   const [buyerInterests,setBuyerInterests]=useState([]);
   const [myRequests,setMyRequests]=useState([]);
@@ -3480,12 +3491,12 @@ function MobileLayout({
 
     {/* ── TOP BAR ── */}
     <div className="mob-topbar">
-      <div className="mob-logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);setMobileTab("home");}}>WekaSoko</div>
+      <div className="mob-logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);setMobileTab("home");window.history.pushState({},"","/");}}>WekaSoko</div>
       <div className="mob-search">
         <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" strokeWidth="2"/><path d="M20 20l-3-3" stroke="#AAAAAA" strokeWidth="2" strokeLinecap="round"/></svg>
         <input placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);setMobileTab("home");}}/>
       </div>
-      <div className="mob-notif" onClick={()=>{if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");setMobileTab("dashboard");}}>
+      <div className="mob-notif" onClick={()=>{if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");setMobileTab("dashboard");window.history.pushState({},"","/dashboard");}}>
         {user
           ?<svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round"/></svg>
           :<svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round"/></svg>}
@@ -3602,8 +3613,8 @@ function MobileLayout({
           className={`mob-tab${t.isPost?" post-btn":mobileTab===t.id?" on":" off"}`}
           onClick={()=>{
             if(t.isPost){postAd();return;}
-            if(t.id==="dashboard"){if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");}
-            else if(t.id==="requests"){setPage("home");}
+            if(t.id==="dashboard"){if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");window.history.pushState({},"","/dashboard");}
+            else if(t.id==="requests"){setPage("home");window.history.pushState({},"","/requests");}
             else{setPage("home");}
             setMobileTab(t.id);
           }}>
@@ -3684,7 +3695,108 @@ export default function App(){
   },[]);
   const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
   const [mobileTab,setMobileTab]=useState('home'); // home|search|post|dashboard|more
-  const closeModal=useCallback(()=>setModal(null),[]);
+  const closeModal=useCallback(()=>{
+    setModal(null);
+    // If we were on a listing URL, go back to the listing grid
+    if(window.location.search.includes('listing=')){
+      window.history.pushState({},'','/');
+    }
+  },[]);
+
+  // ── URL ROUTER ────────────────────────────────────────────────────────────
+  // Parses URL → state on mount, pushes URL → on state changes.
+  // URL scheme:
+  //   /                        → home
+  //   /?cat=Electronics        → home filtered by category
+  //   /?q=iphone               → home with search
+  //   /?listing=[id]           → open listing detail
+  //   /sold                    → sold items page
+  //   /dashboard               → dashboard overview
+  //   /dashboard/[tab]         → dashboard specific tab
+  //   /requests                → requests tab (mobile)
+
+  const parseAndApplyURL = useCallback((path, search) => {
+    const params = new URLSearchParams(search);
+    const segments = path.replace(/^\//, '').split('/').filter(Boolean);
+    const section = segments[0] || '';
+    const sub = segments[1] || '';
+
+    if (section === 'sold') {
+      setPage('sold');
+    } else if (section === 'dashboard') {
+      setPage('dashboard');
+      if (sub) {
+        // Will be picked up by Dashboard via initialTab prop
+        window.__initialDashTab = sub;
+      }
+    } else if (section === 'requests') {
+      setPage('home');
+      setMobileTab('requests');
+    } else {
+      // Home — apply any filters from query params
+      setPage('home');
+      const cat = params.get('cat') || '';
+      const q = params.get('q') || '';
+      const county = params.get('county') || '';
+      const sort = params.get('sort') || 'newest';
+      const pg_val = parseInt(params.get('pg') || '1');
+      if (cat || q || county || sort !== 'newest' || pg_val > 1) {
+        setFilter(f => ({ ...f, cat, q, county, sort }));
+        if (pg_val > 1) setPg(pg_val);
+      }
+      // Listing detail via ?listing=[id]
+      const listingId = params.get('listing');
+      if (listingId) {
+        api(`/api/listings/${listingId}`, {}, null).then(l => {
+          if (l && l.id) setModal({ type: 'detail', listing: l });
+        }).catch(() => {});
+      }
+    }
+  }, []); // eslint-disable-line
+
+  // Parse URL on first mount
+  useEffect(() => {
+    parseAndApplyURL(window.location.pathname, window.location.search);
+  }, []); // eslint-disable-line
+
+  // Handle browser back/forward
+  useEffect(() => {
+    const onPop = () => parseAndApplyURL(window.location.pathname, window.location.search);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, [parseAndApplyURL]);
+
+  // Push URL when page changes
+  const navTo = useCallback((path, replaceState = false) => {
+    const method = replaceState ? 'replaceState' : 'pushState';
+    if (window.location.pathname + window.location.search !== path) {
+      window.history[method]({}, '', path);
+    }
+  }, []);
+
+  // Sync page → URL
+  useEffect(() => {
+    if (page === 'sold') navTo('/sold');
+    else if (page === 'dashboard') navTo('/dashboard');
+    else if (page === 'home' && mobileTab === 'requests') navTo('/requests');
+    // home page URL is updated by the filter/pg effect below
+  }, [page, mobileTab, navTo]); // eslint-disable-line
+
+  // Sync home filters → URL
+  useEffect(() => {
+    if (page !== 'home' || mobileTab === 'requests') return;
+    const p = new URLSearchParams();
+    if (filter.cat) p.set('cat', filter.cat);
+    if (filter.q) p.set('q', filter.q);
+    if (filter.county) p.set('county', filter.county);
+    if (filter.sort && filter.sort !== 'newest') p.set('sort', filter.sort);
+    if (pg > 1) p.set('pg', String(pg));
+    const qs = p.toString();
+    navTo(qs ? `/listings?${qs}` : '/');
+  }, [page, filter, pg, mobileTab, navTo]); // eslint-disable-line
+
+  // ── END URL ROUTER ─────────────────────────────────────────────────────────
+
 
   useEffect(()=>{let el=document.getElementById("ws-css");if(!el){el=document.createElement("style");el.id="ws-css";document.head.appendChild(el);}el.textContent=CSS;
     // Ensure viewport meta for mobile
@@ -3915,6 +4027,8 @@ export default function App(){
 
   const openListing=async l=>{
     setModal({type:"detail",listing:l}); // show immediately with what we have
+    // Push listing URL so refresh/share restores the detail view
+    window.history.pushState({},'',`/?listing=${l.id}`);
     try{
       const fresh=await api(`/api/listings/${l.id}`,{},token);
       setModal({type:"detail",listing:fresh});
@@ -3965,12 +4079,12 @@ export default function App(){
   return <>
     {/* NAV */}
     <nav className="nav">
-      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);}} style={{color:"#1428A0"}}><WekaSokoLogo size={38}/></div>
+      <div className="logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);window.history.pushState({},"","/");}} style={{color:"#1428A0"}}><WekaSokoLogo size={38}/></div>
       {/* Desktop nav */}
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        <button className="bgh" style={{color:"#636363",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"var(--fn)",padding:"8px 14px",whiteSpace:"nowrap"}} onClick={()=>setPage(p=>p==="sold"?"home":"sold")}>Sold Items</button>
+        <button className="bgh" style={{color:"#636363",fontSize:13,background:"transparent",border:"none",cursor:"pointer",fontFamily:"var(--fn)",padding:"8px 14px",whiteSpace:"nowrap"}} onClick={()=>{if(page==="sold"){setPage("home");window.history.pushState({},"","/");}else{setPage("sold");window.history.pushState({},"","/sold");}}}>Sold Items</button>
         {user?<>
-          <button style={{background:"transparent",border:"none",color:"#1D1D1D",cursor:"pointer",fontSize:13,fontFamily:"var(--fn)",padding:"8px 14px",position:"relative",whiteSpace:"nowrap"}} onClick={()=>setPage("dashboard")}>
+          <button style={{background:"transparent",border:"none",color:"#1D1D1D",cursor:"pointer",fontSize:13,fontFamily:"var(--fn)",padding:"8px 14px",position:"relative",whiteSpace:"nowrap"}} onClick={()=>{setPage("dashboard");window.history.pushState({},"","/dashboard");}}>
             {user.name?.split(" ")[0]}
             {notifCount>0&&<span className="notif-dot"/>}
           </button>
@@ -4274,7 +4388,7 @@ export default function App(){
       </div>
     </div>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
-    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")} onUserUpdate={updated=>{const m={...user,...updated};setUser(m);localStorage.setItem("ws_user",JSON.stringify(m));}}/>}
+    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");window.history.pushState({},"","/");setModal({type:"post"});}} onClose={()=>{setPage("home");window.history.pushState({},"","/");}} onUserUpdate={updated=>{const m={...user,...updated};setUser(m);localStorage.setItem("ws_user",JSON.stringify(m));}} initialTab={window.location.pathname.startsWith("/dashboard/")?window.location.pathname.split("/dashboard/")[1]:undefined}/>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
   </>;
