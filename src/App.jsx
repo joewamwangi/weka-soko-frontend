@@ -3425,6 +3425,36 @@ function MobileLayout({
 
     </>}
 
+    {/* ── REQUESTS TAB ── */}
+    {mobileTab==="requests"&&<div style={{paddingBottom:80}}>
+      {/* Header */}
+      <div style={{padding:"18px 16px 12px",borderBottom:"1px solid #F0F0F0",background:"#fff",position:"sticky",top:0,zIndex:10}}>
+        <div style={{fontSize:11,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:4}}>Community</div>
+        <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",letterSpacing:"-.01em"}}>🛒 What Buyers Want</div>
+        <div style={{fontSize:13,color:"#636363",marginTop:4}}>Sellers — tap "I Have This" to respond to a request</div>
+      </div>
+      {/* WhatBuyersWant full view */}
+      <div style={{padding:"16px 16px 0"}}>
+        <WhatBuyersWant
+          user={user} token={token} notify={notify}
+          onSignIn={()=>setModal({type:"auth",mode:"login"})}
+          compact={false}
+          onIHaveThis={(request,action)=>{
+            if(action==="switch_to_seller"){
+              fetch(`${(process.env.REACT_APP_API_URL||"https://weka-soko-backend-production.up.railway.app").replace(/\/$/,"")}/api/auth/role`,
+                {method:"PATCH",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify({role:"seller"})})
+                .then(r=>r.json()).then(d=>{
+                  localStorage.setItem("ws_user",JSON.stringify(d.user));
+                  window.location.reload();
+                }).catch(e=>notify(e.message,"error"));
+              return;
+            }
+            setModal({type:"post",linkedRequest:request});
+          }}
+        />
+      </div>
+    </div>}
+
     {/* ── BOTTOM TAB BAR ── */}
     <div className="mob-bottombar">
       {[
@@ -3432,14 +3462,14 @@ function MobileLayout({
         {id:"search",icon:<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2"/><path d="M20 20l-3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:"Search"},
         {id:"post",icon:<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 8v8M8 12h8" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>,label:"Post",isPost:true},
         {id:"dashboard",icon:<svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:user?user.name?.split(" ")[0]:"Account"},
-        {id:"more",icon:<svg viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>,label:"More"},
+        {id:"requests",icon:<svg viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:"Requests"},
       ].map(t=>(
         <button key={t.id}
           className={`mob-tab${t.isPost?" post-btn":mobileTab===t.id?" on":" off"}`}
           onClick={()=>{
             if(t.isPost){postAd();return;}
             if(t.id==="dashboard"){if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");}
-            else if(t.id==="more"){setPage("sold");}
+            else if(t.id==="requests"){setPage("home");}
             else{setPage("home");}
             setMobileTab(t.id);
           }}>
