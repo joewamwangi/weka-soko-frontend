@@ -2363,7 +2363,225 @@ function PitchesTab({token, notify, user}) {
   </div>;
 }
 
-function Dashboard({user,token,notify,onPostAd,onClose}){
+// ── PROFILE SECTION ──────────────────────────────────────────────────────────
+function ProfileSection({user, token, notify, onUpdate}){
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [f, setF] = useState({
+    name: user.name||"",
+    phone: user.phone||"",
+    whatsapp_phone: user.whatsapp_phone||""
+  });
+
+  // Reset form if user prop changes
+  useEffect(()=>{
+    setF({name:user.name||"",phone:user.phone||"",whatsapp_phone:user.whatsapp_phone||""});
+  }, [user.name, user.phone, user.whatsapp_phone]);
+
+  const save = async()=>{
+    if(!f.name.trim()){notify("Name cannot be empty","warning");return;}
+    setSaving(true);
+    try{
+      const updated = await api("/api/auth/profile",{
+        method:"PATCH",
+        body:JSON.stringify({
+          name: f.name.trim()||undefined,
+          phone: f.phone.trim()||undefined,
+          whatsapp_phone: f.whatsapp_phone.trim()||undefined,
+        })
+      }, token);
+      onUpdate(updated);
+      setEditing(false);
+      notify("✅ Profile updated!","success");
+    }catch(e){notify(e.message,"error");}
+    finally{setSaving(false);}
+  };
+
+  return <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 22px"}}>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
+      <div style={{fontWeight:700,fontSize:15,color:"#1A1A1A"}}>Profile Information</div>
+      {!editing
+        ?<button className="btn bs sm" style={{borderRadius:8}} onClick={()=>setEditing(true)}>✏️ Edit</button>
+        :<div style={{display:"flex",gap:8}}>
+          <button className="btn bs sm" style={{borderRadius:8}} onClick={()=>{setEditing(false);setF({name:user.name||"",phone:user.phone||"",whatsapp_phone:user.whatsapp_phone||""});}}>Cancel</button>
+          <button className="btn bp sm" style={{borderRadius:8}} onClick={save} disabled={saving}>{saving?<Spin/>:"Save"}</button>
+        </div>}
+    </div>
+
+    {/* Avatar + name row */}
+    <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20,paddingBottom:18,borderBottom:"1px solid #F5F5F5"}}>
+      <div style={{width:56,height:56,borderRadius:"50%",background:"#1428A0",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:700,color:"#fff",flexShrink:0}}>
+        {user.name?.charAt(0)?.toUpperCase()||"?"}
+      </div>
+      <div>
+        <div style={{fontWeight:700,fontSize:17,color:"#1A1A1A"}}>{user.name}</div>
+        <div style={{fontSize:13,color:"#888",marginTop:2}}>{user.anon_tag&&<span style={{background:"#F0F4FF",color:"#1428A0",padding:"2px 8px",borderRadius:20,fontSize:12,fontWeight:600}}>@{user.anon_tag}</span>}</div>
+      </div>
+    </div>
+
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      {/* Name */}
+      <div>
+        <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,textTransform:"uppercase",letterSpacing:".05em"}}>Display Name</div>
+        {editing
+          ?<input className="inp" value={f.name} onChange={e=>setF(p=>({...p,name:e.target.value}))} placeholder="Your name"/>
+          :<div style={{fontSize:15,color:"#1A1A1A",fontWeight:500}}>{user.name||<span style={{color:"#CCC"}}>Not set</span>}</div>}
+      </div>
+
+      {/* Email — always read-only */}
+      <div>
+        <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,textTransform:"uppercase",letterSpacing:".05em"}}>Email</div>
+        <div style={{display:"flex",alignItems:"center",gap:8}}>
+          <div style={{fontSize:15,color:"#1A1A1A",fontWeight:500}}>{user.email}</div>
+          {user.is_verified
+            ?<span style={{background:"#DCFCE7",color:"#16a34a",padding:"2px 8px",borderRadius:20,fontSize:11,fontWeight:700}}>✓ Verified</span>
+            :<span style={{background:"#FEF9C3",color:"#CA8A04",padding:"2px 8px",borderRadius:20,fontSize:11,fontWeight:700}}>⚠ Unverified</span>}
+        </div>
+        <div style={{fontSize:12,color:"#AAAAAA",marginTop:3}}>Email cannot be changed</div>
+      </div>
+
+      {/* Phone */}
+      <div>
+        <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,textTransform:"uppercase",letterSpacing:".05em"}}>Phone Number</div>
+        {editing
+          ?<input className="inp" value={f.phone} onChange={e=>setF(p=>({...p,phone:e.target.value}))} placeholder="e.g. 0712345678" type="tel"/>
+          :<div style={{fontSize:15,color:"#1A1A1A",fontWeight:500}}>{user.phone||<span style={{color:"#CCC"}}>Not set</span>}</div>}
+        {editing&&<div style={{fontSize:12,color:"#AAAAAA",marginTop:4}}>Used for M-Pesa payments — shared with buyers after KSh 250 unlock</div>}
+      </div>
+
+      {/* WhatsApp */}
+      <div>
+        <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,textTransform:"uppercase",letterSpacing:".05em"}}>WhatsApp Number</div>
+        {editing
+          ?<input className="inp" value={f.whatsapp_phone} onChange={e=>setF(p=>({...p,whatsapp_phone:e.target.value}))} placeholder="e.g. 0712345678 (if different from phone)" type="tel"/>
+          :<div style={{fontSize:15,color:"#1A1A1A",fontWeight:500}}>{user.whatsapp_phone||<span style={{color:"#CCC",fontSize:13}}>Same as phone</span>}</div>}
+      </div>
+
+      {/* Role — read-only display */}
+      <div>
+        <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,textTransform:"uppercase",letterSpacing:".05em"}}>Account Type</div>
+        <span className={`badge ${user.role==="seller"?"bg-g":"bg-b"}`}>{user.role==="seller"?"🏷 Seller":"🛍 Buyer"}</span>
+      </div>
+
+      {/* Member since */}
+      <div>
+        <div style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,textTransform:"uppercase",letterSpacing:".05em"}}>Member Since</div>
+        <div style={{fontSize:14,color:"#636363"}}>{new Date(user.created_at).toLocaleDateString("en-KE",{year:"numeric",month:"long",day:"numeric"})}</div>
+      </div>
+    </div>
+  </div>;
+}
+
+// ── PASSWORD SECTION ──────────────────────────────────────────────────────────
+function PasswordSection({user, token, notify}){
+  const [open, setOpen] = useState(false);
+  const [f, setF] = useState({current:"", newPwd:"", confirm:""});
+  const [saving, setSaving] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+
+  // Detect Google OAuth user (no password)
+  const isGoogleUser = user.email?.endsWith("@gmail.com") && !user.has_password;
+
+  const save = async()=>{
+    if(f.newPwd.length < 8){notify("New password must be at least 8 characters","warning");return;}
+    if(f.newPwd !== f.confirm){notify("Passwords do not match","warning");return;}
+    setSaving(true);
+    try{
+      await api("/api/auth/change-password",{
+        method:"POST",
+        body:JSON.stringify({currentPassword:f.current, newPassword:f.newPwd})
+      }, token);
+      notify("✅ Password changed successfully!","success");
+      setOpen(false);
+      setF({current:"",newPwd:"",confirm:""});
+    }catch(e){notify(e.message,"error");}
+    finally{setSaving(false);}
+  };
+
+  return <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 22px"}}>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+      <div>
+        <div style={{fontWeight:700,fontSize:15,color:"#1A1A1A",marginBottom:2}}>Password</div>
+        <div style={{fontSize:13,color:"#888"}}>{isGoogleUser?"Signed in with Google":"••••••••"}</div>
+      </div>
+      <button className="btn bs sm" style={{borderRadius:8}} onClick={()=>setOpen(p=>!p)}>
+        {open?"Cancel":"Change Password"}
+      </button>
+    </div>
+
+    {open&&<div style={{marginTop:18,paddingTop:18,borderTop:"1px solid #F5F5F5",display:"flex",flexDirection:"column",gap:12}}>
+      {/* Current password — hidden for Google users */}
+      {!isGoogleUser&&<div>
+        <label style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,display:"block",textTransform:"uppercase",letterSpacing:".05em"}}>Current Password</label>
+        <div style={{position:"relative"}}>
+          <input className="inp" type={showCurrent?"text":"password"} value={f.current} onChange={e=>setF(p=>({...p,current:e.target.value}))} placeholder="Enter current password" style={{paddingRight:44}}/>
+          <button onClick={()=>setShowCurrent(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#888"}}>{showCurrent?"🙈":"👁"}</button>
+        </div>
+      </div>}
+
+      <div>
+        <label style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,display:"block",textTransform:"uppercase",letterSpacing:".05em"}}>New Password</label>
+        <div style={{position:"relative"}}>
+          <input className="inp" type={showNew?"text":"password"} value={f.newPwd} onChange={e=>setF(p=>({...p,newPwd:e.target.value}))} placeholder="Minimum 8 characters" style={{paddingRight:44}}/>
+          <button onClick={()=>setShowNew(p=>!p)} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",fontSize:16,color:"#888"}}>{showNew?"🙈":"👁"}</button>
+        </div>
+        {f.newPwd&&<div style={{marginTop:6,display:"flex",gap:4,alignItems:"center"}}>
+          {[8,12,16].map(n=><div key={n} style={{height:3,flex:1,borderRadius:2,background:f.newPwd.length>=n?"#1428A0":"#E0E0E0",transition:"background .2s"}}/>)}
+          <span style={{fontSize:11,color:"#888",marginLeft:4}}>{f.newPwd.length<8?"Weak":f.newPwd.length<12?"Fair":"Strong"}</span>
+        </div>}
+      </div>
+
+      <div>
+        <label style={{fontSize:12,fontWeight:600,color:"#888",marginBottom:6,display:"block",textTransform:"uppercase",letterSpacing:".05em"}}>Confirm New Password</label>
+        <input className="inp" type="password" value={f.confirm} onChange={e=>setF(p=>({...p,confirm:e.target.value}))} placeholder="Re-enter new password"/>
+        {f.confirm&&f.newPwd&&<div style={{fontSize:12,marginTop:4,color:f.confirm===f.newPwd?"#16a34a":"#dc2626"}}>
+          {f.confirm===f.newPwd?"✓ Passwords match":"✗ Passwords do not match"}
+        </div>}
+      </div>
+
+      <button className="btn bp" style={{borderRadius:10,marginTop:4}} onClick={save} disabled={saving||!f.newPwd||(!isGoogleUser&&!f.current)||f.newPwd!==f.confirm}>
+        {saving?<Spin/>:"Update Password"}
+      </button>
+    </div>}
+  </div>;
+}
+
+// ── VERIFICATION SECTION ──────────────────────────────────────────────────────
+function VerificationSection({user, token, notify}){
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const resend = async()=>{
+    setSending(true);
+    try{
+      await api("/api/auth/resend-verification",{method:"POST"}, token);
+      setSent(true);
+      notify("✅ Verification email sent! Check your inbox.","success");
+    }catch(e){notify(e.message,"error");}
+    finally{setSending(false);}
+  };
+
+  return <div style={{background:"#FFFBEB",border:"1px solid #FDE68A",borderRadius:14,padding:"20px 22px"}}>
+    <div style={{display:"flex",gap:14,alignItems:"flex-start"}}>
+      <span style={{fontSize:28,flexShrink:0}}>⚠️</span>
+      <div style={{flex:1}}>
+        <div style={{fontWeight:700,fontSize:15,color:"#92400E",marginBottom:4}}>Email Not Verified</div>
+        <div style={{fontSize:13,color:"#78350F",lineHeight:1.7,marginBottom:14}}>
+          Your email <strong>{user.email}</strong> hasn't been verified yet. Verify it to secure your account and receive important notifications.
+        </div>
+        {sent
+          ?<div style={{fontSize:13,color:"#16a34a",fontWeight:600}}>✅ Email sent! Check your inbox (and spam folder).</div>
+          :<button className="btn bp" style={{borderRadius:10,background:"#D97706",border:"none"}} onClick={resend} disabled={sending}>
+            {sending?<Spin/>:"📧 Send Verification Email"}
+          </button>}
+      </div>
+    </div>
+  </div>;
+}
+
+
+function Dashboard({user,token,notify,onPostAd,onClose,onUserUpdate}){
   const [tab,setTab]=useState("overview");
   const [listings,setListings]=useState([]);
   const [buyerInterests,setBuyerInterests]=useState([]);
@@ -2680,33 +2898,42 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
     {!loading&&tab==="requests"&&<MyRequestsTab token={token} notify={notify} user={user}/>}
 
     {!loading&&tab==="settings"&&<>
-      <div style={{maxWidth:520,display:"flex",flexDirection:"column",gap:12}}>
-        <div style={{padding:"20px 22px",background:"#fff",border:"1px solid #EBEBEB",borderRadius:6}}>
-          <div className="lbl" style={{marginBottom:12}}>Account Info</div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0",borderBottom:"1px solid #F5F5F5"}}>
-              <span style={{color:"#888888"}}>Name</span><span style={{fontWeight:600}}>{user.name}</span>
-            </div>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0",borderBottom:"1px solid #F5F5F5"}}>
-              <span style={{color:"#888888"}}>Email</span><span style={{fontWeight:600}}>{user.email}</span>
-            </div>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"10px 0"}}>
-              <span style={{color:"#888888"}}>Role</span>
-              <span className={`badge ${user.role==="seller"?"bg-g":"bg-b"}`}>{user.role==="seller"?"🏷 Seller":"🛍 Buyer"}</span>
-            </div>
+      <div style={{maxWidth:560,display:"flex",flexDirection:"column",gap:20}}>
+
+        {/* ── PROFILE INFO ──────────────────────────────────────────── */}
+        <ProfileSection user={user} token={token} notify={notify} onUpdate={updated=>onUserUpdate&&onUserUpdate(updated)}/>
+
+        {/* ── PASSWORD ──────────────────────────────────────────────── */}
+        <PasswordSection user={user} token={token} notify={notify}/>
+
+        {/* ── VERIFICATION BANNER (only if not verified) ────────────── */}
+        {!user.is_verified&&<VerificationSection user={user} token={token} notify={notify}/>}
+
+        {/* ── ACCOUNT ACTIONS ───────────────────────────────────────── */}
+        <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 22px"}}>
+          <div style={{fontWeight:700,fontSize:15,color:"#1A1A1A",marginBottom:16}}>Account</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10}}>
+            <RoleSwitcher user={user} token={token} notify={notify} onSwitch={newUser=>{onUserUpdate&&onUserUpdate(newUser);}}/>
+            <button className="btn bs" style={{justifyContent:"flex-start",gap:10,borderRadius:10}} onClick={()=>{
+              localStorage.removeItem("ws_token");
+              localStorage.removeItem("ws_user");
+              onClose();window.location.reload();
+            }}>🚪 Sign Out</button>
+            <button className="btn" style={{justifyContent:"flex-start",gap:10,borderRadius:10,background:"transparent",border:"1.5px solid #FFCCCC",color:"#dc2626",fontFamily:"var(--fn)",padding:"11px 16px",fontSize:14,cursor:"pointer",fontWeight:600}} onClick={async()=>{
+              if(!window.confirm("Permanently delete your account? ALL your listings and data will be removed forever. This CANNOT be undone."))return;
+              try{
+                await api("/api/auth/account",{method:"DELETE",body:JSON.stringify({})},token);
+                localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");
+                onClose();window.location.reload();
+              }catch(err){notify(err.message,"error");}
+            }}>🗑 Delete My Account</button>
           </div>
         </div>
-        <RoleSwitcher user={user} token={token} notify={notify} onSwitch={newUser=>{localStorage.setItem("ws_user",JSON.stringify(newUser));window.location.reload();}}/>
-        <button className="btn bs" style={{justifyContent:"flex-start",gap:10}} onClick={()=>{localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");onClose();window.location.reload();}}>🚪 Sign Out</button>
-        <button className="btn br2" style={{justifyContent:"flex-start",gap:10}} onClick={async()=>{
-          if(!window.confirm("Permanently delete your account? ALL your listings and data will be removed forever. This CANNOT be undone."))return;
-          try{await api("/api/auth/account",{method:"DELETE",body:JSON.stringify({})},token);localStorage.removeItem("ws_token");localStorage.removeItem("ws_user");onClose();window.location.reload();}
-          catch(err){notify(err.message,"error");}
-        }}>🗑 Delete My Account</button>
+
       </div>
     </>}
 
-    {/* Modals */}
+        {/* Modals */}
     {selectedListing&&<ChatModal listing={selectedListing} user={user} token={token} onClose={()=>setSelectedListing(null)} notify={notify}/>}
     {editingListing&&<PostAdModal listing={editingListing} token={token} notify={notify} onClose={()=>setEditingListing(null)} onSuccess={(updated)=>{setListings(p=>p.map(l=>l.id===updated.id?updated:l));setEditingListing(null);}}/>}
     {markSoldListing&&<MarkSoldModal listing={markSoldListing} token={token} notify={notify} onClose={()=>setMarkSoldListing(null)} onSuccess={(id,channel)=>setListings(p=>p.map(l=>l.id===id?{...l,status:"sold",sold_channel:channel}:l))}/>}
@@ -3582,7 +3809,7 @@ export default function App(){
       </div>
     </div>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
-    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")}/>}
+    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")} onUserUpdate={updated=>{const m={...user,...updated};setUser(m);localStorage.setItem("ws_user",JSON.stringify(m));}}/>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
   </>;
