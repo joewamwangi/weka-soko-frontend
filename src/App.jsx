@@ -3280,13 +3280,166 @@ function Pager({total,perPage,page,onChange}){
   </div>;
 }
 
+// ── MOBILE REQUESTS TAB ───────────────────────────────────────────────────────
+// Fully self-contained — own state, no props dependency on WhatBuyersWant.
+// Renders inline so there's no undefined-component crash.
+function MobileRequestsTab({user, token, notify, setModal}){
+  const [requests, setRequests] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [county, setCounty] = useState("");
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [expanded, setExpanded] = useState(null);
+
+  useEffect(()=>{
+    setLoading(true);
+    const p = new URLSearchParams({page:1, limit:50});
+    if(search) p.set("search", search);
+    if(county) p.set("county", county);
+    api(`/api/requests?${p}`).then(d=>{
+      setRequests(d.requests||[]);
+      setTotal(d.total||0);
+    }).catch(()=>{}).finally(()=>setLoading(false));
+  }, [search, county]);
+
+  const deleteReq = async (id)=>{
+    if(!window.confirm("Delete this request?")) return;
+    try{
+      await api(`/api/requests/${id}`, {method:"DELETE"}, token);
+      setRequests(p=>p.filter(r=>r.id!==id));
+      setTotal(t=>t-1);
+      notify("Request deleted","info");
+    }catch(e){notify(e.message,"error");}
+  };
+
+  const handleIHaveThis = (request)=>{
+    if(!user){setModal({type:"auth",mode:"login"});return;}
+    if(user.role!=="seller"){
+      if(window.confirm("You need a Seller account to respond to requests.
+
+Switch to Seller now?")){
+        api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token)
+          .then(d=>{
+            const updated={...user,...d.user};
+            localStorage.setItem("ws_user",JSON.stringify(updated));
+            window.location.reload();
+          }).catch(e=>notify(e.message,"error"));
+      }
+      return;
+    }
+    if(user.id===request.user_id){notify("This is your own request","warning");return;}
+    setModal({type:"post", linkedRequest:request});
+  };
+
+  return <div style={{paddingBottom:80}}>
+    {/* Sticky header */}
+    <div style={{padding:"16px 16px 12px",borderBottom:"1px solid #F0F0F0",background:"#fff",position:"sticky",top:0,zIndex:10}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+        <div>
+          <div style={{fontSize:11,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:2}}>Community</div>
+          <div style={{fontSize:19,fontWeight:800,color:"#1A1A1A",letterSpacing:"-.01em"}}>🛒 What Buyers Want</div>
+        </div>
+        <button
+          style={{background:"#1428A0",color:"#fff",border:"none",padding:"10px 14px",borderRadius:10,fontSize:13,fontWeight:700,fontFamily:"var(--fn)",cursor:"pointer",whiteSpace:"nowrap"}}
+          onClick={()=>{if(!user){setModal({type:"auth",mode:"login"});return;}setShowPostModal(true);}}>
+          + Post Request
+        </button>
+      </div>
+      {/* Search */}
+      <div style={{display:"flex",gap:8}}>
+        <input
+          style={{flex:1,padding:"9px 12px",border:"1.5px solid #E0E0E0",borderRadius:8,fontSize:13,fontFamily:"var(--fn)",outline:"none",background:"#FAFAFA"}}
+          placeholder="Search requests..." value={search} onChange={e=>setSearch(e.target.value)}/>
+        <select
+          style={{padding:"9px 10px",border:"1.5px solid #E0E0E0",borderRadius:8,fontSize:12,fontFamily:"var(--fn)",outline:"none",background:"#FAFAFA",color:"#555",cursor:"pointer"}}
+          value={county} onChange={e=>setCounty(e.target.value)}>
+          <option value="">All Counties</option>
+          {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Meru","Nyeri","Kisii","Kakamega"].map(c=><option key={c}>{c}</option>)}
+        </select>
+      </div>
+      {(search||county)&&<button
+        style={{marginTop:6,fontSize:12,color:"#1428A0",background:"none",border:"none",cursor:"pointer",fontFamily:"var(--fn)",fontWeight:600,padding:0}}
+        onClick={()=>{setSearch("");setCounty("");}}>✕ Clear filters</button>}
+    </div>
+
+    {/* Body */}
+    <div style={{padding:"12px 12px 0"}}>
+      {loading
+        ? <div style={{textAlign:"center",padding:"48px 0"}}><Spin s="32px"/></div>
+        : requests.length===0
+          ? <div style={{textAlign:"center",padding:"48px 20px"}}>
+              <div style={{fontSize:44,marginBottom:12,opacity:.2}}>🛒</div>
+              <div style={{fontWeight:700,fontSize:16,marginBottom:6,color:"#1A1A1A"}}>No requests yet</div>
+              <div style={{fontSize:13,color:"#888",marginBottom:20}}>Be the first to post what you're looking for</div>
+              <button
+                style={{background:"#1428A0",color:"#fff",border:"none",padding:"12px 24px",borderRadius:10,fontSize:14,fontWeight:700,fontFamily:"var(--fn)",cursor:"pointer"}}
+                onClick={()=>{if(!user){setModal({type:"auth",mode:"login"});return;}setShowPostModal(true);}}>
+                + Post a Request
+              </button>
+            </div>
+          : <div style={{display:"flex",flexDirection:"column",gap:10}}>
+              {requests.map(r=>(
+                <div key={r.id} style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"14px 14px 12px",borderLeft:"3px solid #1428A0"}}>
+                  {/* Title + delete */}
+                  <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:6}}>
+                    <div style={{fontWeight:700,fontSize:15,lineHeight:1.35,color:"#1A1A1A",flex:1}}>{r.title}</div>
+                    {user?.id===r.user_id&&
+                      <button onClick={()=>deleteReq(r.id)}
+                        style={{background:"none",border:"none",cursor:"pointer",color:"#CCC",fontSize:16,padding:"0 2px",flexShrink:0,lineHeight:1}}>✕</button>}
+                  </div>
+                  {/* Description */}
+                  <div style={{fontSize:13,color:"#636363",lineHeight:1.65,marginBottom:8}}>
+                    {expanded===r.id||r.description.length<=100
+                      ? r.description
+                      : <>{r.description.slice(0,100)}…{" "}
+                          <button onClick={()=>setExpanded(r.id)}
+                            style={{background:"none",border:"none",cursor:"pointer",color:"#1428A0",fontSize:12,fontWeight:700,padding:0}}>More</button>
+                        </>}
+                    {expanded===r.id&&r.description.length>100&&
+                      <button onClick={()=>setExpanded(null)}
+                        style={{background:"none",border:"none",cursor:"pointer",color:"#1428A0",fontSize:12,fontWeight:700,padding:"0 4px"}}>Less</button>}
+                  </div>
+                  {/* Tags */}
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+                    {r.budget&&<span style={{background:"#EEF2FF",color:"#1428A0",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700}}>Budget: {fmtKES(r.budget)}</span>}
+                    {r.county&&<span style={{background:"#F0F0F0",color:"#555",padding:"3px 10px",borderRadius:20,fontSize:11}}>📍 {r.county}</span>}
+                    {parseInt(r.matching_listings)>0&&
+                      <span style={{background:"#DCFCE7",color:"#16a34a",padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700}}>
+                        {r.matching_listings} listing{r.matching_listings!==1?"s":""} match
+                      </span>}
+                  </div>
+                  {/* Footer */}
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",borderTop:"1px solid #F5F5F5",paddingTop:10}}>
+                    <div style={{fontSize:11,color:"#AAAAAA"}}>{r.requester_anon||"Anonymous"} · {ago(r.created_at)}</div>
+                    {user?.id!==r.user_id&&
+                      <button className="btn bp sm"
+                        style={{fontSize:12,padding:"6px 14px",borderRadius:8}}
+                        onClick={()=>handleIHaveThis(r)}>
+                        📬 I Have This
+                      </button>}
+                  </div>
+                </div>
+              ))}
+            </div>}
+    </div>
+
+    {showPostModal&&<PostRequestModal
+      token={token} notify={notify}
+      onClose={()=>setShowPostModal(false)}
+      onSuccess={r=>{setRequests(p=>[r,...p]);setTotal(t=>t+1);setShowPostModal(false);}}
+    />}
+  </div>;
+}
+
+
 // ── MOBILE LAYOUT ─────────────────────────────────────────────────────────────
 function MobileLayout({
   user,token,notify,page,setPage,
   listings,total,loading,filter,setFilter,pg,setPg,
   stats,counties,modal,setModal,notifCount,
   mobileFiltersOpen,setMobileFiltersOpen,mobileTab,setMobileTab,
-  openListing,handleLockIn,WhatBuyersWant,onOpenPostAd
+  openListing,handleLockIn
 }){
   const photoMap={
     Electronics:"https://images.unsplash.com/photo-1498049794561-7780e7231661?w=140&h=140&fit=crop",
@@ -3426,34 +3579,10 @@ function MobileLayout({
     </>}
 
     {/* ── REQUESTS TAB ── */}
-    {mobileTab==="requests"&&<div style={{paddingBottom:80}}>
-      {/* Header */}
-      <div style={{padding:"18px 16px 12px",borderBottom:"1px solid #F0F0F0",background:"#fff",position:"sticky",top:0,zIndex:10}}>
-        <div style={{fontSize:11,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:4}}>Community</div>
-        <div style={{fontSize:20,fontWeight:800,color:"#1A1A1A",letterSpacing:"-.01em"}}>🛒 What Buyers Want</div>
-        <div style={{fontSize:13,color:"#636363",marginTop:4}}>Sellers — tap "I Have This" to respond to a request</div>
-      </div>
-      {/* WhatBuyersWant full view */}
-      <div style={{padding:"16px 16px 0"}}>
-        <WhatBuyersWant
-          user={user} token={token} notify={notify}
-          onSignIn={()=>setModal({type:"auth",mode:"login"})}
-          compact={false}
-          onIHaveThis={(request,action)=>{
-            if(action==="switch_to_seller"){
-              fetch(`${(process.env.REACT_APP_API_URL||"https://weka-soko-backend-production.up.railway.app").replace(/\/$/,"")}/api/auth/role`,
-                {method:"PATCH",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify({role:"seller"})})
-                .then(r=>r.json()).then(d=>{
-                  localStorage.setItem("ws_user",JSON.stringify(d.user));
-                  window.location.reload();
-                }).catch(e=>notify(e.message,"error"));
-              return;
-            }
-            setModal({type:"post",linkedRequest:request});
-          }}
-        />
-      </div>
-    </div>}
+    {mobileTab==="requests"&&<MobileRequestsTab
+      user={user} token={token} notify={notify}
+      setModal={setModal}
+    />}
 
     {/* ── BOTTOM TAB BAR ── */}
     <div className="mob-bottombar">
