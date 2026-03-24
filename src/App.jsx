@@ -3316,9 +3316,7 @@ function MobileRequestsTab({user, token, notify, setModal}){
   const handleIHaveThis = (request)=>{
     if(!user){setModal({type:"auth",mode:"login"});return;}
     if(user.role!=="seller"){
-      if(window.confirm("You need a Seller account to respond to requests.
-
-Switch to Seller now?")){
+      if(window.confirm("You need a Seller account to respond to requests.\n\nSwitch to Seller now?")){
         api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token)
           .then(d=>{
             const updated={...user,...d.user};
