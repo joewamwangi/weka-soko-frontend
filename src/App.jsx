@@ -1225,12 +1225,11 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null,linkedRequest=
       {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
       <div style={{flex:1}}/>
       {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
-      {step===2&&!listing&&!payChoice&&<>
-        <button className="btn bs" style={{flex:1}} onClick={()=>setPayChoice("later")}>⏰ Post Anonymously</button>
-        <button className="btn bp" style={{flex:1}} onClick={()=>setPayChoice("now")}>💳 Pay KSh 250 Now</button>
-      </>}
-      {step===2&&(listing||payChoice)&&<button className="btn bp" onClick={()=>submitListing(payChoice==="now")} disabled={loading}>
-        {loading?<Spin/>:listing?"Save Changes ✅":payChoice==="now"?"Post & Pay KSh 250 →":"Post Anonymously →"}
+      {step===2&&payChoice&&<button className="btn bp" onClick={()=>submitListing(payChoice==="now")} disabled={loading}>
+        {loading?<Spin/>:payChoice==="now"?"Post & Pay KSh 250 →":"Post Anonymously →"}
+      </button>}
+      {step===2&&listing&&<button className="btn bp" onClick={()=>submitListing(false)} disabled={loading}>
+        {loading?<Spin/>:"Save Changes ✅"}
       </button>}
     </div>
   }>
@@ -1326,7 +1325,7 @@ function PostAdModal({onClose,onSuccess,token,notify,listing=null,linkedRequest=
         <button onClick={()=>setPayChoice(null)} style={{background:"none",border:"none",cursor:"pointer",color:"#AAAAAA",fontSize:18}}>✕</button>
       </div>}
 
-      <div className="alert ay" style={{fontSize:12,marginTop:12}}>🔒 Your phone/email are hidden from the buyer until they unlock (not applicable here — seller pays).</div>
+
     </>}
 
     {/* M-Pesa payment after listing is created */}
