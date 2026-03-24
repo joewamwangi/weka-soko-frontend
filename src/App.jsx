@@ -530,17 +530,24 @@ function WatermarkedImage({src,alt,style={},onClick}){
       canvas.width=w; canvas.height=h;
       const ctx=canvas.getContext("2d");
       ctx.drawImage(img,0,0);
-      // Single centred diagonal watermark
-      const fontSize=Math.max(18,Math.min(w,h)*0.07);
+      // Single centred diagonal watermark — visible on both bright and dark images
+      const fontSize=Math.max(22,Math.min(w,h)*0.10);
       ctx.save();
       ctx.translate(w/2,h/2);
       ctx.rotate(-Math.PI/6);
       ctx.font=`700 ${fontSize}px var(--fn),Helvetica,Arial,sans-serif`;
       ctx.textAlign="center";
       ctx.textBaseline="middle";
-      ctx.shadowColor="rgba(0,0,0,0.30)";
-      ctx.shadowBlur=4;
-      ctx.fillStyle="rgba(255,255,255,0.22)";
+      // Dark halo pass — makes it pop on bright/white images
+      ctx.shadowColor="rgba(0,0,0,0.55)";
+      ctx.shadowBlur=8;
+      ctx.shadowOffsetX=0;
+      ctx.shadowOffsetY=0;
+      ctx.fillStyle="rgba(255,255,255,0.42)";
+      ctx.fillText("WekaSoko",0,0);
+      // Second pass — strengthen the white fill without shadow
+      ctx.shadowBlur=0;
+      ctx.fillStyle="rgba(255,255,255,0.38)";
       ctx.fillText("WekaSoko",0,0);
       ctx.restore();
       setLoaded(true);
