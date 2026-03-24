@@ -882,7 +882,7 @@ function PayModal({type,listingId,amount,purpose,token,user,onSuccess,onClose,no
     <p style={{fontSize:11,color:"#CCCCCC",marginTop:5}}>We confirm the code was paid to Till 5673935 before unlocking.</p>
   </div>;
 
-  return <Modal title={type==="unlock"?"🔓 Unlock Buyer Contact":"🔐 Escrow Payment"} onClose={onClose}>
+  return <Modal title={type==="unlock"?"🔓 Reveal Buyer Contact — KSh 250":"🔐 Escrow Payment"} onClose={onClose}>
     {step==="form"&&<>
       {/* Seller safety tip — shown only on unlock */}
       {type==="unlock"&&<div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"11px 14px",marginBottom:16,fontSize:12,color:"#111111",lineHeight:1.7}}>
@@ -1131,36 +1131,41 @@ function ChatModal({listing,user,token,onClose,notify}){
 
 
 // ── POST AD ───────────────────────────────────────────────────────────────────
-function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
-  const [step,setStep]=useState(listing?.id ? 1 : 0);
+function PostAdModal({onClose,onSuccess,token,notify,listing=null,linkedRequest=null}){
+  // linkedRequest = { id, title, category, subcat } when coming from "I Have This"
+  const [step,setStep]=useState(1);
   const [loading,setLoading]=useState(false);
   const [images,setImages]=useState([]);
-  const [f,setF]=useState(()=>listing?{
-    title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
-    price:listing.price ? String(listing.price) : "",description:listing.description||"",
-    reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||"",
-    request_id:listing.request_id||listing.id||"",is_contact_public:listing.is_contact_public||false
-  }:{title:"",category:"",subcat:"",price:"",description:"",reason:"",location:"",county:"",
-    request_id:"",is_contact_public:false});
-  const [payStep,setPayStep]=useState("none"); // none, phone, pushing, polling, fallback
-  const [payPhone,setPayPhone]=useState(user?.phone||"");
-  const [cd,setCd]=useState(60);
-  const [manualCode,setManualCode]=useState("");
-  const [createdListing,setCreatedListing]=useState(null);
-  const pollRef=useRef(null);
+  const [payChoice,setPayChoice]=useState(null); // 'now' | 'later' — shown on step 2
+  const [createdListingId,setCreatedListingId]=useState(null);
+  const [showPayModal,setShowPayModal]=useState(false);
+
+  const [f,setF]=useState(()=>{
+    if(listing) return {
+      title:listing.title||"",category:listing.category||"",subcat:listing.subcat||"",
+      price:String(listing.price||""),description:listing.description||"",
+      reason:listing.reason_for_sale||"",location:listing.location||"",county:listing.county||""
+    };
+    // Pre-fill from linked buyer request ("I Have This" flow)
+    return {
+      title:linkedRequest?.title||"",
+      category:linkedRequest?.category||"",
+      subcat:linkedRequest?.subcat||"",
+      price:"",description:"",reason:"",location:"",county:""
+    };
+  });
+
   const [existingPhotos,setExistingPhotos]=useState(()=>{
     if(!listing)return[];
     const ph=listing.photos||[];
     return ph.map((p,i)=>typeof p==="string"?{id:`ep-${i}`,url:p,existing:true}:{id:p.id||`ep-${i}`,url:p.url,public_id:p.public_id,existing:true});
   });
+
   const sf=(k,v)=>setF(p=>({...p,[k]:v}));
   const cat=CATS.find(c=>c.name===f.category);
-
-  // Client-side contact info scan
   const [fieldErrors,setFieldErrors]=useState({});
 
-  const checkContactInfo=(text,fieldName)=>{
-    // Check for phone-like patterns: 10+ digits with optional separators
+  const checkContactInfo=(text)=>{
     const stripped=text.replace(/[\s.\-•*_,;]/g,"");
     const hasPhone=/\d{10,}/.test(stripped)||/(0[17]\d[.\-\s]*){1}(\d[.\-\s]*){7}/.test(text);
     const hasEmail=/[a-z0-9._%+\-]+\s*@\s*[a-z0-9.\-]+\s*\.\s*[a-z]{2,}/i.test(text);
@@ -1169,53 +1174,42 @@ function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
     return hasPhone||hasEmail||hasSocial||hasWordDigits;
   };
 
-  const startMpesa=async(lId,ph)=>{
-    setPayStep("pushing");
-    try{
-      const res=await api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:lId,phone:ph})},token);
-      setPayStep("polling");
-      let c=60;setCd(60);
-      if(pollRef.current)clearInterval(pollRef.current);
-      pollRef.current=setInterval(async()=>{
-        c--;setCd(c);
-        if(c<=0){clearInterval(pollRef.current);setPayStep("fallback");return;}
-        try{
-          const s=await api(`/api/payments/status/${res.checkoutRequestId}`,{},token);
-          if(s.status==="confirmed"){clearInterval(pollRef.current);onSuccess(createdListing||listing);onClose();notify("🚀 Ad posted and contact unlocked!","success");}
-          else if(s.status==="failed"){clearInterval(pollRef.current);setPayStep("fallback");}
-        }catch{}
-      },2000);
-    }catch(err){setPayStep("fallback");notify(err.message,"error");}
-  };
-
-  const submit=async()=>{
+  const submitListing=async(payNow)=>{
     if(!f.reason.trim()||!f.location.trim()){notify("Please fill in all required fields.","warning");return;}
     const errs={};
-    const fieldsToCheck=[["title",f.title],["description",f.description],["reason",f.reason],["location",f.location]];
-    for(const [k,v] of fieldsToCheck){if(v&&checkContactInfo(v))errs[k]="Cannot contain phone numbers, emails, or social handles";}
-    if(Object.keys(errs).length>0){setFieldErrors(errs);notify("⚠️ Remove contact info from the flagged fields","warning");return;}
+    [["title",f.title],["description",f.description],["reason",f.reason],["location",f.location]]
+      .forEach(([k,v])=>{if(v&&checkContactInfo(v))errs[k]="Cannot contain phone numbers, emails, or social handles";});
+    if(Object.keys(errs).length){setFieldErrors(errs);notify("⚠️ Remove contact info from flagged fields","warning");return;}
     setFieldErrors({});
     setLoading(true);
     try{
       const isEdit=!!listing;
+      const fd=new FormData();
+      Object.entries({title:f.title,category:f.category,price:f.price,description:f.description,
+        reason_for_sale:f.reason,location:f.location,county:f.county}).forEach(([k,v])=>v&&fd.append(k,v));
+      if(f.subcat)fd.append("subcat",f.subcat);
+      if(linkedRequest?.id)fd.append("linked_request_id",linkedRequest.id);
+      // is_contact_public: true only if seller chose Pay Now AND payment succeeds
+      // For Pay Later (or edit): start as false, update after payment
+      fd.append("is_contact_public","false");
+      images.forEach(img=>img.file&&fd.append("photos",img.file));
       const url=isEdit?`/api/listings/${listing.id}`:"/api/listings";
       const method=isEdit?"PATCH":"POST";
-      const fd=new FormData();
-      Object.entries({title:f.title,category:f.category,price:f.price,description:f.description,reason_for_sale:f.reason,location:f.location,county:f.county,request_id:f.request_id,is_contact_public:f.is_contact_public}).forEach(([k,v])=>v&&fd.append(k,v));
-      if(f.subcat)fd.append("subcat",f.subcat);
-      images.forEach(img=>img.file&&fd.append("photos",img.file));
       const result=await api(url,{method,body:fd},token);
-      setCreatedListing(result);
-      if(!isEdit && f.is_contact_public){
-        setPayStep("phone");
+      if(isEdit){onSuccess(result);onClose();notify("✅ Ad updated!","success");return;}
+      const lid=result.id||result.listing?.id;
+      setCreatedListingId(lid);
+      if(payNow){
+        // Open M-Pesa modal immediately
+        setShowPayModal(true);
       } else {
+        // Pay Later — listing is live but contact hidden
         onSuccess(result);onClose();
-        notify(isEdit?"✅ Ad updated!":"🚀 Ad submitted for approval!","success");
+        notify("✅ Ad posted! Pay KSh 250 anytime from your dashboard to reveal the buyer's contact.","success");
       }
     }catch(err){
       if(err.violations){
-        const msg=err.violations.map(v=>`${v.field}: ${v.reason}`).join(" | ");
-        notify(`❌ Contact info detected — ${msg}`,"error");
+        notify(`❌ Contact info detected — ${err.violations.map(v=>`${v.field}: ${v.reason}`).join(" | ")}`, "error");
       } else {
         notify(err.message||"Failed to save ad","error");
       }
@@ -1223,116 +1217,38 @@ function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
     finally{setLoading(false);}
   };
 
-  const verifyManual=async()=>{
-    if(!manualCode||manualCode.length<8){notify("Enter a valid M-Pesa code","warning");return;}
-    setLoading(true);
-    try{
-      await api("/api/payments/verify-manual",{method:"POST",body:JSON.stringify({mpesa_code:manualCode,listing_id:createdListing.id,type:"unlock"})},token);
-      onSuccess(createdListing);onClose();notify("🚀 Ad posted and code submitted for verification!","success");
-    }catch(err){notify(err.message,"error");}
-    finally{setLoading(false);}
-  };
+  const isLinked=!!linkedRequest;
+  const modalTitle=listing?`Edit Ad — Step ${step}/2`:isLinked?`Respond to Request — Step ${step}/2`:`Post Ad — Step ${step}/2`;
 
-  useEffect(()=>()=>{if(pollRef.current)clearInterval(pollRef.current);},[]);
-
-  return <Modal title={payStep!=="none"?"Unlock Buyer Contact":step===0 ? "Choose Monetization" : listing?`Edit Ad — Step ${step}/2`:`Post Ad — Step ${step}/2`} onClose={onClose} footer={
-    payStep==="none" ? (
-      <div style={{display:"flex",gap:8,width:"100%"}}>
-        {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
-        {step===1&&!listing?.id&&<button className="btn bs" onClick={()=>setStep(0)}>← Back</button>}
-        <div style={{flex:1}}/>
-        {step===0&&<button className="btn bp" onClick={()=>setStep(1)}>Continue to Form →</button>}
-        {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
-        {step===2&&<button className="btn bp" onClick={submit} disabled={loading}>{loading?<Spin/>:(f.is_contact_public ? "Pay Now (250)" : "Publish Ad")}</button>}
-      </div>
-    ) : (payStep==="fallback" ? (
-      <div style={{display:"flex",gap:8,width:"100%"}}>
-        <button className="btn bs" style={{flex:1}} onClick={()=>{onSuccess(createdListing);onClose();notify("🚀 Ad posted! You can unlock contact details later.","info");}}>2. Pay Later</button>
-        <button className="btn bp" style={{flex:1}} onClick={()=>startMpesa(createdListing.id,payPhone)}>1. Try Again</button>
-      </div>
-    ) : null)
+  return <Modal title={modalTitle} onClose={onClose} footer={
+    <div style={{display:"flex",gap:8,width:"100%"}}>
+      {step===2&&<button className="btn bs" onClick={()=>setStep(1)}>← Back</button>}
+      <div style={{flex:1}}/>
+      {step===1&&<button className="btn bp" onClick={()=>setStep(2)} disabled={!f.title.trim()||!f.category||!f.price||!f.description.trim()}>Continue →</button>}
+      {step===2&&!listing&&!payChoice&&<>
+        <button className="btn bs" style={{flex:1}} onClick={()=>setPayChoice("later")}>⏰ Post Anonymously</button>
+        <button className="btn bp" style={{flex:1}} onClick={()=>setPayChoice("now")}>💳 Pay KSh 250 Now</button>
+      </>}
+      {step===2&&(listing||payChoice)&&<button className="btn bp" onClick={()=>submitListing(payChoice==="now")} disabled={loading}>
+        {loading?<Spin/>:listing?"Save Changes ✅":payChoice==="now"?"Post & Pay KSh 250 →":"Post Anonymously →"}
+      </button>}
+    </div>
   }>
-    {payStep==="phone"&&<div style={{padding:"10px 0"}}>
-      <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"18px 20px",marginBottom:18}}>
-        <div style={{fontSize:11,color:"#888888",marginBottom:4}}>Till Number <strong style={{color:"var(--txt)"}}>5673935</strong> · Weka Soko</div>
-        <div style={{fontSize:36,fontWeight:700,color:"#111111"}}>KSh 250</div>
-        <div style={{fontSize:13,color:"#888888",marginTop:6}}>Unlock buyer contact for: {f.title}</div>
-      </div>
-      <FF label="Your M-Pesa Number" required>
-        <div style={{display:"flex"}}>
-          <div style={{background:"#F5F5F5",border:"1.5px solid #E0E0E0",borderRight:"none",borderRadius:6,padding:"10px 12px",fontSize:13,color:"#888888",whiteSpace:"nowrap"}}>🇰🇪 +254</div>
-          <input className="inp" style={{borderRadius:6}} value={payPhone} onChange={e=>setPayPhone(e.target.value.replace(/[^0-9]/g,""))} placeholder="0712345678" maxLength={10}/>
-        </div>
-      </FF>
-      <button className="btn bp lg" style={{width:"100%",marginTop:12}} onClick={()=>startMpesa(createdListing.id,payPhone)} disabled={payPhone.length<10}>
-        📱 Send M-Pesa Request → KSh 250
-      </button>
-    </div>}
-
-    {payStep==="pushing"&&<div style={{textAlign:"center",padding:"32px 0"}}>
-      <div style={{marginBottom:18}}><Spin s="48px"/></div>
-      <h3 style={{fontWeight:700,marginBottom:8}}>Sending M-Pesa Request...</h3>
-      <p style={{color:"#888888",fontSize:14}}>Watch for a push notification on <strong>{payPhone}</strong></p>
-    </div>}
-
-    {payStep==="polling"&&<div style={{textAlign:"center",padding:"24px 0"}}>
-      <div style={{fontSize:64,marginBottom:12}}>📱</div>
-      <h3 style={{fontWeight:700,marginBottom:8}}>Enter Your M-Pesa PIN</h3>
-      <p style={{color:"#888888",fontSize:14,marginBottom:16}}>Check your phone · Pay Till <strong>5673935</strong> · KSh 250</p>
-      <div style={{fontSize:48,fontWeight:700,color:"#111111",marginBottom:8}}>{cd}s</div>
-      <div className="progress"><div className="progress-bar" style={{width:`${(cd/60)*100}%`}}/></div>
-    </div>}
-
-    {payStep==="fallback"&&<div style={{padding:"10px 0"}}>
-      <div style={{textAlign:"center",marginBottom:24}}>
-        <div style={{fontSize:48,marginBottom:12}}>⏱</div>
-        <h3 style={{fontWeight:700,marginBottom:8}}>Payment Not Confirmed</h3>
-        <p style={{color:"#888888",fontSize:14}}>The M-Pesa prompt timed out or was cancelled.</p>
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:12}}>
-        <div style={{padding:16,background:"#F8F8F8",borderRadius:12,border:"1px solid #E8E8E8"}}>
-          <div style={{fontSize:13,fontWeight:700,marginBottom:8}}>3. Enter M-Pesa Transaction Code</div>
-          <div style={{display:"flex",gap:8}}>
-            <input className="inp" placeholder="e.g. RJK2X4ABCD" value={manualCode} onChange={e=>setManualCode(e.target.value.toUpperCase())} style={{flex:1,fontFamily:"monospace"}} maxLength={12}/>
-            <button className="btn bg2 sm" onClick={verifyManual} disabled={loading||manualCode.length<8}>{loading?<Spin/>:"Verify"}</button>
-          </div>
-          <p style={{fontSize:11,color:"#888",marginTop:6}}>System will verify this code before approving the ad.</p>
-        </div>
+    {/* Linked request banner */}
+    {isLinked&&<div style={{background:"#EEF2FF",border:"1px solid #C7D2FE",borderRadius:10,padding:"12px 14px",marginBottom:16,display:"flex",gap:10,alignItems:"flex-start"}}>
+      <span style={{fontSize:20}}>🛒</span>
+      <div>
+        <div style={{fontWeight:700,fontSize:13,color:"#1428A0",marginBottom:2}}>Responding to buyer request</div>
+        <div style={{fontSize:13,color:"#3730A3"}}>{linkedRequest.title}{linkedRequest.category?` · ${linkedRequest.category}`:""}</div>
       </div>
     </div>}
 
-    {payStep==="none" && <>
-    {step===0 && <div style={{padding:"10px 0"}}>
-      <div style={{fontSize:15,fontWeight:700,marginBottom:12}}>How would you like to post this ad?</div>
-      <div style={{display:"flex",flexDirection:"column",gap:12}}>
-        <div style={{padding:16,border:`2px solid ${f.is_contact_public?"#1428A0":"#EEE"}`,borderRadius:12,cursor:"pointer",background:f.is_contact_public?"#F0F4FF":"#FFF"}} onClick={()=>sf("is_contact_public",true)}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontSize:24}}>⚡</div>
-            <div>
-              <div style={{fontWeight:700,fontSize:14}}>Pay Now (KSh 250)</div>
-              <div style={{fontSize:12,color:"#666"}}>Reveal buyer contact immediately upon posting. Best for quick sales.</div>
-            </div>
-            <input type="radio" checked={f.is_contact_public} readOnly style={{marginLeft:"auto"}}/>
-          </div>
-        </div>
-        <div style={{padding:16,border:`2px solid ${!f.is_contact_public?"#1428A0":"#EEE"}`,borderRadius:12,cursor:"pointer",background:!f.is_contact_public?"#F0F4FF":"#FFF"}} onClick={()=>sf("is_contact_public",false)}>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <div style={{fontSize:24}}>🕵️</div>
-            <div>
-              <div style={{fontWeight:700,fontSize:14}}>Pay Later (Post Anonymously)</div>
-              <div style={{fontSize:12,color:"#666"}}>Post for free. Pay later to reveal contact info when you're ready.</div>
-            </div>
-            <input type="radio" checked={!f.is_contact_public} readOnly style={{marginLeft:"auto"}}/>
-          </div>
-        </div>
-      </div>
-      {listing?.title && <div style={{marginTop:20,fontSize:11,color:"#888",textAlign:"center"}}>You are responding to: <strong>{listing?.title}</strong></div>}
-    </div>}
+    <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is free. KSh 250 only to reveal the buyer's contact info.</div>
 
-    {step > 0 && <div className="alert ag" style={{marginBottom:16,fontSize:12}}>✅ Posting is 100% free. KSh 250 only when a buyer locks in.</div>}
     {step===1&&<>
       <FF label="Item Title" required>
-        <input className="inp" placeholder="e.g. iPhone 14 Pro 256GB" value={f.title} onChange={e=>{sf("title",e.target.value);setFieldErrors(p=>({...p,title:undefined}));}}/>
+        <input className="inp" placeholder="e.g. iPhone 14 Pro 256GB" value={f.title}
+          onChange={e=>{sf("title",e.target.value);setFieldErrors(p=>({...p,title:undefined}));}}/>
         {fieldErrors.title&&<div style={{color:"#dc2626",fontSize:11,marginTop:3}}>⚠️ {fieldErrors.title}</div>}
       </FF>
       <FF label="Category" required>
@@ -1347,9 +1263,12 @@ function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
           {cat.sub.map(s=><option key={s}>{s}</option>)}
         </select>
       </FF>}
-      <FF label="Price (KSh)" required><input className="inp" type="number" placeholder="5000" value={f.price} onChange={e=>sf("price",e.target.value)} min={1}/></FF>
+      <FF label="Price (KSh)" required>
+        <input className="inp" type="number" placeholder="5000" value={f.price} onChange={e=>sf("price",e.target.value)} min={1}/>
+      </FF>
       <FF label="Description" required hint="Condition, what's included, any defects...">
-        <textarea className="inp" placeholder="Excellent condition, barely used..." value={f.description} onChange={e=>{sf("description",e.target.value);setFieldErrors(p=>({...p,description:undefined}));}}/>
+        <textarea className="inp" placeholder="Excellent condition, barely used..." value={f.description}
+          onChange={e=>{sf("description",e.target.value);setFieldErrors(p=>({...p,description:undefined}));}}/>
         {fieldErrors.description&&<div style={{color:"#dc2626",fontSize:11,marginTop:3}}>⚠️ {fieldErrors.description}</div>}
       </FF>
       <FF label={listing?"Photos — click × to remove, or add more below":"Photos (up to 8 — first is cover)"}>
@@ -1366,18 +1285,70 @@ function PostAdModal({onClose,onSuccess,token,notify,user,listing=null}){
         <ImageUploader images={images} setImages={setImages}/>
       </FF>
     </>}
+
     {step===2&&<>
-      <FF label="Reason for Selling" required><input className="inp" placeholder="e.g. Upgrading to newer model" value={f.reason} onChange={e=>sf("reason",e.target.value)}/></FF>
+      <FF label="Reason for Selling" required>
+        <input className="inp" placeholder="e.g. Upgrading to newer model" value={f.reason} onChange={e=>sf("reason",e.target.value)}/>
+      </FF>
       <FF label="Collection Location" required hint="General area e.g. Westlands, Nairobi — exact address shared after unlock.">
         <input className="inp" placeholder="e.g. Westlands, Nairobi" value={f.location} onChange={e=>sf("location",e.target.value)}/>
       </FF>
       <FF label="County">
         <select className="inp" value={f.county} onChange={e=>sf("county",e.target.value)}>
           <option value="">Select county...</option>
-          {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Thika","Kiambu","Machakos","Kajiado","Murang'a","Nyeri","Meru","Embu","Kirinyaga","Nyandarua","Laikipia","Nakuru","Baringo","Nandi","Uasin Gishu","Trans Nzoia","Elgeyo Marakwet","West Pokot","Turkana","Samburu","Isiolo","Marsabit","Mandera","Wajir","Garissa","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Mombasa","Vihiga","Bungoma","Busia","Kakamega","Siaya","Kisumu","Homabay","Migori","Kisii","Nyamira"].map(c=><option key={c} value={c}>{c}</option>)}
+          {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Thika","Kiambu","Machakos","Kajiado","Murang'a","Nyeri","Meru","Embu","Kirinyaga","Nyandarua","Laikipia","Baringo","Nandi","Uasin Gishu","Trans Nzoia","Elgeyo Marakwet","West Pokot","Turkana","Samburu","Isiolo","Marsabit","Mandera","Wajir","Garissa","Tana River","Lamu","Taita Taveta","Kilifi","Kwale","Vihiga","Bungoma","Busia","Kakamega","Siaya","Homabay","Migori","Kisii","Nyamira"].map(c=><option key={c} value={c}>{c}</option>)}
         </select>
       </FF>
+
+      {/* Pay Now vs Pay Later choice — shown before final buttons */}
+      {!listing&&!payChoice&&<div style={{marginTop:8,padding:"16px",background:"#F8F9FF",border:"1px solid #E0E7FF",borderRadius:12}}>
+        <div style={{fontWeight:700,fontSize:14,color:"#1A1A1A",marginBottom:4}}>How do you want to post?</div>
+        <div style={{fontSize:13,color:"#636363",marginBottom:14,lineHeight:1.6}}>
+          🔒 The buyer's contact info is hidden until you pay KSh 250. Choose when you'd like to pay:
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div onClick={()=>setPayChoice("now")} style={{padding:"14px 16px",border:"2px solid #1428A0",borderRadius:10,cursor:"pointer",background:"#EEF2FF"}}>
+            <div style={{fontWeight:700,fontSize:14,color:"#1428A0",marginBottom:3}}>💳 Pay KSh 250 Now</div>
+            <div style={{fontSize:12,color:"#4338CA"}}>M-Pesa STK push sent immediately. Buyer contact revealed as soon as payment confirms.</div>
+          </div>
+          <div onClick={()=>setPayChoice("later")} style={{padding:"14px 16px",border:"1.5px solid #E0E0E0",borderRadius:10,cursor:"pointer",background:"#fff"}}>
+            <div style={{fontWeight:700,fontSize:14,color:"#1A1A1A",marginBottom:3}}>⏰ Post Anonymously (Pay Later)</div>
+            <div style={{fontSize:12,color:"#636363"}}>Your ad goes live but buyer contact stays hidden. Pay anytime from your dashboard to reveal it.</div>
+          </div>
+        </div>
+      </div>}
+
+      {payChoice&&<div style={{background:payChoice==="now"?"#EEF2FF":"#F8F8F8",border:`1px solid ${payChoice==="now"?"#C7D2FE":"#E0E0E0"}`,borderRadius:10,padding:"12px 14px",display:"flex",alignItems:"center",gap:10}}>
+        <span style={{fontSize:18}}>{payChoice==="now"?"💳":"⏰"}</span>
+        <div style={{flex:1,fontSize:13,color:payChoice==="now"?"#1428A0":"#636363"}}>
+          {payChoice==="now"?"You'll receive an M-Pesa prompt after posting. Buyer contact revealed on payment.":"Ad posted anonymously. Pay KSh 250 anytime from your dashboard."}
+        </div>
+        <button onClick={()=>setPayChoice(null)} style={{background:"none",border:"none",cursor:"pointer",color:"#AAAAAA",fontSize:18}}>✕</button>
+      </div>}
+
+      <div className="alert ay" style={{fontSize:12,marginTop:12}}>🔒 Your phone/email are hidden from the buyer until they unlock (not applicable here — seller pays).</div>
     </>}
+
+    {/* M-Pesa payment after listing is created */}
+    {showPayModal&&createdListingId&&<PayModal
+      type="unlock" listingId={createdListingId} amount={250}
+      purpose={`Reveal buyer contact for: ${f.title}`}
+      token={token} user={{}} allowVoucher={true}
+      onSuccess={async()=>{
+        setShowPayModal(false);
+        onSuccess({id:createdListingId,...f});
+        onClose();
+        notify("🔓 Buyer contact revealed! Check your dashboard.","success");
+      }}
+      onClose={()=>{
+        // Payment failed/cancelled → listing stays in Pay Later state
+        setShowPayModal(false);
+        onSuccess({id:createdListingId,...f});
+        onClose();
+        notify("Ad posted anonymously. Pay KSh 250 from your dashboard to reveal buyer contact.","info");
+      }}
+      notify={notify}
+    />}
   </Modal>;
 }
 
@@ -1660,18 +1631,6 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
           </div>
           {isSeller&&l.locked_buyer_id&&<button className="btn bp sm" style={{marginLeft:"auto"}} onClick={onUnlock}>Unlock → KSh 250</button>}
         </div>}
-        {isSeller && !l.is_unlocked && <div style={{marginTop:12,padding:12,background:"#FFF9E6",border:"1px solid #FFE58F",borderRadius:8}}>
-          <div style={{fontSize:12,fontWeight:700,color:"#856404",marginBottom:4}}>⚠️ Contact Info Locked</div>
-          <div style={{fontSize:11,color:"#856404",marginBottom:8}}>You haven't paid the reveal fee yet. Buyers cannot see your contact info, and you cannot see theirs.</div>
-          <div style={{display:"flex",gap:8}}>
-            <button className="btn bp sm" onClick={onUnlock}>Retry M-Pesa Payment</button>
-            <button className="btn bs sm" onClick={()=>{
-              const code = window.prompt("Enter Voucher Code:");
-              if(code) api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:l.id,voucher_code:code})},token)
-                .then(()=>window.location.reload()).catch(err=>notify(err.message,"error"));
-            }}>Use Voucher</button>
-          </div>
-        </div>}
     </div>
 
     {/* ── Buyer safety tip ───────────────────────────────────────────── */}
@@ -1817,8 +1776,21 @@ function PostRequestModal({onClose,token,notify,onSuccess}){
 }
 
 // ── WHAT BUYERS WANT SECTION ───────────────────────────────────────────────
-function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd,compact=false}){
-  const [pitchTarget,setPitchTarget]=useState(null);
+function WhatBuyersWant({user,token,notify,onSignIn,compact=false,onIHaveThis}){
+  // ── Spec: "I Have This" handler — visible to ALL roles ──────────────────────
+  const handleIHaveThis=(request)=>{
+    if(!user){onSignIn();return;}
+    if(user.role!=="seller"){
+      // Buyer/admin → prompt to switch to seller
+      if(window.confirm("To respond to this buyer request you need a Seller account.\n\nSwitch to Seller now?")){
+        onIHaveThis&&onIHaveThis(request,"switch_to_seller");
+      }
+      return;
+    }
+    if(user.id===request.user_id){notify("This is your own request","warning");return;}
+    // Seller → open PostAd pre-filled with request data
+    onIHaveThis&&onIHaveThis(request,"post_ad");
+  };
   const [requests,setRequests]=useState([]);
   const [total,setTotal]=useState(0);
   const [loading,setLoading]=useState(true);
@@ -1861,19 +1833,7 @@ function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd,compact=false})
             <div style={{fontSize:12,color:"#777",lineHeight:1.5,marginBottom:6}}>{r.description?.slice(0,60)}{r.description?.length>60?"...":""}</div>
             <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"space-between"}}>
               {r.budget&&<span style={{fontSize:11,fontWeight:600,color:"#1428A0"}}>KSh {Number(r.budget).toLocaleString()}</span>}
-              {user&&user.id!==r.user_id&&
-                <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px",borderRadius:6}} onClick={()=>{
-                  if(user.role==="buyer"){
-                    if(window.confirm("You need a Seller account to pitch. Switch to Seller now?")){
-                      api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
-                        localStorage.setItem("ws_user",JSON.stringify(d.user));
-                        window.location.reload();
-                      }).catch(err=>notify(err.message,"error"));
-                    }
-                  } else {
-                    onOpenPostAd(r);
-                  }
-                }}>📬 I Have This</button>}
+              <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px",borderRadius:6}} onClick={()=>handleIHaveThis(r)}>📬 I Have This</button>
             </div>
           </div>
         ))
@@ -1881,7 +1841,6 @@ function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd,compact=false})
       <button style={{width:"100%",marginTop:12,padding:"10px",background:"#1428A0",color:"#fff",border:"none",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)"}}
         onClick={()=>{if(!user){onSignIn();return;}setShowModal(true);}}>+ Post a Request</button>
     </div>
-    {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)} onOpenPostAd={(data)=>{onOpenPostAd(data);setPitchTarget(null);}}/>}
     {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);setTotal(t=>t+1);}}/>}
   </div>;
 
@@ -1946,28 +1905,13 @@ function WhatBuyersWant({user,token,notify,onSignIn,onOpenPostAd,compact=false})
                 <div style={{display:"flex",gap:8,alignItems:"center"}}>
                   {parseInt(r.matching_listings)>0&&<span style={{color:"#1428A0",fontWeight:700}}>{r.matching_listings} listing{r.matching_listings!==1?"s":""} match</span>}
                   <span>{ago(r.created_at)}</span>
-	                  {user&&user.id!==r.user_id&&
-	                    <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>{
-	                      if(user.role==="buyer"){
-	                        if(window.confirm("You need a Seller account to pitch. Switch to Seller now?")){
-	                          api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
-	                            localStorage.setItem("ws_user",JSON.stringify(d.user));
-	                            window.location.reload();
-	                          }).catch(err=>notify(err.message,"error"));
-	                        }
-	                      } else {
-	                        onOpenPostAd(r);
-	                      }
-	                    }}>📬 I Have This</button>
-	                  }
+                  <button className="btn bp sm" style={{fontSize:11,padding:"4px 10px"}} onClick={()=>handleIHaveThis(r)}>📬 I Have This</button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       }
-
-      {pitchTarget&&<PitchModal request={pitchTarget} user={user} token={token} notify={notify} onClose={()=>setPitchTarget(null)}/>}
 
       {total>12&&<div style={{textAlign:"center",marginTop:20}}>
         <button style={{background:"transparent",border:"1.5px solid #1D1D1D",color:"#1D1D1D",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
@@ -2286,6 +2230,140 @@ function MyRequestsTab({token,notify,user}){
   </>;
 }
 
+// ── PITCHES TAB — Buyer sees who pitched on their requests ──────────────────
+function PitchesTab({token, notify, user}) {
+  const [requests, setRequests] = useState([]);
+  const [pitches, setPitches] = useState({}); // { requestId: [pitch, ...] }
+  const [expanded, setExpanded] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(null); // pitch being paid for
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const reqs = await api("/api/requests/mine", {}, token);
+      setRequests(Array.isArray(reqs) ? reqs : []);
+    } catch(e) {}
+    finally { setLoading(false); }
+  }, [token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const loadPitches = async (requestId) => {
+    if (pitches[requestId]) { setExpanded(expanded === requestId ? null : requestId); return; }
+    try {
+      const data = await api(`/api/pitches/for-request/${requestId}`, {}, token);
+      setPitches(p => ({ ...p, [requestId]: Array.isArray(data) ? data : [] }));
+      setExpanded(requestId);
+    } catch(e) { notify("Failed to load pitches", "error"); }
+  };
+
+  const decline = async (pitchId, requestId) => {
+    try {
+      await api(`/api/pitches/${pitchId}/decline`, { method: "POST" }, token);
+      setPitches(p => ({ ...p, [requestId]: p[requestId].map(x => x.id === pitchId ? { ...x, status: "declined" } : x) }));
+      notify("Pitch declined.", "info");
+    } catch(e) { notify(e.message, "error"); }
+  };
+
+  if (loading) return <div style={{textAlign:"center",padding:40}}><Spin s="32px"/></div>;
+
+  if (requests.length === 0) return <div className="empty" style={{padding:"40px 0"}}>
+    <div style={{fontSize:40,marginBottom:12,opacity:.2}}>📬</div>
+    <p style={{fontWeight:700,marginBottom:6}}>No active requests</p>
+    <p style={{fontSize:13,color:"var(--mut)"}}>Post a buyer request to start receiving pitches from sellers</p>
+  </div>;
+
+  return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    {requests.map(r => {
+      const rPitches = pitches[r.id] || [];
+      const pendingCount = rPitches.filter(p => p.status === "pending").length;
+      return <div key={r.id} style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,overflow:"hidden"}}>
+        {/* Request header */}
+        <div style={{padding:"16px 18px",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12,cursor:"pointer",background:expanded===r.id?"#F8F9FF":"#fff",transition:"background .15s"}}
+          onClick={() => loadPitches(r.id)}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontWeight:700,fontSize:15,color:"#1A1A1A",marginBottom:4}}>{r.title}</div>
+            <div style={{fontSize:13,color:"#888",lineHeight:1.5}}>{r.description?.slice(0,80)}{r.description?.length>80?"...":""}</div>
+            <div style={{display:"flex",gap:8,marginTop:8,flexWrap:"wrap"}}>
+              {r.budget&&<span style={{background:"#EEF2FF",color:"#1428A0",padding:"3px 10px",borderRadius:20,fontSize:12,fontWeight:700}}>Budget: {fmtKES(r.budget)}</span>}
+              {r.county&&<span style={{background:"#F0F0F0",color:"#555",padding:"3px 10px",borderRadius:20,fontSize:12}}>📍 {r.county}</span>}
+              <span style={{background:"#F0F0F0",color:"#555",padding:"3px 10px",borderRadius:20,fontSize:12}}>{ago(r.created_at)}</span>
+            </div>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0}}>
+            {pendingCount > 0
+              ? <span style={{background:"#1428A0",color:"#fff",borderRadius:20,padding:"4px 12px",fontSize:12,fontWeight:700}}>{pendingCount} pitch{pendingCount !== 1 ? "es" : ""}</span>
+              : <span style={{background:"#F0F0F0",color:"#888",borderRadius:20,padding:"4px 12px",fontSize:12}}>
+                  {pitches[r.id] ? `${rPitches.length} pitch${rPitches.length !== 1 ? "es" : ""}` : "View pitches"}
+                </span>}
+            <span style={{fontSize:18,color:"#AAAAAA"}}>{expanded === r.id ? "▲" : "▼"}</span>
+          </div>
+        </div>
+
+        {/* Pitches list */}
+        {expanded === r.id && <div style={{borderTop:"1px solid #EBEBEB"}}>
+          {rPitches.length === 0
+            ? <div style={{padding:"24px",textAlign:"center",color:"#AAAAAA",fontSize:13}}>
+                <div style={{fontSize:32,marginBottom:8,opacity:.3}}>📬</div>
+                No pitches yet — sellers will appear here when they respond to your request.
+              </div>
+            : rPitches.map(p => (
+              <div key={p.id} style={{padding:"16px 18px",borderBottom:"1px solid #F5F5F5",background:p.status==="accepted"?"#F0FFF4":p.status==="declined"?"#FAFAFA":"#fff"}}>
+                <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:12}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                      <div style={{width:32,height:32,borderRadius:"50%",background:"#EEF2FF",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:"#1428A0",flexShrink:0}}>
+                        {p.seller_anon?.charAt(0)?.toUpperCase() || "S"}
+                      </div>
+                      <span style={{fontWeight:600,fontSize:13,color:"#1A1A1A"}}>{p.seller_anon || "Anonymous Seller"}</span>
+                      {p.offered_price && <span style={{background:"#EEF2FF",color:"#1428A0",padding:"2px 8px",borderRadius:20,fontSize:12,fontWeight:700}}>{fmtKES(p.offered_price)}</span>}
+                      <span style={{fontSize:11,color:"#AAAAAA",marginLeft:"auto"}}>{ago(p.created_at)}</span>
+                    </div>
+                    <p style={{fontSize:14,color:"#333",lineHeight:1.65,marginBottom:10,padding:"10px 12px",background:"#F8F8F8",borderRadius:8}}>{p.message}</p>
+                    {p.status === "accepted" && <div style={{fontSize:13,color:"#16a34a",fontWeight:600}}>✅ Accepted — you've unlocked their contact details</div>}
+                    {p.status === "declined" && <div style={{fontSize:13,color:"#888"}}>✕ Declined</div>}
+                  </div>
+                </div>
+                {p.status === "pending" && <div style={{display:"flex",gap:8,marginTop:10}}>
+                  <button className="btn bp" style={{borderRadius:8,fontSize:13,padding:"8px 18px"}}
+                    onClick={() => setPaying(p)}>
+                    🔓 Accept — Pay KSh 250
+                  </button>
+                  <button className="btn bs" style={{borderRadius:8,fontSize:13,padding:"8px 18px"}}
+                    onClick={() => decline(p.id, r.id)}>
+                    Decline
+                  </button>
+                </div>}
+              </div>
+            ))}
+        </div>}
+      </div>;
+    })}
+
+    {/* Pay modal for accepting a pitch */}
+    {paying && <PayModal
+      type="unlock"
+      listingId={paying.listing_id || paying.request_id}
+      amount={250}
+      purpose={`Reveal seller contact for your request`}
+      token={token} user={user} allowVoucher={true}
+      onSuccess={async () => {
+        try {
+          const res = await api(`/api/pitches/${paying.id}/accept`, { method: "POST" }, token);
+          if (res.seller_contact) {
+            notify(`✅ Contact revealed! ${res.seller_contact.name} — ${res.seller_contact.phone || res.seller_contact.email}`, "success");
+          }
+        } catch(e) { notify(e.message, "error"); }
+        setPaying(null);
+        load();
+      }}
+      onClose={() => setPaying(null)}
+      notify={notify}
+    />}
+  </div>;
+}
+
 function Dashboard({user,token,notify,onPostAd,onClose}){
   const [tab,setTab]=useState("overview");
   const [listings,setListings]=useState([]);
@@ -2380,7 +2458,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
         <div style={{display:"flex",gap:0,overflowX:"auto",borderBottom:"none",WebkitOverflowScrolling:"touch"}}>
           {(user.role==="seller"
             ?[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["ads","My Ads"],["sold","Sold"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
-            :[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","My Interests"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
+            :[["overview","Overview"],["notifications","Notifications"+(unreadCount>0?` (${unreadCount})`:"")] ,["interests","My Interests"],["pitches","Pitches Received"],["requests","Requests"],["reviews","Reviews"],["settings","Settings"]]
           ).map(([id,label])=>(
             <button key={id} onClick={()=>setTab(id)} style={{padding:"14px 22px",border:"none",background:"transparent",cursor:"pointer",fontSize:13,fontWeight:700,letterSpacing:".04em",whiteSpace:"nowrap",color:tab===id?"#fff":"rgba(255,255,255,.55)",borderBottom:tab===id?"3px solid #fff":"3px solid transparent",transition:"all .15s",fontFamily:"var(--fn)"}}>
               {label}
@@ -2432,9 +2510,9 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             <span style={{fontSize:32}}>🔥</span>
             <div style={{flex:1}}>
               <div style={{fontWeight:700,fontSize:15,marginBottom:2}}>{l.title}</div>
-              <div style={{fontSize:12,color:"#888888"}}>A buyer has locked in! Pay KSh 250 to reveal their contact details.</div>
+              <div style={{fontSize:12,color:"#888888"}}>{l.linked_request_id?"A buyer requested this item!":"A buyer has locked in!"} Pay KSh 250 to reveal their contact details.</div>
             </div>
-            <button className="btn bp sm" onClick={()=>setShowPayModal(l)}>Unlock → KSh 250</button>
+            <button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Reveal Buyer — KSh 250</button>
           </div>
         ))}
         <div style={{height:8}}/>
@@ -2514,7 +2592,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
             onMouseOver={e=>e.currentTarget.style.paddingLeft="8px"}
             onMouseOut={e=>e.currentTarget.style.paddingLeft="0"}>
             <div style={{width:40,height:40,borderRadius:"50%",background:n.is_read?"#F5F5F5":"#E8E8E8",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>
-              {({new_message:"💬",buyer_locked_in:"🔥",escrow_released:"💰",payment_confirmed:"✅",warning:"⚠️",admin_edit:"🛠",suspension:"🚫",seller_pitch:"📬",pitch_accepted:"✅",request_match:"🛒"})[n.type]||"🔔"}
+              {({new_message:"💬",buyer_locked_in:"🔥",escrow_released:"💰",payment_confirmed:"✅",warning:"⚠️",admin_edit:"🛠",suspension:"🚫",seller_pitch:"📬",pitch_accepted:"✅",request_match:"🛒",listing_match:"🏷️",listing_approved:"✅"})[n.type]||"🔔"}
             </div>
             <div style={{flex:1}}>
               <div style={{fontWeight:n.is_read?500:700,fontSize:14,marginBottom:2}}>{n.title}</div>
@@ -2586,14 +2664,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
                 <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="rejected"?"br2":"bg-m"}`} style={{fontSize:10}}>{l.status==="pending_review"?"⏳ Review":l.status==="rejected"?"❌ Rejected":l.status}</span>
                 {!l.is_unlocked&&l.status!=="sold"&&(l.free_unlock_approved
                   ?<button className="btn bg2 sm" onClick={async()=>{try{await api(`/api/payments/unlock`,{method:"POST",body:JSON.stringify({listing_id:l.id,phone:user.phone||"0700000000",voucher_code:"ADMIN-FREE"})},token);setListings(p=>p.map(x=>x.id===l.id?{...x,is_unlocked:true}:x));notify("🔓 Unlocked!","success");}catch{setShowPayModal(l);}}}>🎁 Free</button>
-                  :<div style={{display:"flex",gap:4}}>
-                    <button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 Unlock</button>
-                    <button className="btn bs sm" onClick={()=>{
-                      const code = window.prompt("Enter Voucher Code:");
-                      if(code) api("/api/payments/unlock",{method:"POST",body:JSON.stringify({listing_id:l.id,voucher_code:code})},token)
-                        .then(()=>window.location.reload()).catch(err=>notify(err.message,"error"));
-                    }}>🎫</button>
-                  </div>)}
+                  :<button className="btn bp sm" onClick={()=>setShowPayModal(l)}>🔓 {l.linked_request_id?"Reveal Buyer":"Unlock"} — KSh 250</button>)}
                 {(l.status==="active"||l.status==="locked")&&<button className="btn bp sm" onClick={()=>setMarkSoldListing(l)}>✅ Sold</button>}
                 {l.status!=="sold"&&<button className="btn bs sm" onClick={()=>setEditingListing(l)}>✏️</button>}
                 {(l.status==="rejected"||l.status==="needs_changes")&&<button className="btn bg2 sm" onClick={async()=>{try{await api(`/api/listings/${l.id}/resubmit`,{method:"POST"},token);setListings(p=>p.map(x=>x.id===l.id?{...x,status:"pending_review",moderation_note:null}:x));notify("⏳ Resubmitted","success");}catch(e){notify(e.message,"error");}}}>↺</button>}
@@ -2606,6 +2677,7 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
     {!loading&&tab==="sold"&&<SoldSection token={token} user={user}/>}
     {!loading&&tab==="reviews"&&<ReviewsSection token={token} user={user} notify={notify}/>}
+    {!loading&&tab==="pitches"&&<PitchesTab token={token} notify={notify} user={user}/>}
     {!loading&&tab==="requests"&&<MyRequestsTab token={token} notify={notify} user={user}/>}
 
     {!loading&&tab==="settings"&&<>
@@ -2653,59 +2725,6 @@ function Dashboard({user,token,notify,onPostAd,onClose}){
 
 
 // ── PITCH MODAL — Seller pitches to a buyer request ─────────────────────────
-function PitchModal({request, user, token, notify, onClose}) {
-  const [msg, setMsg] = useState("");
-  const [price, setPrice] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const submit = async () => {
-    if (!msg.trim()) return notify("Please write a pitch message","error");
-    if (msg.length > 200) return notify("Message must be 200 characters or less","error");
-    setLoading(true);
-    try {
-      await api("/api/pitches", {method:"POST", body:JSON.stringify({
-        request_id: request.id,
-        message: msg.trim(),
-        price: price ? parseFloat(price) : undefined
-      })}, token);
-      notify("📬 Pitch sent! The buyer will be notified.","success");
-      onClose();
-    } catch(e) { notify(e.message,"error"); }
-    finally { setLoading(false); }
-  };
-
-  return <Modal title="📬 I Have This!" onClose={onClose} footer={
-    <><button className="btn bs" onClick={onClose}>Cancel</button>
-      <button className="btn bp" onClick={submit} disabled={loading||!msg.trim()}>{loading?<Spin/>:"Send Pitch →"}</button></>
-  }>
-    <div style={{marginBottom:16,padding:"12px 14px",background:"#F5F5F5",borderRadius:6}}>
-      <div style={{fontWeight:600,fontSize:14,marginBottom:4}}>{request.title}</div>
-      <div style={{fontSize:12,color:"#888888"}}>
-        {request.description?.slice(0,100)}{request.description?.length>100?"...":""}
-      </div>
-      {request.budget&&<div style={{fontSize:12,color:"#1428A0",fontWeight:700,marginTop:6}}>Budget: {fmtKES(request.budget)}</div>}
-    </div>
-
-    <div style={{marginBottom:14}}>
-      <label className="lbl">Your pitch <span style={{color:"#888888",fontWeight:400}}>({200-msg.length} chars left)</span></label>
-      <textarea className="inp" rows={3} style={{resize:"vertical"}}
-        placeholder="e.g. I have a Samsung Galaxy S23, barely used, 8GB RAM. Happy to share photos."
-        value={msg} onChange={e=>setMsg(e.target.value)} maxLength={200}/>
-      <div style={{fontSize:11,color:"#888888",marginTop:4}}>
-        ⚠ Do not include phone numbers, emails or social media handles — your contact will be revealed after the buyer pays KSh 250.
-      </div>
-    </div>
-
-    <div style={{marginBottom:14}}>
-      <label className="lbl">Your price (KSh) <span style={{color:"#888888",fontWeight:400}}>— optional</span></label>
-      <input className="inp" type="number" placeholder={request.budget?`Buyer budget: ${fmtKES(request.budget)}`:"e.g. 45000"} value={price} onChange={e=>setPrice(e.target.value)} min={0}/>
-    </div>
-
-    <div style={{background:"#F8F8F8",border:"1px solid #E8E8E8",borderRadius:12,padding:"12px 14px",fontSize:12,color:"#111111",lineHeight:1.6}}>
-      💡 <strong>How it works:</strong> Your pitch is sent to the buyer anonymously. If they like it, they pay KSh 250 to unlock your contact info. You get notified when they connect.
-    </div>
-  </Modal>;
-}
 
 // ── PWA INSTALL BANNER ────────────────────────────────────────────────────────
 function PWABanner({onDismiss}){
@@ -2774,7 +2793,7 @@ function MobileLayout({
           .then(r=>r.json()).then(d=>{localStorage.setItem("ws_user",JSON.stringify(d.user));window.location.reload();});
       return;
     }
-    setModal({type:"post",listing:null});
+    setModal({type:"post"});
   };
 
   return <div className="mob-root">
@@ -3089,6 +3108,28 @@ export default function App(){
     s.on("notification",(n)=>{
       setNotifCount(c=>c+1);
       // Handle warning/suspension notifications prominently
+      if(n.type==="listing_match"){
+        // A seller has an item matching a buyer's request — or buyer has a match
+        notify(n.body||n.title,"info");
+        setNotifCount(c=>c+1);
+        return;
+      }
+      if(n.type==="request_match"){
+        // A new listing matches a buyer's open request
+        notify(n.body||n.title,"success");
+        setNotifCount(c=>c+1);
+        return;
+      }
+      if(n.type==="seller_pitch"){
+        notify(n.body||n.title,"success");
+        setNotifCount(c=>c+1);
+        return;
+      }
+      if(n.type==="pitch_accepted"){
+        notify(n.body||n.title,"success");
+        setNotifCount(c=>c+1);
+        return;
+      }
       if(n.type==="warning"||n.type==="suspension"){
         notify(n.title+(n.body?" — "+n.body:""),"error");
         // Re-fetch user to get current suspended status
@@ -3205,7 +3246,7 @@ export default function App(){
     />
     {/* Modals still render on mobile */}
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
-    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} listing={modal.listing} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
+    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} linkedRequest={modal.linkedRequest||null} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
     {modal?.type==="detail"&&<DetailModal listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
       onShare={()=>setModal({type:"share",listing:modal.listing})}
       onChat={()=>{if(!user){notify("Sign in to chat","warning");setModal({type:"auth",mode:"login"});return;}setModal({type:"chat",listing:modal.listing});}}
@@ -3245,10 +3286,10 @@ export default function App(){
           <button style={{background:"#1428A0",color:"#FFFFFF",border:"none",padding:"9px 18px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,whiteSpace:"nowrap"}} onClick={()=>{
             if(user.role==="buyer"){
               if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
-                api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post",listing:null});}).catch(e=>notify(e.message,"error"));
+                api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
               return;
             }
-            setModal({type:"post",listing:null});
+            setModal({type:"post"});
           }}>+ Post Ad</button>
         </>:<>
           <button style={{background:"transparent",color:"#1428A0",border:"1.5px solid #1428A0",padding:"8px 16px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:8,whiteSpace:"nowrap"}} onClick={()=>setModal({type:"auth",mode:"login"})}>Sign In</button>
@@ -3283,12 +3324,12 @@ export default function App(){
                   if(window.confirm("You're currently a Buyer. To post an ad, switch to a Seller account.\n\nSwitch to Seller now?")){
                     api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{
                       const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));
-                      notify("Switched to Seller! Now post your ad.","success");setModal({type:"post",listing:null});
+                      notify("Switched to Seller! Now post your ad.","success");setModal({type:"post"});
                     }).catch(e=>notify(e.message,"error"));
                   }
                   return;
                 }
-                setModal({type:"post",listing:null});
+                setModal({type:"post"});
               }}>+ Post an Ad for Free</button>
             <button style={{background:"#fff",color:"#1A1A1A",border:"1.5px solid #D0D0D0",padding:"16px 30px",fontSize:16,fontWeight:600,cursor:"pointer",fontFamily:"var(--fn)",borderRadius:10,transition:"all .15s"}}
               onMouseOver={e=>{e.currentTarget.style.borderColor="#1428A0";e.currentTarget.style.color="#1428A0";}} onMouseOut={e=>{e.currentTarget.style.borderColor="#D0D0D0";e.currentTarget.style.color="#1A1A1A";}}
@@ -3389,7 +3430,20 @@ export default function App(){
           <div style={{background:"#fff",border:"1px solid #EBEBEB",borderRadius:14,padding:"20px 18px"}}>
             <div style={{fontSize:12,fontWeight:700,letterSpacing:".08em",textTransform:"uppercase",color:"#AAAAAA",marginBottom:4}}>Community</div>
             <div style={{fontSize:16,fontWeight:700,color:"#1A1A1A",marginBottom:12}}>🛒 Buyers Want</div>
-            <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})} onOpenPostAd={(data)=>setModal({type:'post',listing:data})} compact={true}/>
+            <WhatBuyersWant user={user} token={token} notify={notify} onSignIn={()=>setModal({type:"auth",mode:"login"})}
+              compact={true}
+              onIHaveThis={(request,action)=>{
+                if(action==="switch_to_seller"){
+                  api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token)
+                    .then(d=>{const u={...user,...d.user};setUser(u);localStorage.setItem("ws_user",JSON.stringify(u));
+                      notify("Switched to Seller! Now post your ad.","success");
+                      setModal({type:"post",linkedRequest:request});
+                    }).catch(e=>notify(e.message,"error"));
+                  return;
+                }
+                // Seller → PostAd pre-filled
+                setModal({type:"post",linkedRequest:request});
+              }}/>
           </div>
 
         </div>
@@ -3418,10 +3472,10 @@ export default function App(){
               {user&&<button className="btn bp" style={{borderRadius:9,fontSize:14,padding:"9px 20px"}} onClick={()=>{
                 if(user.role==="buyer"){
                   if(window.confirm("You're currently a Buyer. Switch to Seller to post ads?"))
-                    api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post",listing:null});}).catch(e=>notify(e.message,"error"));
+                    api("/api/auth/role",{method:"PATCH",body:JSON.stringify({role:"seller"})},token).then(d=>{const upd={...user,...d.user};setUser(upd);localStorage.setItem("ws_user",JSON.stringify(upd));notify("Switched to Seller!","success");setModal({type:"post"});}).catch(e=>notify(e.message,"error"));
                   return;
                 }
-                setModal({type:"post",listing:null});
+                setModal({type:"post"});
               }}>+ Post Ad</button>}
             </div>
           </div>
@@ -3471,7 +3525,7 @@ export default function App(){
 
     {/* MODALS */}
     {modal?.type==="auth"&&<AuthModal defaultMode={modal.mode} onClose={closeModal} onAuth={handleAuth} notify={notify}/>}
-    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} listing={modal.listing} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
+    {modal?.type==="post"&&token&&<PostAdModal onClose={closeModal} token={token} notify={notify} linkedRequest={modal.linkedRequest||null} onSuccess={l=>{setListings(p=>[l,...p]);setTotal(t=>t+1);}}/>}
     {modal?.type==="detail"&&<DetailModal
       listing={modal.listing} user={user} token={token} onClose={closeModal} notify={notify}
       onShare={()=>setModal({type:"share",listing:modal.listing})}
@@ -3529,10 +3583,8 @@ export default function App(){
       </div>
     </div>}
     {user&&!user.is_verified&&page==="home"&&<div style={{position:"sticky",top:60,zIndex:99,padding:"0 16px"}}><VerificationBanner user={user} token={token} notify={notify}/></div>}
-    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post",listing:null});}} onClose={()=>setPage("home")}/>}
+    {page==="dashboard"&&user&&<Dashboard user={user} token={token} notify={notify} onPostAd={()=>{setPage("home");setModal({type:"post"});}} onClose={()=>setPage("home")}/>}
     {toast&&<Toast key={toast.id} msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
     {showPWA&&!localStorage.getItem("pwa-dismissed")&&<PWABanner onDismiss={()=>{setShowPWA(false);localStorage.setItem("pwa-dismissed","1");}}/>}
   </>;
 }
-
-export default App;
