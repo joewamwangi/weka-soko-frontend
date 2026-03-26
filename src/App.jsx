@@ -637,6 +637,10 @@ function AuthModal({defaultMode,onClose,onAuth,notify}){
         setVerifyEmail(data.email||f.email.trim());
         return;
       }
+      // Login with unverified email - allow in but show a warning
+      if(data.needsVerification){
+        notify("Please verify your email address — check your inbox for the verification link.","warning");
+      }
       localStorage.setItem("ws_token",data.token);
       localStorage.setItem("ws_user",JSON.stringify(data.user));
       onAuth(data.user,data.token);onClose();
