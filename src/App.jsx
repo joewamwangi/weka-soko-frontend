@@ -136,8 +136,9 @@ body{background:var(--bg);color:var(--txt);font-family:'Plus Jakarta Sans',sans-
 .bs{background:transparent;color:var(--txt);border:1.5px solid var(--txt);}.bs:hover:not(:disabled){background:var(--txt);color:#fff;}
 .bg2{background:var(--a);color:#fff;}.bg2:hover:not(:disabled){background:var(--a2);}
 .bgh{background:transparent;color:var(--mut);border:none;padding:8px 14px;font-size:13px;letter-spacing:.02em;}.bgh:hover:not(:disabled){color:var(--txt);}
-.br2{background:transparent;color:var(--red);border:1px solid var(--red);}.br2:hover:not(:disabled){background:var(--red);color:#fff;}
-.sm{padding:8px 18px;font-size:12px;letter-spacing:.04em;}.lg{padding:14px 36px;font-size:15px;letter-spacing:.04em;}
+ .br2{background:transparent;color:var(--red);border:1px solid var(--red);}.br2:hover:not(:disabled){background:var(--red);color:#fff;}
+ .by{background:#F59E0B;color:#fff;border:2px solid #F59E0B;}.by:hover:not(:disabled){background:#D97706;border-color:#D97706;}
+ .sm{padding:8px 18px;font-size:12px;letter-spacing:.04em;}.lg{padding:14px 36px;font-size:15px;letter-spacing:.04em;}
 /* INPUTS */
 .inp{width:100%;padding:11px 16px;background:#fff;border:1px solid #D9D9D9;border-radius:8px;color:var(--txt);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .15s;letter-spacing:.01em;}
 .inp:focus{border-color:#1428A0;outline:none;}
@@ -292,14 +293,20 @@ select.inp{appearance:none;cursor:pointer;}
   .chat-wrap{height:340px;}
 }
 /* ── MOBILE UX IMPROVEMENTS ─────────────────────────────────────────── */
-*{-webkit-tap-highlight-color:transparent;}
-input,select,textarea{font-size:16px!important;}
-.nav{-webkit-overflow-scrolling:touch;}
-.tab-row{-webkit-overflow-scrolling:touch;scrollbar-width:none;}
-.tab-row::-webkit-scrollbar{display:none;}
-.chat-msgs{-webkit-overflow-scrolling:touch;}
-img{max-width:100%;height:auto;}
-button{touch-action:manipulation;}
+ *{-webkit-tap-highlight-color:transparent;}
+ input,select,textarea{font-size:16px!important;}
+ .nav{-webkit-overflow-scrolling:touch;}
+ .tab-row{-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+ .tab-row::-webkit-scrollbar{display:none;}
+ .chat-msgs{-webkit-overflow-scrolling:touch;}
+ img{max-width:100%;height:auto;}
+ button{touch-action:manipulation;}
+
+ /* Mobile image fix - prevent extra zoom */
+ @media(max-width:768px){
+ .lthumb img,.mob-lcard-img img{object-fit:cover;object-position:center;width:100%;height:100%;}
+ .mob-cat img{width:52px;height:52px;object-fit:cover;object-position:center;}
+ }
 
 /* ── MOBILE LAYOUT ────────────────────────────────────────────────────── */
 .mob-root{display:flex;flex-direction:column;min-height:100vh;background:#F5F5F5;padding-bottom:66px;}
@@ -357,13 +364,25 @@ function Toast({msg,type,onClose}){
 }
 
 function Modal({title,onClose,children,footer,large,xl}){
-  return <div className="ov" onClick={e=>e.target===e.currentTarget&&onClose()}>
-    <div className={`mod${large?" lg":""}${xl?" xl":""}`}>
-      <div className="mh"><h3 style={{fontSize:17,fontWeight:700}}>{title}</h3><button className="btn bgh sm" style={{borderRadius:"50%",width:32,height:32,padding:0}} onClick={onClose}>✕</button></div>
-      <div className="mb">{children}</div>
-      {footer&&<div className="mf">{footer}</div>}
-    </div>
-  </div>;
+ // Lock body scroll when modal is open
+ useEffect(()=>{
+ const originalOverflow=document.body.style.overflow;
+ const originalPaddingRight=document.body.style.paddingRight;
+ const scrollbarWidth=window.innerWidth-document.documentElement.clientWidth;
+ document.body.style.overflow="hidden";
+ if(scrollbarWidth>0)document.body.style.paddingRight=`${scrollbarWidth}px`;
+ return()=>{
+ document.body.style.overflow=originalOverflow;
+ document.body.style.paddingRight=originalPaddingRight;
+ };
+ },[]);
+ return <div className="ov" onClick={e=>e.target===e.currentTarget&&onClose()}>
+ <div className={`mod${large?" lg":""}${xl?" xl":""}`}>
+ <div className="mh"><h3 style={{fontSize:17,fontWeight:700,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",maxWidth:"calc(100% - 50px)"}}>{title}</h3><button className="btn bgh sm" style={{borderRadius:"50%",width:32,height:32,padding:0,flexShrink:0}} onClick={onClose}>✕</button></div>
+ <div className="mb">{children}</div>
+ {footer&&<div className="mf">{footer}</div>}
+ </div>
+ </div>;
 }
 
 function FF({label,hint,children,required}){
@@ -1536,7 +1555,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
       {!isSeller&&l.status==="active"&&!l.locked_buyer_id&&user&&<button className="btn bg2 sm" onClick={onLockIn}>🔥 I'm Interested — Lock In</button>}
       {!isSeller&&l.status==="active"&&user&&<button className="btn bs sm" onClick={onEscrow}>🔐 Buy with Escrow</button>}
       {isSeller&&l.locked_buyer_id&&!l.is_unlocked&&<button className="btn bp" style={{flex:1}} onClick={onUnlock}>🔓 Pay KSh 250 to See Buyer Contact</button>}
-      {!user&&<button className="btn bp" onClick={()=>{}}>Sign In to Contact Seller</button>}
+      {!user&&<button className="btn bp" onClick={()=>{setModal({type:"auth",mode:"login"});}}>Sign In to Contact Seller</button>}
     </div>
   }>
     {/* Photos */}
@@ -1563,7 +1582,7 @@ function DetailModal({listing:l,user,token,onClose,onShare,onChat,onLockIn,onUnl
           {l.subcat&&<span className="badge bg-m">{l.subcat}</span>}
         </div>
       </div>
-      <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"by2":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
+      <span className={`badge ${l.status==="active"||l.status==="locked"?"bg-g":l.status==="sold"?"bg-y":l.status==="pending_review"?"bg-b":l.status==="needs_changes"?"bg-y":l.status==="rejected"?"br2":"bg-m"}`}>{l.status==="pending_review"?"⏳ Under Review":l.status==="needs_changes"?"✏️ Needs Changes":l.status==="rejected"?"❌ Rejected":l.status}</span>
     </div>
 
     {l.description&&<div style={{marginBottom:16}}><div className="lbl">Description</div><p style={{color:"#888888",fontSize:14,lineHeight:1.8}}>{l.description}</p></div>}
@@ -1801,23 +1820,24 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false,onIHaveThis}){
     // Seller → open PostAd pre-filled with request data
     onIHaveThis&&onIHaveThis(request,"post_ad");
   };
-  const [requests,setRequests]=useState([]);
-  const [total,setTotal]=useState(0);
-  const [loading,setLoading]=useState(true);
-  const [showModal,setShowModal]=useState(false);
-  const [search,setSearch]=useState("");
-  const [county,setCounty]=useState("");
-  const [expanded,setExpanded]=useState(null);
+ const [requests,setRequests]=useState([]);
+ const [total,setTotal]=useState(0);
+ const [loading,setLoading]=useState(true);
+ const [showModal,setShowModal]=useState(false);
+ const [search,setSearch]=useState("");
+ const [county,setCounty]=useState("");
+ const [expanded,setExpanded]=useState(null);
+ const [viewAll,setViewAll]=useState(false);
 
-  const load=useCallback(()=>{
-    setLoading(true);
-    const p=new URLSearchParams({limit:12});
-    if(search)p.set("search",search);
-    if(county)p.set("county",county);
-    api(`/api/requests?${p}`).then(d=>{
-      setRequests(d.requests||[]);setTotal(d.total||0);
-    }).catch(()=>{}).finally(()=>setLoading(false));
-  },[search,county]);
+ const load=useCallback(()=>{
+ setLoading(true);
+ const p=new URLSearchParams(viewAll?{limit:100}:{limit:12});
+ if(search)p.set("search",search);
+ if(county)p.set("county",county);
+ api(`/api/requests?${p}`).then(d=>{
+ setRequests(d.requests||[]);setTotal(d.total||0);
+ }).catch(()=>{}).finally(()=>setLoading(false));
+ },[search,county,viewAll]);
 
   useEffect(()=>{load();},[load]);
 
@@ -1923,11 +1943,11 @@ function WhatBuyersWant({user,token,notify,onSignIn,compact=false,onIHaveThis}){
         </div>
       }
 
-      {total>12&&<div style={{textAlign:"center",marginTop:20}}>
-        <button style={{background:"transparent",border:"1.5px solid #1D1D1D",color:"#1D1D1D",padding:"10px 28px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"var(--fn)"}} onClick={()=>{}}>
-          View all {total} requests
-        </button>
-      </div>}
+ {!viewAll&&total>12&&<div style={{textAlign:"center",marginTop:20}}>
+ <button className="btn bs" onClick={()=>{setViewAll(true);window.scrollTo({top:0,behavior:"smooth"});}}>
+ View all {total} requests →
+ </button>
+ </div>}
     </div>
 
     {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);setTotal(t=>t+1);}}/>}
@@ -2186,58 +2206,104 @@ function ReviewsSection({token,user,notify}){
 
 // ── MY REQUESTS TAB ────────────────────────────────────────────────────────
 function MyRequestsTab({token,notify,user}){
-  const [requests,setRequests]=useState([]);
-  const [loading,setLoading]=useState(true);
-  const [showModal,setShowModal]=useState(false);
+ const [requests,setRequests]=useState([]);
+ const [loading,setLoading]=useState(true);
+ const [showModal,setShowModal]=useState(false);
+ const [editingRequest,setEditingRequest]=useState(null);
 
-  const load=useCallback(()=>{
-    setLoading(true);
-    api("/api/requests/mine",{},token).catch(()=>[]).then(r=>{setRequests(Array.isArray(r)?r:[]);setLoading(false);});
-  },[token]);
+ const load=useCallback(()=>{
+ setLoading(true);
+ api("/api/requests/mine",{},token).catch(()=>[]).then(r=>{setRequests(Array.isArray(r)?r:[]);setLoading(false);});
+ },[token]);
 
-  useEffect(()=>{load();},[load]);
+ useEffect(()=>{load();},[load]);
 
-  const deleteRequest=async(id)=>{
-    if(!window.confirm("Delete this request?"))return;
-    try{
-      await api(`/api/requests/${id}`,{method:"DELETE"},token);
-      setRequests(p=>p.filter(r=>r.id!==id));
-      notify("Request deleted","success");
-    }catch(err){notify(err.message,"error");}
-  };
+ const deleteRequest=async(id)=>{
+ if(!window.confirm("Delete this request?"))return;
+ try{
+ await api(`/api/requests/${id}`,{method:"DELETE"},token);
+ setRequests(p=>p.filter(r=>r.id!==id));
+ notify("Request deleted","success");
+ }catch(err){notify(err.message,"error");}
+ };
 
-  if(loading)return<div style={{textAlign:"center",padding:40}}><Spin s="32px"/></div>;
+ const editRequest=async(updatedRequest)=>{
+ try{
+ const result=await api(`/api/requests/${updatedRequest.id}`,{
+ method:"PATCH",
+ body:JSON.stringify(updatedRequest)
+ },token);
+ setRequests(p=>p.map(r=>r.id===result.id?result:r));
+ notify("Request updated","success");
+ setEditingRequest(null);
+ }catch(err){notify(err.message,"error");}
+ };
 
-  return<>
-    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
-      <div className="lbl" style={{margin:0}}>My Requests ({requests.length})</div>
-      <button className="btn bp sm" onClick={()=>setShowModal(true)}>+ New Request</button>
-    </div>
-    {requests.length===0
-      ?<div className="empty" style={{padding:"32px 0"}}>
-          <div style={{fontSize:40,marginBottom:12,opacity:.2}}>🛒</div>
-          <p style={{fontWeight:700,marginBottom:6}}>No requests yet</p>
-          <p style={{fontSize:13,color:"#888888"}}>Post a request to let sellers know what you're looking for</p>
-          <button className="btn bp" style={{marginTop:14}} onClick={()=>setShowModal(true)}>Post a Request →</button>
-        </div>
-      :requests.map(r=>(
-        <div key={r.id} style={{padding:"14px 16px",background:"#F5F5F5",borderRadius:6,marginBottom:10,border:"1px solid #E8E8E8",borderLeft:"3px solid #E0E0E0"}}>
-          <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:6}}>
-            <div style={{fontWeight:700,fontSize:14}}>{r.title}</div>
-            <button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#CCCCCC",fontSize:14,padding:"0 2px",flexShrink:0}}>✕</button>
-          </div>
-          <div style={{fontSize:12,color:"#888888",marginBottom:8,lineHeight:1.6}}>{r.description}</div>
-          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
-            {r.budget&&<span className="badge bg-g">Budget: {fmtKES(r.budget)}</span>}
-            {r.county&&<span className="badge bg-m">📍 {r.county}</span>}
-            <span className={`badge ${r.status==="active"?"bg-g":"bg-m"}`}>{r.status}</span>
-          </div>
-          <div style={{fontSize:11,color:"#CCCCCC"}}>{ago(r.created_at)}</div>
-        </div>
-      ))
-    }
-    {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);}}/>}
-  </>;
+ if(loading)return<div style={{textAlign:"center",padding:40}}><Spin s="32px"/></div>;
+
+ return<>
+ <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+ <div className="lbl" style={{margin:0}}>My Requests ({requests.length})</div>
+ <button className="btn bp sm" onClick={()=>setShowModal(true)}>+ New Request</button>
+ </div>
+ {requests.length===0
+ ?<div className="empty" style={{padding:"32px 0"}}>
+ <div style={{fontSize:40,marginBottom:12,opacity:.2}}>🛒</div>
+ <p style={{fontWeight:700,marginBottom:6}}>No requests yet</p>
+ <p style={{fontSize:13,color:"#888888"}}>Post a request to let sellers know what you're looking for</p>
+ <button className="btn bp" style={{marginTop:14}} onClick={()=>setShowModal(true)}>Post a Request →</button>
+ </div>
+ :requests.map(r=>{
+ const isEditing=editingRequest?.id===r.id;
+ return(
+ <div key={r.id} style={{padding:"14px 16px",background:"#F5F5F5",borderRadius:6,marginBottom:10,border:"1px solid #E8E8E8",borderLeft:`3px solid ${isEditing?"#1428A0":"#E0E0E0"}`}}>
+ {isEditing?(
+ <>
+ <FF label="Title">
+ <input className="inp" value={editingRequest.title} onChange={e=>setEditingRequest(p=>({...p,title:e.target.value}))} maxLength={120}/>
+ </FF>
+ <FF label="Description">
+ <textarea className="inp" rows={3} value={editingRequest.description} onChange={e=>setEditingRequest(p=>({...p,description:e.target.value}))}/>
+ </FF>
+ <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:10}}>
+ <FF label="Budget (KSh)" hint="Optional">
+ <input className="inp" type="number" value={editingRequest.budget||""} onChange={e=>setEditingRequest(p=>({...p,budget:e.target.value?parseFloat(e.target.value):null}))} placeholder="e.g. 50000"/>
+ </FF>
+ <FF label="County">
+ <select className="inp" value={editingRequest.county||""} onChange={e=>setEditingRequest(p=>({...p,county:e.target.value}))}>
+ <option value="">Any county</option>
+ {["Nairobi","Mombasa","Kisumu","Nakuru","Eldoret","Kiambu","Machakos","Kajiado","Meru","Nyeri","Kisii","Kakamega","Thika","Malindi","Garissa","Embu"].map(c=><option key={c} value={c}>{c}</option>)}
+ </select>
+ </FF>
+ </div>
+ <div style={{display:"flex",gap:8}}>
+ <button className="btn bs sm" onClick={()=>setEditingRequest(null)}>Cancel</button>
+ <button className="btn bp sm" onClick={()=>editRequest(editingRequest)}>Save Changes</button>
+ </div>
+ </>
+ ):(
+ <>
+ <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:8,marginBottom:6}}>
+ <div style={{fontWeight:700,fontSize:14}}>{r.title}</div>
+ <div style={{display:"flex",gap:6}}>
+ <button onClick={()=>setEditingRequest(r)} style={{background:"none",border:"none",cursor:"pointer",color:"#888888",fontSize:14,padding:"0 2px",flexShrink:0}} title="Edit">✏️</button>
+ <button onClick={()=>deleteRequest(r.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#CCCCCC",fontSize:14,padding:"0 2px",flexShrink:0}} title="Delete">✕</button>
+ </div>
+ </div>
+ <div style={{fontSize:12,color:"#888888",marginBottom:8,lineHeight:1.6}}>{r.description}</div>
+ <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
+ {r.budget&&<span className="badge bg-g">Budget: {fmtKES(r.budget)}</span>}
+ {r.county&&<span className="badge bg-m">📍 {r.county}</span>}
+ <span className={`badge ${r.status==="active"?"bg-g":"bg-m"}`}>{r.status}</span>
+ </div>
+ <div style={{fontSize:11,color:"#CCCCCC"}}>{ago(r.created_at)}</div>
+ </>
+ )}
+ </div>
+ );
+ })}
+ {showModal&&<PostRequestModal token={token} notify={notify} onClose={()=>setShowModal(false)} onSuccess={r=>{setRequests(p=>[r,...p]);}}/>}
+ </>;
 }
 
 // ── PITCHES TAB — Buyer sees who pitched on their requests ──────────────────
@@ -3496,10 +3562,10 @@ function MobileLayout({
     {/* ── TOP BAR ── */}
     <div className="mob-topbar">
       <div className="mob-logo" onClick={()=>{setPage("home");setFilter({cat:"",q:"",county:"",minPrice:"",maxPrice:"",sort:"newest"});setPg(1);setMobileTab("home");window.history.pushState({},"","/");}}>WekaSoko</div>
-      <div className="mob-search">
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" strokeWidth="2"/><path d="M20 20l-3-3" stroke="#AAAAAA" strokeWidth="2" strokeLinecap="round"/></svg>
-        <input placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);setMobileTab("home");}}/>
-      </div>
+ <div className="mob-search">
+ <svg width="15" height="15" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" strokeWidth="2"/><path d="M20 20l-3-3" stroke="#AAAAAA" strokeWidth="2" strokeLinecap="round"/></svg>
+ <input id="mob-search-input" placeholder="Search listings..." value={filter.q} onChange={e=>{setFilter(p=>({...p,q:e.target.value}));setPg(1);setMobileTab("home");}} onKeyDown={e=>{if(e.key==="Enter"){e.target.blur();}}}/>
+ </div>
       <div className="mob-notif" onClick={()=>{if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");setMobileTab("dashboard");window.history.pushState({},"","/dashboard");}}>
         {user
           ?<svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round"/></svg>
@@ -3608,24 +3674,25 @@ function MobileLayout({
     <div className="mob-bottombar">
       {[
         {id:"home",icon:<svg viewBox="0 0 24 24" fill="none"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/><path d="M9 21V12h6v9" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/></svg>,label:"Home"},
-        {id:"search",icon:<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2"/><path d="M20 20l-3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:"Search"},
+        {id:"search",icon:<svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2"/><path d="M20 20l-3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:"Search",action:()=>{document.getElementById("mob-search-input")?.focus();document.getElementById("mob-search-input")?.scrollIntoView({behavior:"smooth"});}},
         {id:"post",icon:<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M12 8v8M8 12h8" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/></svg>,label:"Post",isPost:true},
         {id:"dashboard",icon:<svg viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:user?user.name?.split(" ")[0]:"Account"},
         {id:"requests",icon:<svg viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M9 12h6M9 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,label:"Requests"},
-      ].map(t=>(
-        <button key={t.id}
-          className={`mob-tab${t.isPost?" post-btn":mobileTab===t.id?" on":" off"}`}
-          onClick={()=>{
-            if(t.isPost){postAd();return;}
-            if(t.id==="dashboard"){if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");window.history.pushState({},"","/dashboard");}
-            else if(t.id==="requests"){setPage("home");window.history.pushState({},"","/requests");}
-            else{setPage("home");}
-            setMobileTab(t.id);
-          }}>
-          {t.icon}
-          {!t.isPost&&<span>{t.label}{t.id==="dashboard"&&notifCount>0?` (${notifCount})`:""}</span>}
-        </button>
-      ))}
+ ].map(t=>(
+ <button key={t.id}
+ className={`mob-tab${t.isPost?" post-btn":mobileTab===t.id?" on":" off"}`}
+ onClick={()=>{
+ if(t.action){t.action();setMobileTab(t.id);return;}
+ if(t.isPost){postAd();return;}
+ if(t.id==="dashboard"){if(!user){setModal({type:"auth",mode:"login"});return;}setPage("dashboard");window.history.pushState({},"","/dashboard");}
+ else if(t.id==="requests"){setPage("home");window.history.pushState({},"","/requests");}
+ else{setPage("home");}
+ setMobileTab(t.id);
+ }}>
+ {t.icon}
+ {!t.isPost&&<span>{t.label}{t.id==="dashboard"&&notifCount>0?` (${notifCount})`:""}</span>}
+ </button>
+ ))}
     </div>
 
     {/* ── FILTERS DRAWER ── */}
@@ -3786,18 +3853,22 @@ export default function App(){
     // home page URL is updated by the filter/pg effect below
   }, [page, mobileTab, navTo]); // eslint-disable-line
 
-  // Sync home filters → URL
-  useEffect(() => {
-    if (page !== 'home' || mobileTab === 'requests') return;
-    const p = new URLSearchParams();
-    if (filter.cat) p.set('cat', filter.cat);
-    if (filter.q) p.set('q', filter.q);
-    if (filter.county) p.set('county', filter.county);
-    if (filter.sort && filter.sort !== 'newest') p.set('sort', filter.sort);
-    if (pg > 1) p.set('pg', String(pg));
-    const qs = p.toString();
-    navTo(qs ? `/listings?${qs}` : '/');
-  }, [page, filter, pg, mobileTab, navTo]); // eslint-disable-line
+ // Sync home filters → URL
+ useEffect(() => {
+ if (page !== 'home' || mobileTab === 'requests') return;
+ const p = new URLSearchParams();
+ if (filter.cat) p.set('cat', filter.cat);
+ if (filter.q) p.set('q', filter.q);
+ if (filter.county) p.set('county', filter.county);
+ if (filter.sort && filter.sort !== 'newest') p.set('sort', filter.sort);
+ if (pg > 1) p.set('pg', String(pg));
+ const qs = p.toString();
+ const newPath = qs ? `/?${qs}` : '/';
+ // Use replaceState to avoid polluting browser history
+ if (window.location.pathname + window.location.search !== newPath) {
+ window.history.replaceState({}, '', newPath);
+ }
+ }, [page, filter, pg, mobileTab]); // eslint-disable-line
 
   // ── END URL ROUTER ─────────────────────────────────────────────────────────
 
