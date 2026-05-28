@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { io } from "socket.io-client";
 
-const API = (process.env.REACT_APP_API_URL || "https://wekasoko01.dpdns.org").replace(/\/$/, "");
+const API = (process.env.REACT_APP_API_URL || "https://weka-soko-backend.onrender.com").replace(/\/$/, "");
 
 // ── WEKA SOKO LOGO COMPONENT ──────────────────────────────────────────────────
 function WekaSokoLogo({ size = 32, iconOnly = false, light = false }) {
@@ -3549,7 +3549,7 @@ function MobileLayout({
     if(!user){setModal({type:"auth",mode:"signup"});return;}
     if(user.role==="buyer"){
       if(window.confirm("Switch to Seller to post ads?"))
-        fetch(`${(process.env.REACT_APP_API_URL||"https://wekasoko01.dpdns.org").replace(/\/$/,"")}/api/auth/role`,{method:"PATCH",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify({role:"seller"})})
+        fetch(`${(process.env.REACT_APP_API_URL||"https://weka-soko-backend.onrender.com").replace(/\/$/,"")}/api/auth/role`,{method:"PATCH",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify({role:"seller"})})
           .then(r=>r.json()).then(d=>{localStorage.setItem("ws_user",JSON.stringify(d.user));window.location.reload();});
       return;
     }
